@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.openhab.binding.shelly.internal.api;
@@ -141,11 +139,11 @@ public class ShellyHttpApi {
     }
 
     public void setRollerTurn(Integer relayIndex, String turnMode) throws IOException {
-        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?turn=" + turnMode, null);
+        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=" + turnMode, null);
     }
 
     public void setRollerPos(Integer relayIndex, Integer position) throws IOException {
-        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?to_pos=" + position.toString(), null);
+        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=to_pos&roller_pos=" + position.toString(), null);
     }
 
     public void setRollerTimer(Integer relayIndex, Integer timer) throws IOException {
