@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="shelly"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="shelly1">
+		<label>Shelly1 (SHSW-1)</label>
+		<description>Shelly1 device with single relay</description>
+
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="meter" typeId="meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+       <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+ 			</parameter>
+		</config-description>
+	</thing-type>
+
+    <thing-type id="shelly2-relay">
+        <label>Shelly2 Relay (SHSW-21, SHSW-25)</label>
+        <description>Shelly2 device with two relays</description>
+
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay 1</label>
+            </channel-group>
+            <channel-group id="relay2" typeId="relayChannel">
+                <label>Relay 2</label>
+            </channel-group>
+            <channel-group id="meter" typeId="meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <thing-type id="shelly2-roller">
+        <label>Shelly2 Roller (SHSW-21, SHSW-25)</label>
+        <description>Shelly2 roller device</description>
+
+        <channel-groups>
+            <channel-group id="roller1" typeId="rollerControl">
+                <label>Roller Control</label>
+            </channel-group>
+            <channel-group id="meter" typeId="meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+   <thing-type id="shellyht">
+        <label>Shelly HT</label>
+        <description>Shelly HT sensor device</description>
+
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+   <channel-group-type id="relayChannel">
+       <label>Relay channel</label>
+       <description>A Shelly relay channel</description>
+        <channels>
+            <channel id="output" typeId="output" />
+            <channel id="timer" typeId="relayTimer" />
+            <channel id="overpower" typeId="overpower" />
+            <channel id="trigger" typeId="relayTrigger" />
+        </channels>
+    </channel-group-type>
+
+   <channel-group-type id="rollerControl">
+       <label>Roller Control</label>
+       <description>Controlling teh Shelly2 in roller mode</description>
+        <channels>
+            <channel id="turn" typeId="rollerTurn" />
+            <channel id="position" typeId="rollerPosition" />
+            <channel id="timer" typeId="rollerTimer" />
+            <channel id="stopReason" typeId="rollerStop" />
+            <channel id="direction" typeId="rollerDirection" />
+        </channels>
+    </channel-group-type>
+
+   <channel-group-type id="meter">
+       <label>Power Meter</label>
+       <description>Power consumption</description>
+        <channels>
+            <channel id="currentWatts" typeId="meterWatts" />
+            <channel id="lastPower1" typeId="lastPower1" />
+            <channel id="lastPower2" typeId="lastPower2" />
+            <channel id="lastPower3" typeId="lastPower3" />
+            <channel id="overpower" typeId="overpower" />
+        </channels>
+    </channel-group-type>
+
+    <channel-type id="output">
+        <item-type>Switch</item-type>
+        <label>Output</label>
+        <description>Control the relay output</description>
+    </channel-type>
+
+    <channel-type id="meterWatts">
+        <item-type>Number</item-type>
+        <label>Watt</label>
+        <description>Current power consumption in Watt</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="lastPower1">
+        <item-type>Number</item-type>
+        <label>Last Power #1</label>
+        <description>Last power consumption - one rounded minutet</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="lastPower2">
+        <item-type>Number</item-type>
+        <label>Last Power #1</label>
+        <description>Last power consumption - one rounded minutet</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="lastPower3">
+        <item-type>Number</item-type>
+        <label>Last Power #1</label>
+        <description>Last power consumption - one rounded minutet</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="overpower">
+        <item-type>Switch</item-type>
+        <label>Motor over powered</label>
+        <description>If ON the motor was over powered and turning was stopped</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+
+    <channel-type id="rollerStop">
+        <item-type>String</item-type>
+        <label>Stop reason</label>
+        <description>Reason why motor stopped: normal, safety_switch, obstacle</description>
+        <state readOnly="true">
+            <options>
+                <option value="normal">normal</option>
+                <option value="safety_switch">safety_switch</option>
+                <option value="obstacle">obstacle</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="rollerTurn">
+        <item-type>String</item-type>
+        <label>Roller Control</label>
+        <description>Control the roller operation</description>
+        <state readOnly="false">
+            <options>
+                <option value="open">open</option>
+                <option value="stop">stop</option>
+                <option value="close">close</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="rollerPosition">
+        <item-type>Number</item-type>
+        <label>Roller Position</label>
+        <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
+    </channel-type>
+    <channel-type id="relayTrigger">
+        <kind>trigger</kind>
+        <label>Relay Event Trigger</label>
+        <description>Triggers channel for events, type code be btn_on, btn_off, out_on, out_off</description>
+        <event/>
+    </channel-type>
+    <channel-type id="rollerTimer">
+        <item-type>Number</item-type>
+        <label>Roller Timer</label>
+        <description>Limit the number of seconds the motor is turning</description>
+    </channel-type>
+    <channel-type id="rollerDirection">
+        <item-type>String</item-type>
+        <label>Roller Direction</label>
+        <description>Last direction: open or close</description>
+        <state readOnly="true">
+            <options>
+                <option value="open">open</option>
+                <option value="close">close</option>
+            </options>
+        </state>
+    </channel-type>
+</thing:thing-descriptions>
