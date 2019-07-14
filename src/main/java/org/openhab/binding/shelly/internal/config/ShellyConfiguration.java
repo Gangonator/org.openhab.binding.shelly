@@ -6,6 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.shelly.internal.config;
 
 /**
@@ -21,7 +22,7 @@ public class ShellyConfiguration {
     public String localIp;
 
     public String deviceIp;
-    public int port = 5684; // default port
+    public int    port = 5684; // default port
     public String identity;
 
     public String authUser;

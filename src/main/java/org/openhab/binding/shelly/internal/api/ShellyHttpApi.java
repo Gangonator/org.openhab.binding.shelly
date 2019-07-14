@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2010-2018 by the respective copyright holders.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.openhab.binding.shelly.internal.api;
 
 import java.io.ByteArrayInputStream;
@@ -13,7 +22,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
-import org.openhab.binding.shelly.internal.ShellyHandler;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.Shelly2_Settings;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
@@ -21,11 +29,17 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevic
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
+import org.openhab.binding.shelly.internal.handler.ShellyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+/**
+ * Wrapper for the Shelly http api
+ *
+ * @author Markus Michels - Initial contribution
+ */
 public class ShellyHttpApi {
     public static final String SHELLY_NULL_URL                  = "null";
     public static final String SHELLY_URL_DEVINFO               = "/shelly";

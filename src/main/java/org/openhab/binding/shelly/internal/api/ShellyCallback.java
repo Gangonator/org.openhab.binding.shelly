@@ -1,11 +1,12 @@
 /**
  * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
- *
- * SPDX-License-Identifier: EPL-2.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.shelly.internal.api;
 
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Main OSGi service and HTTP servlet for TelekomTV NOTIFY.
  *
- * @author Markus Michels (markus7017) - Initial contribution (derived from Netatmo binding, thanks)
+ * @author Markus Michels - Initial contribution
  */
 @Component(service = HttpServlet.class, configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public class ShellyCallback extends HttpServlet {
