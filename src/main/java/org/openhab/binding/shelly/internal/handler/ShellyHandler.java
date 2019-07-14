@@ -314,7 +314,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             // not ours
             return;
         }
-        updateStatus();
+        requestUpdates++;
+        // updateStatus();
     }
 
     /**
@@ -404,7 +405,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.trace("{} more updates requested", requestUpdates);
                 }
             } else {
-                logger.trace("Update skipped {}/{}", (skipUpdate - 1) % UPDATE_SKIP_COUNT, UPDATE_SKIP_COUNT);
+                // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % UPDATE_SKIP_COUNT, UPDATE_SKIP_COUNT);
             }
         } catch (RuntimeException | IOException e) {
             logger.debug("Unable to update the device status: {}", e.getMessage());
@@ -412,10 +413,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     private boolean updateChannel(String group, String channel, Object value) {
+        if (value == null) {
+            return false;
+        }
         String fullName = group + "#" + channel;
         Object current = channelData.get(fullName);
         if ((current == null) || !current.equals(value)) {
-            logger.trace("Updating chanel {}.{} with {}", group, channel, value);
+            logger.trace("Updating channel {}.{} with {}", group, channel, value);
             if (value instanceof String) {
                 updateState(channel, new StringType((String) value));
             }
