@@ -82,6 +82,49 @@
         </config-description>
     </thing-type>
 
+   <thing-type id="shellyplug">
+        <label>Shelly Plug</label>
+        <description>Shelly Plug device</description>
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="meter" typeId="simpleMeter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+   <thing-type id="shellyplug-s">
+        <label>Shelly PlugS</label>
+        <description>Shelly PlugS device</description>
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="meter" typeId="simpleMeter">
+                <label>Meter</label>
+            </channel-group>
+            <channel-group id="led" typeId="ledControl">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+
    <channel-group-type id="relayChannel">
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
@@ -105,6 +148,14 @@
         </channels>
     </channel-group-type>
 
+   <channel-group-type id="simpleMeter">
+       <label>Power Meter</label>
+       <description>Power consumption</description>
+        <channels>
+            <channel id="currentWatts" typeId="meterWatts" />
+            <channel id="maxPower" typeId="maxPower" />
+        </channels>
+    </channel-group-type>
    <channel-group-type id="meter">
        <label>Power Meter</label>
        <description>Power consumption</description>
@@ -114,6 +165,14 @@
             <channel id="lastPower2" typeId="lastPower2" />
             <channel id="lastPower3" typeId="lastPower3" />
             <channel id="overpower" typeId="overpower" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="ledControl">
+       <label>LED control</label>
+       <description>Control the LEDs</description>
+        <channels>
+            <channel id="ledStatusDisable" typeId="ledStatusDisable" />
+            <channel id="ledPowerDisable" typeId="ledStatusDisable" />
         </channels>
     </channel-group-type>
 
@@ -151,13 +210,30 @@
         <state readOnly="true">
         </state>
     </channel-type>
-    <channel-type id="overpower">
-        <item-type>Switch</item-type>
-        <label>Motor over powered</label>
-        <description>If ON the motor was over powered and turning was stopped</description>
+   <channel-type id="meterWatts">
+        <item-type>Number</item-type>
+        <label>Watt</label>
+        <description>Current power consumption in Watt</description>
         <state readOnly="true">
         </state>
     </channel-type>
+    <channel-type id="maxPower">
+        <item-type>Number</item-type>
+        <label>Max Power</label>
+        <description>Overpower threshold in Watts</description>
+    </channel-type>
+    
+    <channel-type id="ledStatusDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Status LED</label>
+        <description>Disable LED indication for network status</description>
+    </channel-type>
+    <channel-type id="ledPowerDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Power LED</label>
+        <description>Disable LED indication for output status</description>
+    </channel-type>
+
 
     <channel-type id="rollerStop">
         <item-type>String</item-type>

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.openhab.binding.shelly.internal.handler;
@@ -46,6 +44,8 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.openhab.binding.shelly.internal.ShellyBindingConstants;
+import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.Shelly2_Settings;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
@@ -54,8 +54,6 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
-import org.openhab.binding.shelly.internal.ShellyBindingConstants;
-import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.slf4j.Logger;
@@ -87,6 +85,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private boolean                     isRoller       = false;  // true for Shelly2 in roller mode
     private boolean                     isSensor       = false;  // true for HT
     private boolean                     hasMeter       = false;
+    private boolean                     isPlugS        = false;  // Shelly PlugS has some additional features
     private Map<String, Object>         channelData    = new HashMap<>();
 
     public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory,
@@ -118,6 +117,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 hasMeter = settings.device.num_meters > 0;
+                isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
                 logger.info("Initializing device {}, type {}", deviceName, deviceType);
 
                 // update thing properties

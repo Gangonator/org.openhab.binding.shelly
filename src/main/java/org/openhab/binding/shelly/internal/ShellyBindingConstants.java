@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.openhab.binding.shelly.internal;
@@ -36,6 +34,7 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER   = new ThingTypeUID(BINDING_ID, "shelly2-roller");
     public static final ThingTypeUID      THING_TYPE_SHELLY4PRO       = new ThingTypeUID(BINDING_ID, "shelly4pro");
     public static final ThingTypeUID      THING_TYPE_SHELLYPLUG       = new ThingTypeUID(BINDING_ID, "shellyplug");
+    public static final ThingTypeUID      THING_TYPE_SHELLYPLUGS      = new ThingTypeUID(BINDING_ID, "shellyplug-s");
     public static final ThingTypeUID      THING_TYPE_SHELLYBULB       = new ThingTypeUID(BINDING_ID, "shellybulb");
     public static final ThingTypeUID      THING_TYPE_SHELLYHT         = new ThingTypeUID(BINDING_ID, "shellyht");
     public static final ThingTypeUID      THING_TYPE_SHELLYSENSE      = new ThingTypeUID(BINDING_ID, "shellysense");
@@ -44,8 +43,8 @@ public class ShellyBindingConstants {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS  = Collections
             .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER,
-                    THING_TYPE_SHELLY4PRO, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYBULB, THING_TYPE_SHELLYHT,
-                    THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYRGW2).collect(Collectors.toSet()));
+                    THING_TYPE_SHELLY4PRO, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUGS, THING_TYPE_SHELLYBULB,
+                    THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYRGW2).collect(Collectors.toSet()));
 
     public static final int               UPDATE_STATUS_INTERVAL      = 3; // check for updates every x sec
     public static final int               UPDATE_SKIP_COUNT           = 5; // update every x triggers or when a key was pressed

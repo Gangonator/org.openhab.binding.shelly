@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.openhab.binding.shelly.internal.discovery;
@@ -81,12 +79,13 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 properties.put(PROPERTY_MAC_ADDRESS, settings.device.mac);
                 properties.put(PROPERTY_FIRMWARE_VERSION, settings.device.fw);
                 properties.put(CONFIG_DEVICEIP, address);
-                properties.put("name", name);
-                properties.put("mode", settings.mode);
-                properties.put("numRollers", settings.device.num_rollers.toString());
-                properties.put("numMeters", settings.device.num_meters.toString());
-                properties.put("numOutputs", settings.device.num_outputs.toString());
-                // properties.put("authRequired", settings.device.auth.toString());
+                addProperty(properties, "name", name);
+                addProperty(properties, "hostname", settings.device.hostname);
+                addProperty(properties, "mode", settings.mode);
+                addProperty(properties, "numRollers", settings.device.num_rollers.toString());
+                addProperty(properties, "numMeters", settings.device.num_meters.toString());
+                addProperty(properties, "numOutputs", settings.device.num_outputs.toString());
+                addProperty(properties, "authRequired", settings.device.auth.toString());
 
                 ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
                 return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
@@ -100,6 +99,10 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         }
         return null;
 
+    }
+
+    private void addProperty(Map<String, Object> properties, String key, String value) {
+        properties.put(key, value != null ? value : "");
     }
 
     @Override
@@ -129,6 +132,9 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         }
         if (name.startsWith("shellys4pro")) {
             return new ThingUID(THING_TYPE_SHELLY4PRO, devid);
+        }
+        if (name.startsWith("shellyplug-s")) {
+            return new ThingUID(THING_TYPE_SHELLYPLUG, devid);
         }
         if (name.startsWith("shellyplug")) {
             return new ThingUID(THING_TYPE_SHELLYPLUG, devid);
