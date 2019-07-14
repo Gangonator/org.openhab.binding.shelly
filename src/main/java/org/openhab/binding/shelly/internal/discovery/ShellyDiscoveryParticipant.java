@@ -85,13 +85,12 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 addProperty(properties, "numRollers", settings.device.num_rollers.toString());
                 addProperty(properties, "numMeters", settings.device.num_meters.toString());
                 addProperty(properties, "numOutputs", settings.device.num_outputs.toString());
-                addProperty(properties, "authRequired", settings.device.auth.toString());
 
                 ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
                 return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                         .withRepresentationProperty(name).build();
             } catch (RuntimeException | IOException e) {
-                logger.error("No response received: {}", e.getMessage());
+                logger.error("Device discovery failed: {}", e.getMessage());
             }
 
         } else {

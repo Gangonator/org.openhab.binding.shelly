@@ -177,48 +177,49 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
             });
 
-            client.get(new CoapHandler() {
-                @Override
-                public void onLoad(@Nullable CoapResponse response) {
-                    String content = response.getResponseText();
-                    logger.info("NOTIFICATION: {}" + content);
-                }
+            if (false) {
+                client.get(new CoapHandler() {
+                    @Override
+                    public void onLoad(@Nullable CoapResponse response) {
+                        String content = response.getResponseText();
+                        logger.info("NOTIFICATION: {}" + content);
+                    }
 
-                @Override
-                public void onError() {
-                    logger.error("CoapREAD FAILED");
-                }
-            });
+                    @Override
+                    public void onError() {
+                        logger.error("CoapREAD FAILED");
+                    }
+                });
 
-            logger.info("Start COAP Observer");
-            OptionSet optionSet = new OptionSet();
-            optionSet.addOption(new Option(3332, "COIOT_OPTION_GLOBAL_DEVID"));
-            optionSet.addOption(new Option(3412, "COIOT_OPTION_STATUS_VALIDITY"));
-            optionSet.addOption(new Option(3420, "COIOT_OPTION_STATUS_SERIAL"));
-            /* ---- optionSet is not used! --- */
+                logger.info("Start COAP Observer");
+                OptionSet optionSet = new OptionSet();
+                optionSet.addOption(new Option(3332, "COIOT_OPTION_GLOBAL_DEVID"));
+                optionSet.addOption(new Option(3412, "COIOT_OPTION_STATUS_VALIDITY"));
+                optionSet.addOption(new Option(3420, "COIOT_OPTION_STATUS_SERIAL"));
+                /* ---- optionSet is not used! --- */
 
-            Request request = new Request(Code.GET, Type.NON);
-            // request.setObserve();
-            request.setURI("coap://192.168.6.81:5683/cit/d");
-            request.setOptions(optionSet);
+                Request request = new Request(Code.GET, Type.NON);
+                // request.setObserve();
+                request.setURI("coap://192.168.6.81:5683/cit/d");
+                request.setOptions(optionSet);
 
-            // tclient.setTimeout(10000);
-            // String content1 = tclient.get().getResponseText();
-            // logger.info("Shelly device: {}", content1);
-            CoapClient tclient = new CoapClient("coap://192.168.6.81:5683/cit/d");
+                // tclient.setTimeout(10000);
+                // String content1 = tclient.get().getResponseText();
+                // logger.info("Shelly device: {}", content1);
+                CoapClient tclient = new CoapClient("coap://192.168.6.81:5683/cit/d");
+                tclient.advanced(new CoapHandler() {
+                    @Override
+                    public void onLoad(@Nullable CoapResponse response) {
+                        String content = response.getResponseText();
+                        logger.info("NOTIFICATION: {}" + content);
+                    }
 
-            tclient.advanced(new CoapHandler() {
-                @Override
-                public void onLoad(@Nullable CoapResponse response) {
-                    String content = response.getResponseText();
-                    logger.info("NOTIFICATION: {}" + content);
-                }
-
-                @Override
-                public void onError() {
-                    logger.error("CoapREAD FAILED");
-                }
-            }, request);
+                    @Override
+                    public void onError() {
+                        logger.error("CoapREAD FAILED");
+                    }
+                }, request);
+            }
 
             boolean thingReachable = true; // <background task with long running initialization here>
             // when done do:
@@ -418,7 +419,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (value instanceof String) {
                 updateState(channel, new StringType((String) value));
             }
-            if ((value instanceof Long) || (value instanceof Double) || (value instanceof Integer)) {
+            if ((value instanceof Long) || (value instanceof Integer)) {
+                Long v = (Long) value;
+                updateState(channel, new DecimalType(v));
+            }
+            if (value instanceof Double) {
                 Double v = (Double) value;
                 updateState(channel, new DecimalType(v));
             }
