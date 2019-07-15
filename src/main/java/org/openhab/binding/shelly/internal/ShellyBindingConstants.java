@@ -79,6 +79,7 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_METER_LASTMIN2      = "lastPower2";
     public static final String            CHANNEL_METER_LASTMIN3      = "lastPower3";
     public static final String            CHANNEL_METER_TOTALWATTS    = "totalWatts";
+    public static final String            CHANNEL_METER_MAXPOWER      = "maxPower";
 
     public static final String            CHANNEL_GROUP_LED_CONTROL   = "ledControl";
     public static final String            CHANNEL_LED_STATUS_DISABLE  = "ledStatusDisable";

@@ -128,7 +128,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 isSmoke = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+
                 logger.info("Initializing device {}, type {}", deviceName, deviceType);
+                logger.debug("Device is a roller: {}, a Plug S: {},  Bulb: {}, HT or Smoke Sensor: {}, has a Meter: {}, has a Battery: {}",
+                        isRoller ? "yes" : "no", isPlugS ? "yes" : "no", isBulb ? "yes" : "no",
+                        isSensor ? "yes" : "no", hasMeter ? "yes" : "no", hasBattery ? "yes" : "no");
 
                 // update thing properties
                 ShellySettingsStatus status = api.gerStatus();
@@ -435,10 +439,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     for (ShellySettingsMeter meter : status.meters) {
                         if (meter.is_valid) {
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_CURRENTWATTS, meter.power);
+                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
                         }
                     }
                 }
@@ -447,6 +451,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     ShellySettingsGlobal settings = api.getSettings();
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable);
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable);
+                    updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_MAXPOWER, settings.max_power);
                 }
 
                 if (isBulb) {

@@ -194,6 +194,7 @@
        <description>Power consumption</description>
         <channels>
             <channel id="currentWatts" typeId="meterWatts" />
+            <channel id="totalWatts" typeId="meterTotal" />
             <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
