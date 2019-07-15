@@ -411,14 +411,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if (control.is_valid) {
                             Integer r = i + 1;
                             String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
-                            if (control.turn != null) {
-                                updateChannel(groupName, CHANNEL_RELAY_OUTPUT,
-                                        control.turn.toUpperCase().equals("ON") ? OnOffType.ON : OnOffType.OFF);
-                                updateChannel(groupName, CHANNEL_RELAY_TIMER, control.has_timer ? control.timer : 0);
-                            }
-                            if (control.overpower != null) {  // Shelly1PM only
-                                updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, control.overpower);
-                            }
+                            updateChannel(groupName, CHANNEL_RELAY_OUTPUT, relay.ison ? OnOffType.ON : OnOffType.OFF);
+                            updateChannel(groupName, CHANNEL_RELAY_TIMER, control.has_timer ? control.timer : 0);
+                            updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, control.overpower);
                         }
                         i++;
                     }
@@ -448,7 +443,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.total);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
                         }
                     }
@@ -511,7 +505,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (value instanceof String) {
                 updateState(fullName, new StringType((String) value));
             }
-            if ((value instanceof Long) || (value instanceof Integer)) {
+            if (value instanceof Integer) {
+                Integer v = (Integer) value;
+                updateState(fullName, new DecimalType(v));
+            }
+            if (value instanceof Long) {
                 Long v = (Long) value;
                 updateState(fullName, new DecimalType(v));
             }

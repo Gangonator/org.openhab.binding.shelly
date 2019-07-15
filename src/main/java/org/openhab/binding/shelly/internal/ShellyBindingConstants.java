@@ -82,7 +82,7 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_LED_STATUS_DISABLE  = "ledStatusDisable";
     public static final String            CHANNEL_LED_POWER_DISABLE   = "ledPowerDisable";
 
-    public static final String            CHANNEL_GROUP_SENSOR        = "sensor";
+    public static final String            CHANNEL_GROUP_SENSOR      = "sensor";
     public static final String            CHANNEL_SENSOR_TEMP         = "temperature";
     public static final String            CHANNEL_SENSOR_TUNIT        = "tempUnit";
     public static final String            CHANNEL_SENSOR_HUM          = "humidity";

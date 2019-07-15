@@ -50,14 +50,17 @@ public class ShellyHttpApi {
     public static final String SHELLY_URL_SETTINGS_STA          = "/settings/sta";
     public static final String SHELLY_URL_SETTINGS_LOGIN        = "/settings/sta";
     public static final String SHELLY_URL_SETTINGS_CLOUD        = "/settings/cloud";
+
     public static final String SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
     public static final String SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
-    public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{1}={2}";
-    public static final String SHELLY_URL_SETTINGS_BULB         = "/settings/light";
-    public static final String SHELLY_URL_CONTROL_BULB          = "/light";
+    public static final String SHELLY_URL_STATUS_RELEAY         = "/status/relay";
 
     public static final String SHELLY_URL_CONTROL_RELEAY        = "/relay";
     public static final String SHELLY_URL_CONTROL_ROLLER        = "/roller";
+
+    public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{1}={2}";
+    public static final String SHELLY_URL_SETTINGS_BULB         = "/settings/light";
+    public static final String SHELLY_URL_CONTROL_BULB          = "/light";
 
     public static final String SHELLY_BTNT_MOMENTARY            = "momentary";
     public static final String SHELLY_BTNT_TOGGLE               = "toggle";
