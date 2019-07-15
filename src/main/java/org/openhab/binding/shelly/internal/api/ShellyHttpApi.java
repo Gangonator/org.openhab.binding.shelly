@@ -133,7 +133,7 @@ public class ShellyHttpApi {
     }
 
     public ShellyControlRoller getRollerStatus(Integer rollerIndex) throws IOException {
-        String result = request(SHELLY_URL_CONTROL_ROLLER + "/" + rollerIndex.toString(), null);
+        String result = request(SHELLY_URL_CONTROL_ROLLER + "/" + rollerIndex.toString() + "/pos", null);
         Gson gson = new Gson();
         return gson.fromJson(result, ShellyControlRoller.class);
     }
@@ -169,6 +169,10 @@ public class ShellyHttpApi {
         String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
         String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, "report_url", urlEncode(eventUrl));
         request(setUrl, null);
+    }
+
+    public void setLedStatus(String ledName, Boolean value) throws IOException {
+        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? "on" : "off"), null);
     }
 
     /**

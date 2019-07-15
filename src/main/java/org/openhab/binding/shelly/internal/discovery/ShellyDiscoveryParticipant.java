@@ -112,7 +112,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     }
 
     public ThingUID getThingUID(String name, String mode) {
-        String devid = "-" + StringUtils.substringAfter(name, "-");
+        String devid = StringUtils.substringAfter(name, "-");
 
         if (name.startsWith("shelly1pm")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);

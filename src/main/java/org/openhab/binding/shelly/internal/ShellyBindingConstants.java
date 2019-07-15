@@ -68,13 +68,19 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_ROL_CONTROL_STOPR   = "stopReason";
     public static final String            CHANNEL_ROL_CONTROL_DIR     = "direction";
     public static final String            CHANNEL_ROL_CONTROL_OVERT   = "overtemp";
+    public static final String            CHANNEL_ROL_CONTROL_CALIB   = "calibrating";
 
     // Power meter
     public static final String            CHANNEL_GROUP_METER         = "meter";
-    public static final String            CHANNEL_METER_POWER         = "currentWatts";
+    public static final String            CHANNEL_METER_CURRENTWATTS  = "currentWatts";
     public static final String            CHANNEL_METER_LASTMIN1      = "lastPower1";
-    public static final String            CHANNEL_METER_LASTMIN2      = "lastPower";
+    public static final String            CHANNEL_METER_LASTMIN2      = "lastPower2";
     public static final String            CHANNEL_METER_LASTMIN3      = "lastPower3";
+    public static final String            CHANNEL_METER_TOTALWATTS    = "totalWatts";
+
+    public static final String            CHANNEL_GROUP_LED_CONTROL   = "ledControl";
+    public static final String            CHANNEL_LED_STATUS_DISABLE  = "ledStatusDisable";
+    public static final String            CHANNEL_LED_POWER_DISABLE   = "ledPowerDisable";
 
     public static final String            CHANNEL_GROUP_SENSOR        = "sensor";
     public static final String            CHANNEL_SENSOR_TEMP         = "temperature";

@@ -147,8 +147,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     // set event URL for HT (report_url)
                     api.setSensorEventUrls(deviceName);
                 }
-
-                updateStatus();
             } catch (RuntimeException | IOException e) {
                 logger.info("Unable to get status from Shelly: {}", e.getMessage());
             }
@@ -221,20 +219,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }, request);
             }
 
-            boolean thingReachable = true; // <background task with long running initialization here>
-            // when done do:
-            if (thingReachable) {
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-            }
-
             if (statusJob == null || statusJob.isCancelled()) {
-                statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 5, UPDATE_STATUS_INTERVAL,
-                        TimeUnit.SECONDS);
+                statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
+                        UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
             }
 
-        }, 3, TimeUnit.SECONDS);
+            updateStatus(ThingStatus.ONLINE);
+        }, 2, TimeUnit.SECONDS);
 
         // logger.debug("Finished initializing!");
 
@@ -293,10 +284,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         logger.info("Set roller turn mode to {}", turn);
                         api.setRollerTurn(rollerIndex, turn);
                         break;
-
                     case CHANNEL_ROL_CONTROL_POS:
                         logger.info("Setting roller to position {}%", command.toString());
                         api.setRollerPos(rollerIndex, Integer.parseInt(command.toString()));
+                        break;
+
+                    case CHANNEL_LED_STATUS_DISABLE:
+                        logger.info("Set STATUS LED disabled to {}", command.toString());
+                        api.setLedStatus("led_status_disable", (OnOffType) command == OnOffType.ON);
+                        break;
+                    case CHANNEL_LED_POWER_DISABLE:
+                        logger.info("Set STATUS LED disabled to {}", command.toString());
+                        api.setLedStatus("led_status_disable", (OnOffType) command == OnOffType.ON);
                         break;
                 }
                 updateStatus();
@@ -337,6 +336,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if ((requestUpdates > 0) || (skipUpdate++ % UPDATE_SKIP_COUNT == 0)) {
                 logger.trace("Updating device status for device {}", deviceName);
                 ShellySettingsStatus status = api.gerStatus();
+                updateStatus(ThingStatus.ONLINE);   // if api call was successful thing must be online
+
+                if (isPlugS) {
+                    Shelly2_Settings settings = api.getSettings();
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable);
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable);
+                }
 
                 // map status to channels
                 if ((status.relays != null) && !isRoller) {
@@ -349,7 +355,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             if (control.turn != null) {
                                 updateChannel(groupName, CHANNEL_RELAY_OUTPUT,
                                         control.turn.toUpperCase().equals("ON") ? OnOffType.ON : OnOffType.OFF);
-                                updateChannel(groupName, CHANNEL_RELAY_TIMER, control.timer);
+                                updateChannel(groupName, CHANNEL_RELAY_TIMER, control.has_timer ? control.timer : 0);
                             }
                             if (control.overpower != null) {  // Shelly1PM only
                                 updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, control.overpower);
@@ -364,13 +370,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     for (ShellySettingsRoller roller : status.rollers) {
                         if (roller.is_valid) {
                             ShellyControlRoller control = api.getRollerStatus(i);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_TURN, control.state);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_POS, control.current_pos);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_DIR, control.last_direction);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_TIMER, control.duration);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_STOPR, control.stop_reason);
-                            updateChannel(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_OVERT,
-                                    control.overtemperature);
+                            Integer relayIndex = i + 1;
+                            String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, control.state);
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, control.current_pos);
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, control.last_direction);
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, control.stop_reason);
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, control.overtemperature);
                             i = i + 1;
                         }
                     }
@@ -379,10 +385,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 if (hasMeter && (status.meters != null)) {
                     for (ShellySettingsMeter meter : status.meters) {
                         if (meter.is_valid) {
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_POWER, meter.power);
+                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_CURRENTWATTS, meter.power);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.total);
+                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
                         }
                     }
                 }
@@ -421,23 +429,23 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         if ((current == null) || !current.equals(value)) {
             logger.trace("Updating channel {}.{} with {}", group, channel, value);
             if (value instanceof String) {
-                updateState(channel, new StringType((String) value));
+                updateState(fullName, new StringType((String) value));
             }
             if ((value instanceof Long) || (value instanceof Integer)) {
                 Long v = (Long) value;
-                updateState(channel, new DecimalType(v));
+                updateState(fullName, new DecimalType(v));
             }
             if (value instanceof Double) {
                 Double v = (Double) value;
-                updateState(channel, new DecimalType(v));
+                updateState(fullName, new DecimalType(v));
             }
             if (value instanceof OnOffType) {
                 OnOffType v = (OnOffType) value;
-                updateState(channel, v);
+                updateState(fullName, v);
             }
             if (value instanceof Boolean) {
                 Boolean v = (Boolean) value;
-                updateState(channel, v ? OnOffType.ON : OnOffType.OFF);
+                updateState(fullName, v ? OnOffType.ON : OnOffType.OFF);
             }
             if (current == null) {
                 channelData.put(fullName, value);

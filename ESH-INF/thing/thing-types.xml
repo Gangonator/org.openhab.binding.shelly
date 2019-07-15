@@ -16,12 +16,7 @@
             </channel-group>
         </channel-groups>
 
-       <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
- 			</parameter>
-		</config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
 	</thing-type>
 	
     <thing-type id="shelly2-relay">
@@ -40,12 +35,7 @@
             </channel-group>
         </channel-groups>
 
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
 
      <thing-type id="shelly2-roller">
@@ -61,12 +51,7 @@
             </channel-group>
         </channel-groups>
 
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
     <thing-type id="shellyplug">
@@ -81,12 +66,7 @@
             </channel-group>
         </channel-groups>
 
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
     <thing-type id="shellyplug-s">
@@ -104,45 +84,35 @@
             </channel-group>
         </channel-groups>
 
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
     <thing-type id="shellyht">
         <label>Shelly HT</label>
         <description>Shelly HT sensor device</description>
 
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
+        <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
-    <channel-group-type id="relayChannel">
+   <channel-group-type id="relayChannel">
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
         <channels>
             <channel id="output" typeId="output" />
-            <channel id="timer" typeId="relayTimer" />
             <channel id="overpower" typeId="overpower" />
+            <channel id="timer" typeId="relayTimer" />
             <channel id="trigger" typeId="relayTrigger" />
         </channels>
-    </channel-group-type>
+   </channel-group-type>
    <channel-group-type id="rollerControl">
        <label>Roller Control</label>
        <description>Controlling teh Shelly2 in roller mode</description>
         <channels>
             <channel id="turn" typeId="rollerTurn" />
             <channel id="position" typeId="rollerPosition" />
-            <channel id="timer" typeId="rollerTimer" />
-            <channel id="stopReason" typeId="rollerStop" />
             <channel id="direction" typeId="rollerDirection" />
+            <channel id="stopReason" typeId="rollerStop" />
+            <channel id="direction" typeId="rollerCalibrating" />
         </channels>
     </channel-group-type>
 
@@ -160,6 +130,7 @@
             <channel id="lastPower1" typeId="lastPower1" />
             <channel id="lastPower2" typeId="lastPower2" />
             <channel id="lastPower3" typeId="lastPower3" />
+            <channel id="totalWatts" typeId="meterTotal" />
             <channel id="overpower" typeId="overpower" />
         </channels>
     </channel-group-type>
@@ -176,7 +147,7 @@
        <description>Control the LEDs</description>
         <channels>
             <channel id="ledStatusDisable" typeId="ledStatusDisable" />
-            <channel id="ledPowerDisable" typeId="ledStatusDisable" />
+            <channel id="ledPowerDisable" typeId="ledPowerDisable" />
         </channels>
     </channel-group-type>
 
@@ -211,6 +182,13 @@
         <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minutet</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+   <channel-type id="meterTotal">
+        <item-type>Number</item-type>
+        <label>Total Watt</label>
+        <description>Total power consumption in Watt</description>
         <state readOnly="true">
         </state>
     </channel-type>
@@ -252,11 +230,6 @@
         <label>Roller Position</label>
         <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
     </channel-type>
-    <channel-type id="rollerTimer">
-        <item-type>Number</item-type>
-        <label>Roller Timer</label>
-        <description>Limit the number of seconds the motor is turning</description>
-    </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>
         <label>Roller stop reason</label>
@@ -269,6 +242,12 @@
             </options>
         </state>
     </channel-type>
+    <channel-type id="rollerCalibrating">
+        <item-type>Switch</item-type>
+        <label>Calibrating</label>
+        <description>ON: Roller is calibratings</description>
+    </channel-type>
+    
     <channel-type id="rollerDirection">
         <item-type>String</item-type>
         <label>Roller Direction</label>

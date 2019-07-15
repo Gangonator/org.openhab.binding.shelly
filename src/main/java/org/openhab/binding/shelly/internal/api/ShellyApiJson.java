@@ -201,6 +201,8 @@ public class ShellyApiJson {
         public String                         mode;
         public Integer                        max_power;
         public ArrayList<ShellySettingsRelay> relays;
+        public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
+        public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
 
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
@@ -259,7 +261,9 @@ public class ShellyApiJson {
         public Boolean safety_switch; // Whether the safety input is currently triggered
         public Boolean overtemperature;
         public String  stop_reason; // Last cause for stopping: normal, safety_switch, obstacle
-        public Boolean last_direction; // Last direction of motion, open or close
+        public String  last_direction; // Last direction of motion, open or close
+        public Boolean calibrating;
+        public Boolean positioning; // true when calibration was performed
         public Long    current_pos; // current position 0..100, 100=open
     }
 

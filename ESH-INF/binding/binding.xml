@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/binding/v1.0.0 http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd">
 
 	<name>Shelly Binding</name>
-	<description>This binding supports Shelly devices trough CoIoT protocoll.</description>
-	<author>Hans-Jörg Merk</author>
+	<description>This binding supports the Shelly series of devices.</description>
+	<author> Markus Michels</author>
 
 </binding:binding>
