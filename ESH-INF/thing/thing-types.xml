@@ -11,9 +11,6 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter" typeId="meter">
-                <label>Meter</label>
-            </channel-group>
         </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
@@ -181,7 +178,6 @@
         <channels>
             <channel id="output" typeId="output" />
             <channel id="overpower" typeId="overpower" />
-            <channel id="timer" typeId="relayTimer" />
             <channel id="trigger" typeId="relayTrigger" />
         </channels>
    </channel-group-type>

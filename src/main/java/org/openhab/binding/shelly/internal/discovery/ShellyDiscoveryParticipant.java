@@ -63,39 +63,46 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
         String name = service.getName().toLowerCase();
         String address = StringUtils.substringBetween(service.toString(), "/", ":80");
-        if (address != null) {
-            logger.info("Shelly device discovered: IP-Adress={}, name={}", address, name);
-            try {
-                ShellyConfiguration config = new ShellyConfiguration();
-                config.deviceIp = address;
-                ShellyHttpApi api = new ShellyHttpApi(config);
+        if (address == null) {
+            logger.warn("Discovered Shelly device doesn't have an IP address: {}", service);
+            return null;
+        }
 
-                // Get device settings
-                ShellySettingsGlobal settings = api.getSettings();
+        logger.info("Shelly device discovered: IP-Adress={}, name={}", address, name);
+        try {
+            ShellyConfiguration config = new ShellyConfiguration();
+            config.deviceIp = address;
+            ShellyHttpApi api = new ShellyHttpApi(config);
 
-                Map<String, Object> properties = new HashMap<>(5);
-                properties.put(PROPERTY_VENDOR, "Shelly");
-                properties.put(PROPERTY_MODEL_ID, settings.device.type);
-                properties.put(PROPERTY_MAC_ADDRESS, settings.device.mac);
-                properties.put(PROPERTY_FIRMWARE_VERSION, settings.device.fw);
-                properties.put(CONFIG_DEVICEIP, address);
-                addProperty(properties, "name", name);
-                addProperty(properties, "hostname", settings.device.hostname);
-                addProperty(properties, "mode", settings.mode);
-                addProperty(properties, "numRollers", settings.device.num_rollers.toString());
+            // Get device settings
+            ShellySettingsGlobal settings = api.getSettings();
+
+            Map<String, Object> properties = new HashMap<>(5);
+            properties.put(PROPERTY_VENDOR, "Shelly");
+            properties.put(PROPERTY_MODEL_ID, settings.device.type);
+            properties.put(PROPERTY_MAC_ADDRESS, settings.device.mac);
+            properties.put(PROPERTY_FIRMWARE_VERSION, settings.device.fw);
+            properties.put(CONFIG_DEVICEIP, address);
+            addProperty(properties, "name", name);
+            addProperty(properties, "hostname", settings.device.hostname);
+            addProperty(properties, "mode", settings.mode);
+            if (settings.device.num_meters != null) {
                 addProperty(properties, "numMeters", settings.device.num_meters.toString());
+            }
+            if (settings.device.num_meters != null) {
+                addProperty(properties, "numRollers", settings.device.num_rollers.toString());
+            }
+            if (settings.device.num_outputs != null) {
                 addProperty(properties, "numOutputs", settings.device.num_outputs.toString());
-
-                ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
-                return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
-                        .withRepresentationProperty(name).build();
-            } catch (RuntimeException | IOException e) {
-                logger.error("Device discovery failed: {}", e.getMessage());
             }
 
-        } else {
-            logger.warn("Discovered Shelly device doesn't have an IP address: {}", service);
+            ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
+            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
+                    .withRepresentationProperty(name).build();
+        } catch (RuntimeException | IOException e) {
+            logger.error("Device discovery failed: {}", e.getMessage());
         }
+
         return null;
 
     }
