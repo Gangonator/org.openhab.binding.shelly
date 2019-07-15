@@ -17,8 +17,8 @@ import java.util.ArrayList;
  */
 public class ShellyApiJson {
 
-    public static final String SHELLY_MODE_RELAY  = "relay";
-    public static final String SHELLY_MODE_ROLLER = "roller";
+    public static final String SHELLY_API_ON  = "on";
+    public static final String SHELLY_API_OFF = "off";
 
     public class ShellyCommonSettings {
         public Boolean reset; // Will perform a factory reset of the device
@@ -177,7 +177,7 @@ public class ShellyApiJson {
         public String  old_version;
     }
 
-    public class Shelly2_Settings {
+    public class ShellySettingsGlobal {
         // https://shelly-api-docs.shelly.cloud/#shelly1pm-settings
         public ShellySettingsDevice           device;
         public ShellySettingsWiFiAp           wifi_ap;
@@ -206,6 +206,11 @@ public class ShellyApiJson {
 
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
+
+    public static final String SHELLY_MODE_RELAY  = "relay";  // Relay: relay mode
+    public static final String SHELLY_MODE_ROLLER = "roller"; // Relay: roller mode
+    public static final String SHELLY_MODE_COLOR  = "color";  // Bulb: color mode
+    public static final String SHELLY_MODE_WHITE  = "white";  // Bulb: white mode
 
     public class ShellySettingsAttributes {
         public String device_type; // Device model identifier
@@ -305,5 +310,39 @@ public class ShellyApiJson {
         public Double  temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
     }
+
+    public static final String SHELLY_TEMP_CELSIUS    = "C";
+    public static final String SHELLY_TEMP_FAHRENHEIT = "F";
+
+    public class ShellySettingsBulb {
+        public Boolean ison; // Whether the bulb is on or off
+        public Integer red; // red brightness, 0..255, applies in mode="color"
+        public Integer green; // green brightness, 0..255, applies in mode="color"
+        public Integer blue; // blue brightness, 0..255, applies in mode="color"
+        public Integer white; // white brightness, 0..255, applies in mode="color"
+        public Integer gain; // gain for all channels, 0..100, applies in mode="color"
+        public Integer temp; // color temperature in K, 3000..6500, applies in mode="white"
+        public Integer brightness; // brightness, 0..100, applies in mode="white"
+        public Integer effect; // Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath,
+                               // 4: Flash, 5: On/Off Gradual, 6: Red/Green Change
+        public String  default_state; // one of on, off or last
+        public Integer auto_on; // see above
+        public Integer auto_off; // see above
+    }
+
+    public static final String SHELLY_BULB_TURN        = "turn";
+    public static final String SHELLY_BULB_DEFSTATE    = "def_state";
+    public static final String SHELLY_BULB_TIMER       = "timer";
+    public static final String SHELLY_BULB_AUTOON      = "auto_on";
+    public static final String SHELLY_BULB_AUTOOFF     = "aut_off";
+
+    public static final String SHELLY_COLOR_RED        = "red";
+    public static final String SHELLY_COLOR_BLUE       = "blue";
+    public static final String SHELLY_COLOR_GREEN      = "green";
+    public static final String SHELLY_COLOR_WHITE      = "white";
+    public static final String SHELLY_COLOR_GAIN       = "gain";
+    public static final String SHELLY_COLOR_BRIGHTNESS = "brightness";
+    public static final String SHELLY_COLOR_TEMP       = "temp";
+    public static final String SHELLY_COLOR_EFFECT     = "effect";
 
 }

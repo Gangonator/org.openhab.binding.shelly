@@ -86,7 +86,25 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_TEMP         = "temperature";
     public static final String            CHANNEL_SENSOR_TUNIT        = "tempUnit";
     public static final String            CHANNEL_SENSOR_HUM          = "humidity";
+
+    public static final String            CHANNEL_GROUP_BATTERY       = "batteryStatus";
     public static final String            CHANNEL_SENSOR_BAT_LEVEL    = "batValue";
     public static final String            CHANNEL_SENSOR_BAT_VOLT     = "batVoltage";
 
+    public static final String            CHANNEL_GROUP_BULB_CONTROL  = "bulb";
+    public static final String            CHANNEL_BULB_POWER          = "power";
+    public static final String            CHANNEL_BULB_DEFSTATE       = "defaultState";
+    public static final String            CHANNEL_BULB_AUTOON         = "autoOn";
+    public static final String            CHANNEL_BULB_AUTOOFF        = "autoOff";
+    public static final String            CHANNEL_BULB_TIMER          = "flipbackTimer";
+
+    public static final String            CHANNEL_GROUP_COLOR_CONTROL = "color";
+    public static final String            CHANNEL_COLOR_RED           = "red";
+    public static final String            CHANNEL_COLOR_GREEN         = "green";
+    public static final String            CHANNEL_COLOR_BLUE          = "blue";
+    public static final String            CHANNEL_COLOR_WHITE         = "white";
+    public static final String            CHANNEL_COLOR_GAIN          = "gain";
+    public static final String            CHANNEL_COLOR_BRIGHTNESS    = "brightness";
+    public static final String            CHANNEL_COLOR_TEMP          = "temperature";
+    public static final String            CHANNEL_COLOR_EFFECT        = "effect";
 }

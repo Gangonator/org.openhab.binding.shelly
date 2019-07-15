@@ -8,7 +8,7 @@
 package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
-import static org.openhab.binding.shelly.internal.api.ShellyApiJson.SHELLY_MODE_ROLLER;
+import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
@@ -46,9 +46,10 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.Shelly2_Settings;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
@@ -85,7 +86,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private boolean                     isRoller       = false;  // true for Shelly2 in roller mode
     private boolean                     isSensor       = false;  // true for HT
     private boolean                     hasMeter       = false;
+    private boolean                     hasBattery     = false;
     private boolean                     isPlugS        = false;  // Shelly PlugS has some additional features
+    private boolean                     isSmoke        = false;  // Shelly Smoke Detector
+    private boolean                     isBulb         = false;
+    private boolean                     isBulbColor    = false;
     private Map<String, Object>         channelData    = new HashMap<>();
 
     public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory,
@@ -110,14 +115,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 api = new ShellyHttpApi(config);
 
-                Shelly2_Settings settings = api.getSettings();
+                ShellySettingsGlobal settings = api.getSettings();
                 deviceName = "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
                 deviceType = settings.device.type;
                 isRoller = settings.mode.equals(SHELLY_MODE_ROLLER);
+                hasMeter = settings.device.num_meters > 0;
+                hasBattery = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
+                        deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+                isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
+                isBulb = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId());
+                isSmoke = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
-                hasMeter = settings.device.num_meters > 0;
-                isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
                 logger.info("Initializing device {}, type {}", deviceName, deviceType);
 
                 // update thing properties
@@ -297,6 +306,56 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         logger.info("Set STATUS LED disabled to {}", command.toString());
                         api.setLedStatus("led_status_disable", (OnOffType) command == OnOffType.ON);
                         break;
+
+                    case CHANNEL_BULB_POWER:
+                        logger.info("Switch bulb {}", command.toString());
+                        api.setBulbParm(0, SHELLY_BULB_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                        break;
+                    case CHANNEL_BULB_TIMER:
+                        logger.info("Sez flip-back timer to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_BULB_TIMER, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                        break;
+                    case CHANNEL_BULB_DEFSTATE:
+                        logger.info("Default state for the bulb is {}", command.toString());
+                        api.setBulbSettings(0, SHELLY_BULB_DEFSTATE, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                        break;
+                    case CHANNEL_BULB_AUTOON:
+                        logger.info("Set auto-on to {}", command.toString());
+                        api.setBulbSettings(0, SHELLY_BULB_AUTOON, ((DecimalType) command).toString());
+                        break;
+
+                    case CHANNEL_COLOR_RED:
+                        logger.info("Set color red to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_RED, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_BLUE:
+                        logger.info("Set color blue to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_BLUE, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_GREEN:
+                        logger.info("Set color green to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_GREEN, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_WHITE:
+                        logger.info("Set color white to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_WHITE, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_GAIN:
+                        logger.info("Set color gain to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_GAIN, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_BRIGHTNESS:
+                        logger.info("Set colorbrightmess to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_BRIGHTNESS, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_TEMP:
+                        logger.info("Set color temp to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_TEMP, ((DecimalType) command).toString());
+                        break;
+                    case CHANNEL_COLOR_EFFECT:
+                        logger.info("Set color effect to {}", command.toString());
+                        api.setBulbParm(0, SHELLY_COLOR_EFFECT, ((DecimalType) command).toString());
+                        break;
                 }
                 updateStatus();
             }
@@ -339,7 +398,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 updateStatus(ThingStatus.ONLINE);   // if api call was successful thing must be online
 
                 if (isPlugS) {
-                    Shelly2_Settings settings = api.getSettings();
+                    ShellySettingsGlobal settings = api.getSettings();
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable);
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable);
                 }
@@ -395,16 +454,37 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
+                if (isBulb) {
+                    ShellySettingsBulb settings = api.getBulbSettings();
+                    updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_POWER, settings.ison ? OnOffType.ON : OnOffType.OFF);
+                    updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_DEFSTATE, settings.default_state);
+                    updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_AUTOON, settings.auto_on);
+                    updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_AUTOOFF, settings.auto_off);
+                    updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, settings.effect);
+                    if (isBulbColor) {
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, settings.red);
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, settings.blue);
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, settings.green);
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, settings.white);
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, settings.gain);
+                    } else {
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, settings.brightness);
+                        updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, settings.temp);
+                    }
+                }
+
                 if (isSensor) {
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (sdata.tmp.is_valid) {
                         updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP,
-                                sdata.tmp.units.toUpperCase().equals("C") ? sdata.tmp.tC : sdata.tmp.tF);
-                        updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, sdata.tmp.units);
+                                sdata.tmp.units.toUpperCase().equals(SHELLY_TEMP_CELSIUS) ? sdata.tmp.tC : sdata.tmp.tF);
                         updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, sdata.tmp.units);
                         updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, sdata.hum.value);
-                        updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_BAT_LEVEL, sdata.bat.value);
-                        updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_BAT_VOLT, sdata.bat.voltage);
+                    }
+
+                    if (hasBattery) {
+                        updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, sdata.bat.value);
+                        updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, sdata.bat.voltage);
                     }
                 }
 

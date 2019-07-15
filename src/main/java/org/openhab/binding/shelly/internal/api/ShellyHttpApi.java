@@ -7,6 +7,8 @@
 
 package org.openhab.binding.shelly.internal.api;
 
+import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +22,11 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.Shelly2_Settings;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
@@ -50,6 +53,8 @@ public class ShellyHttpApi {
     public static final String SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
     public static final String SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
     public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{1}={2}";
+    public static final String SHELLY_URL_SETTINGS_BULB         = "/settings/light";
+    public static final String SHELLY_URL_CONTROL_BULB          = "/light";
 
     public static final String SHELLY_URL_CONTROL_RELEAY        = "/relay";
     public static final String SHELLY_URL_CONTROL_ROLLER        = "/roller";
@@ -87,6 +92,8 @@ public class ShellyHttpApi {
     private String             deviceIp                         = "";
     private String             localPort                        = OPENHAB_DEF_PORT;
 
+    private Gson               gson                             = new Gson();
+
     public ShellyHttpApi(ShellyConfiguration config) {
         this.deviceIp = config.deviceIp;
         localIp = config.localIp;
@@ -99,28 +106,23 @@ public class ShellyHttpApi {
     public ShellySettingsDevice getDevInfo() throws IOException {
         String json = request(SHELLY_URL_DEVINFO, null);
         logger.info("Shelly device info : {}", json);
-
-        Gson gson = new Gson();
         return gson.fromJson(json, ShellySettingsDevice.class);
     }
 
-    public Shelly2_Settings getSettings() throws IOException {
+    public ShellySettingsGlobal getSettings() throws IOException {
         String json = request(SHELLY_URL_SETTINGS, null);
         logger.debug("Shelly settings info : {}", json);
-        Gson gson = new Gson();
-        return gson.fromJson(json, Shelly2_Settings.class);
+        return gson.fromJson(json, ShellySettingsGlobal.class);
     }
 
     public ShellySettingsStatus gerStatus() throws IOException {
         String result = request(SHELLY_URL_STATUS, null);
         logger.debug("Shelly status info : {}", result);
-        Gson gson = new Gson();
         return gson.fromJson(result, ShellySettingsStatus.class);
     }
 
     public ShellyControlRelay getRelayStatus(Integer relayIndex) throws IOException {
         String result = request(SHELLY_URL_CONTROL_RELEAY + "/" + relayIndex.toString(), null);
-        Gson gson = new Gson();
         return gson.fromJson(result, ShellyControlRelay.class);
     }
 
@@ -134,7 +136,6 @@ public class ShellyHttpApi {
 
     public ShellyControlRoller getRollerStatus(Integer rollerIndex) throws IOException {
         String result = request(SHELLY_URL_CONTROL_ROLLER + "/" + rollerIndex.toString() + "/pos", null);
-        Gson gson = new Gson();
         return gson.fromJson(result, ShellyControlRoller.class);
     }
 
@@ -161,7 +162,6 @@ public class ShellyHttpApi {
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
         String result = request(SHELLY_URL_STATUS, null);
-        Gson gson = new Gson();
         return gson.fromJson(result, ShellyStatusSensor.class);
     }
 
@@ -172,7 +172,20 @@ public class ShellyHttpApi {
     }
 
     public void setLedStatus(String ledName, Boolean value) throws IOException {
-        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? "on" : "off"), null);
+        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_ON : SHELLY_API_OFF), null);
+    }
+
+    public ShellySettingsBulb getBulbSettings() throws IOException {
+        String result = request(SHELLY_URL_SETTINGS_BULB, null);
+        return gson.fromJson(result, ShellySettingsBulb.class);
+    }
+
+    public void setBulbSettings(Integer bulbIndex, String parm, String value) throws IOException {
+        request(SHELLY_URL_SETTINGS_BULB + "/" + bulbIndex.toString() + "?" + parm + "=" + value, null);
+    }
+
+    public void setBulbParm(Integer bulbIndex, String parm, String value) throws IOException {
+        request(SHELLY_URL_CONTROL_BULB + "/" + bulbIndex.toString() + "?" + parm + "=" + value, null);
     }
 
     /**

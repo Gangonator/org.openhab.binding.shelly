@@ -68,8 +68,7 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
- 
-    <thing-type id="shellyplug-s">
+     <thing-type id="shellyplug-s">
         <label>Shelly PlugS</label>
         <description>Shelly PlugS device</description>
         <channel-groups>
@@ -90,6 +89,62 @@
     <thing-type id="shellyht">
         <label>Shelly HT</label>
         <description>Shelly HT sensor device</description>
+
+        <channel-groups>
+            <channel-group id="sensor" typeId="htSensor">
+                <label>Meter</label>
+            </channel-group>
+            <channel-group id="battery" typeId="batteryStatus">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+ 
+    <thing-type id="shellyht">
+        <label>Shelly HT</label>
+        <description>Shelly HT sensor device</description>
+
+        <channel-groups>
+            <channel-group id="sensor" typeId="smokeSensor">
+                <label>Meter</label>
+            </channel-group>
+            <channel-group id="battery" typeId="batteryStatus">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+ 
+
+     <thing-type id="shellybulb-color">
+        <label>Shelly Bulb - Color</label>
+        <description>Shelly Bulb in color mode</description>
+        <channel-groups>
+            <channel-group id="bulb" typeId="bulbControl">
+                <label>Bulb control</label>
+            </channel-group>
+            <channel-group id="color" typeId="colorControl">
+                <label>Color control</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+
+    <thing-type id="shellybulb-white">
+        <label>Shelly Bulb - White</label>
+        <description>Shelly Bulb in white mode</description>
+        <channel-groups>
+            <channel-group id="bulb" typeId="bulbControl">
+                <label>Bulb control</label>
+            </channel-group>
+            <channel-group id="color" typeId="colorWhiteMode">
+                <label>White control</label>
+            </channel-group>
+        </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
@@ -124,7 +179,7 @@
     </channel-type>
     <channel-group-type id="meter">
        <label>Power Meter</label>
-       <description>Power consumption</description>
+       <description>Power co nsumption</description>
         <channels>
             <channel id="currentWatts" typeId="meterWatts" />
             <channel id="lastPower1" typeId="lastPower1" />
@@ -151,6 +206,64 @@
         </channels>
     </channel-group-type>
 
+   <channel-group-type id="htSensor">
+       <label>Sensor Data</label>
+       <description>Data from the Sensor</description>
+        <channels>
+            <channel id="temperature" typeId="sensorTemp" />
+            <channel id="unit" typeId="sensorTempUnit" />
+            <channel id="humidity" typeId="sensorHumidity" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="smokeSensor">
+       <label>Sensor Data</label>
+       <description>Data from the Sensor</description>
+        <channels>
+            <channel id="temperature" typeId="sensorTemp" />
+            <channel id="unit" typeId="sensorTempUnit" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="batteryStatus">
+       <label>Battery Status</label>
+       <description>Stratus of the device's battery</description>
+        <channels>
+            <channel id="value" typeId="batValue" />
+            <channel id="voltage" typeId="batVoltage" />
+        </channels>
+    </channel-group-type>
+
+   <channel-group-type id="bulbControl">
+       <label>Control</label>
+       <description>Bulb control</description>
+        <channels>
+            <channel id="power" typeId="power" />
+            <channel id="defaultState" typeId="defaultState" />
+            <channel id="flipbackTimer" typeId="bulbTimer" />
+            <channel id="autoOn" typeId="autoOn" />
+            <channel id="autoOff" typeId="autoOff" />
+        </channels>
+    </channel-group-type>
+    <channel-group-type id="colorControl">
+       <label>Colors</label>
+       <description>Light colors</description>
+        <channels>
+            <channel id="red" typeId="colorRed" />
+            <channel id="green" typeId="colorGreen" />
+            <channel id="blue" typeId="colorBlue" />
+            <channel id="white" typeId="colorWhite" />
+            <channel id="gain" typeId="colorGain" />
+            <channel id="effect" typeId="colorEffect" />
+        </channels>
+    </channel-group-type>
+    <channel-group-type id="colorWhiteMode">
+       <label>White settings</label>
+       <description>Adjust colors when bulb is in white mode</description>
+        <channels>
+            <channel id="brightness" typeId="colorBrightness" />
+            <channel id="temperatur" typeId="colorTemp" />
+            <channel id="effect" typeId="colorEffect" />
+        </channels>
+    </channel-group-type>
 
     <channel-type id="output">
         <item-type>Switch</item-type>
@@ -273,6 +386,134 @@
         <item-type>Number</item-type>
         <label>Max Power</label>
         <description>Overpower threshold in Watts</description>
+    </channel-type>
+
+    <channel-type id="colorRed">
+        <item-type>Number</item-type>
+        <label>Red</label>
+        <description>red brightness, 0..255, applies in mode=color</description>
+    </channel-type>
+    <channel-type id="colorGreen">
+        <item-type>Number</item-type>
+        <label>Green</label>
+        <description>green brightness, 0..255, applies in mode=color</description>
+    </channel-type>
+    <channel-type id="colorBlue">
+        <item-type>Number</item-type>
+        <label>Blue</label>
+        <description>blue brightness, 0..255, applies in mode=color</description>
+    </channel-type>
+    <channel-type id="colorWhite">
+        <item-type>Number</item-type>
+        <label>White</label>
+        <description>wrhite brightness, 0..255, applies in mode=color</description>
+    </channel-type>
+    <channel-type id="colorGain">
+        <item-type>Number</item-type>
+        <label>Gain</label>
+        <description>gain for all channels, 0..100, applies in mode=color</description>
+    </channel-type>
+    <channel-type id="colorTemp">
+        <item-type>Number</item-type>
+        <label>Gain</label>
+        <description>color temperature in K, 3000..6500, applies in mode=white</description>
+    </channel-type>
+    <channel-type id="colorBrightness">
+        <item-type>Number</item-type>
+        <label>Brightness</label>
+        <description>brightness, 0..100, applies in mode=white</description>
+    </channel-type>
+    <channel-type id="colorEffect">
+        <item-type>String</item-type>
+        <label>Effect</label>
+        <description>Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath, 4: Flash, 5: On/Off Gradual, 6: Red/Green Change</description>
+        <state readOnly="true">
+            <options>
+                <option value="0">Off</option>
+                <option value="1">Meteor Shower</option>
+                <option value="2">Gradual Change</option>
+                <option value="3">Breath</option>
+                <option value="4">Flash</option>
+                <option value="5">On/Off Gradual</option>
+                <option value="6">Red/Green Change</option>
+            </options>
+        </state>
+    </channel-type>
+
+    <channel-type id="power">
+        <item-type>Switch</item-type>
+        <label>Power</label>
+        <description>Power ON/OFF</description>
+    </channel-type>
+    <channel-type id="defaultState">
+        <item-type>Switch</item-type>
+        <label>Default State</label>
+        <description>one of on, off or last</description>
+        <state>
+            <options>
+                <option value="on">ON</option>
+                <option value="off">OFF</option>
+                <option value="last">Last</option>
+            </options>
+        </state>
+     </channel-type>
+    <channel-type id="bulbTimer">
+        <item-type>Number</item-type>
+        <label>Flip-back Timer</label>
+        <description>Automatic flip-back timer in seconds, used in combination with turn</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="autoOn">
+        <item-type>Number</item-type>
+        <label>Auto-ON timer</label>
+        <description>Sets a default timer to turn the bulb ON after every OFF command in seconds</description>
+    </channel-type>
+    <channel-type id="autoOff">
+        <item-type>Number</item-type>
+        <label>Auto-ON timer</label>
+        <description>Sets a default timer to turn the bulb OFF after every ON command in seconds</description>
+    </channel-type>
+
+    <channel-type id="sensorTemp">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Temperature from the sensor</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="sensorTempUnit">
+        <item-type>String</item-type>
+        <label>Temp Unit (C/F)</label>
+        <description>Temperature from the sensor C=Celsius, F=Fahrenheit)</description>
+        <state readOnly="true">
+            <options>
+                <option value="C">Celsius</option>
+                <option value="F">Fahrehheit</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="sensorHumidity">
+        <item-type>Number</item-type>
+        <label>Humidity</label>
+        <description>Relative humidity in % (0..100%)</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+
+    <channel-type id="batValue">
+        <item-type>Number</item-type>
+        <label>Battery capacity</label>
+        <description>estimated remaining battery capacity in %</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="batVoltage">
+        <item-type>Number</item-type>
+        <label>Battery voltage</label>
+        <description>Battery voltage in V</description>
+        <state readOnly="true">
+        </state>
     </channel-type>
 
 </thing:thing-descriptions>

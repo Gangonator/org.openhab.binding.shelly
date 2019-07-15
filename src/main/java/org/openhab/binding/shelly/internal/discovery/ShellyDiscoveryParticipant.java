@@ -25,7 +25,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.Shelly2_Settings;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.osgi.service.component.annotations.Component;
@@ -71,7 +71,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 ShellyHttpApi api = new ShellyHttpApi(config);
 
                 // Get device settings
-                Shelly2_Settings settings = api.getSettings();
+                ShellySettingsGlobal settings = api.getSettings();
 
                 Map<String, Object> properties = new HashMap<>(5);
                 properties.put(PROPERTY_VENDOR, "Shelly");
