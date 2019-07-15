@@ -102,16 +102,16 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
-    <thing-type id="shellyht">
-        <label>Shelly HT</label>
-        <description>Shelly HT sensor device</description>
+    <thing-type id="shellysmoke">
+        <label>Shelly Smoke</label>
+        <description>Shelly Smoke sensor device</description>
 
         <channel-groups>
             <channel-group id="sensor" typeId="smokeSensor">
                 <label>Meter</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
-                <label>Meter</label>
+                <label>Battery</label>
             </channel-group>
         </channel-groups>
 
@@ -142,7 +142,33 @@
                 <label>Bulb control</label>
             </channel-group>
             <channel-group id="color" typeId="colorWhiteMode">
-                <label>White control</label>
+                <label>White colorcontrol</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+ 
+    <thing-type id="shellyrgbw2-color">
+        <label>Shelly RGW2 Color Mode</label>
+        <description>Shelly RWG2 controller device - color mode</description>
+
+        <channel-groups>
+            <channel-group id="color" typeId="colorControl">
+                <label>Color control</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+ 
+    <thing-type id="shellyrgbw2-white">
+        <label>Shelly RGW2 White Mode</label>
+        <description>Shelly RWG2 controller device - white mode</description>
+
+        <channel-groups>
+            <channel-group id="color" typeId="colorWhiteMode">
+                <label>White color control</label>
             </channel-group>
         </channel-groups>
 
