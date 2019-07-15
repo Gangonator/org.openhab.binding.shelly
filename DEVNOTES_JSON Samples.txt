@@ -1,3 +1,4 @@
+--- Shelly2: Get Settings
 {
 	"device" : {
 		"type":"SHSW-21",
@@ -155,7 +156,7 @@
 		]
 	}
 
------ /settings/relay/0
+----- Shelly2: /settings/relay/0
 
 {
 	"name":null,
@@ -176,7 +177,7 @@
 }
 
 
------- /status
+------ Shelly2: /status/device
 {
 	"enabled":true,
 	"ssid":"TurtlePineHouse",
@@ -186,7 +187,7 @@
 	"mask":"255.255.255.0",
 	"dns":"192.168.6.137"�
 
------- /status
+------ Shelly2: /status
 {
 	"wifi_sta":{
 		"connected":true,
@@ -252,3 +253,5 @@
 	"fs_free":156373,
 	"uptime":777069
 }
+
+

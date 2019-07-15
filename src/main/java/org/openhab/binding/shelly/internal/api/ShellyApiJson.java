@@ -259,7 +259,7 @@ public class ShellyApiJson {
         public Boolean safety_switch; // Whether the safety input is currently triggered
         public Boolean overtemperature;
         public String  stop_reason; // Last cause for stopping: normal, safety_switch, obstacle
-        public String  last_direction; // Last direction of motion, open or close
+        public Boolean last_direction; // Last direction of motion, open or close
         public Long    current_pos; // current position 0..100, 100=open
     }
 

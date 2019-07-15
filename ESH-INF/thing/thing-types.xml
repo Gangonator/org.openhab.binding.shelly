@@ -7,7 +7,6 @@
 	<thing-type id="shelly1">
 		<label>Shelly1 (SHSW-1)</label>
 		<description>Shelly1 device with single relay</description>
-
         <channel-groups>
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
@@ -24,7 +23,7 @@
  			</parameter>
 		</config-description>
 	</thing-type>
-
+	
     <thing-type id="shelly2-relay">
         <label>Shelly2 Relay (SHSW-21, SHSW-25)</label>
         <description>Shelly2 device with two relays</description>
@@ -49,7 +48,7 @@
         </config-description>
     </thing-type>
 
-    <thing-type id="shelly2-roller">
+     <thing-type id="shelly2-roller">
         <label>Shelly2 Roller (SHSW-21, SHSW-25)</label>
         <description>Shelly2 roller device</description>
 
@@ -69,20 +68,8 @@
             </parameter>
         </config-description>
     </thing-type>
-
-   <thing-type id="shellyht">
-        <label>Shelly HT</label>
-        <description>Shelly HT sensor device</description>
-
-        <config-description>
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-            </parameter>
-        </config-description>
-    </thing-type>
-
-   <thing-type id="shellyplug">
+ 
+    <thing-type id="shellyplug">
         <label>Shelly Plug</label>
         <description>Shelly Plug device</description>
         <channel-groups>
@@ -101,8 +88,8 @@
             </parameter>
         </config-description>
     </thing-type>
-
-   <thing-type id="shellyplug-s">
+ 
+    <thing-type id="shellyplug-s">
         <label>Shelly PlugS</label>
         <description>Shelly PlugS device</description>
         <channel-groups>
@@ -124,8 +111,20 @@
             </parameter>
         </config-description>
     </thing-type>
+ 
+    <thing-type id="shellyht">
+        <label>Shelly HT</label>
+        <description>Shelly HT sensor device</description>
 
-   <channel-group-type id="relayChannel">
+        <config-description>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+            </parameter>
+        </config-description>
+    </thing-type>
+ 
+    <channel-group-type id="relayChannel">
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
         <channels>
@@ -135,7 +134,6 @@
             <channel id="trigger" typeId="relayTrigger" />
         </channels>
     </channel-group-type>
-
    <channel-group-type id="rollerControl">
        <label>Roller Control</label>
        <description>Controlling teh Shelly2 in roller mode</description>
@@ -148,15 +146,13 @@
         </channels>
     </channel-group-type>
 
-   <channel-group-type id="simpleMeter">
-       <label>Power Meter</label>
-       <description>Power consumption</description>
-        <channels>
-            <channel id="currentWatts" typeId="meterWatts" />
-            <channel id="maxPower" typeId="maxPower" />
-        </channels>
-    </channel-group-type>
-   <channel-group-type id="meter">
+ 
+    <channel-type id="output">
+        <item-type>Switch</item-type>
+        <label>Output</label>
+        <description>Control the relay output</description>
+    </channel-type>
+    <channel-group-type id="meter">
        <label>Power Meter</label>
        <description>Power consumption</description>
         <channels>
@@ -165,6 +161,14 @@
             <channel id="lastPower2" typeId="lastPower2" />
             <channel id="lastPower3" typeId="lastPower3" />
             <channel id="overpower" typeId="overpower" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="simpleMeter">
+       <label>Power Meter</label>
+       <description>Power consumption</description>
+        <channels>
+            <channel id="currentWatts" typeId="meterWatts" />
+            <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
    <channel-group-type id="ledControl">
@@ -176,13 +180,13 @@
         </channels>
     </channel-group-type>
 
+
     <channel-type id="output">
         <item-type>Switch</item-type>
         <label>Output</label>
         <description>Control the relay output</description>
     </channel-type>
-
-    <channel-type id="meterWatts">
+   <channel-type id="meterWatts">
         <item-type>Number</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
@@ -192,61 +196,45 @@
     <channel-type id="lastPower1">
         <item-type>Number</item-type>
         <label>Last Power #1</label>
-        <description>Last power consumption - one rounded minutet</description>
+        <description>Last power consumption #1 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
-        <label>Last Power #1</label>
-        <description>Last power consumption - one rounded minutet</description>
+        <label>Last Power #2</label>
+        <description>Last power consumption #2 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
-        <label>Last Power #1</label>
-        <description>Last power consumption - one rounded minutet</description>
+        <label>Last Power #3</label>
+        <description>Last power consumption #3 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
-   <channel-type id="meterWatts">
-        <item-type>Number</item-type>
-        <label>Watt</label>
-        <description>Current power consumption in Watt</description>
+    <channel-type id="overpower">
+        <item-type>Switch</item-type>
+        <label>Overpower</label>
+        <description>ON: Device detected an over power situation</description>
         <state readOnly="true">
         </state>
     </channel-type>
-    <channel-type id="maxPower">
+    <channel-type id="relayTimer">
         <item-type>Number</item-type>
-        <label>Max Power</label>
-        <description>Overpower threshold in Watts</description>
+        <label>Auto-Timer</label>
+        <description>Toggles the output when timer expired</description>
+        <state readOnly="true">
+        </state>
     </channel-type>
-    
-    <channel-type id="ledStatusDisable">
-        <item-type>Switch</item-type>
-        <label>Disable Status LED</label>
-        <description>Disable LED indication for network status</description>
-    </channel-type>
-    <channel-type id="ledPowerDisable">
-        <item-type>Switch</item-type>
-        <label>Disable Power LED</label>
-        <description>Disable LED indication for output status</description>
+    <channel-type id="relayTrigger">
+        <kind>trigger</kind>
+        <label>Relay Event Trigger</label>
+        <description>Triggers channel for events, type code be btn_on, btn_off, out_on, out_off</description>
+        <event/>
     </channel-type>
 
-
-    <channel-type id="rollerStop">
-        <item-type>String</item-type>
-        <label>Stop reason</label>
-        <description>Reason why motor stopped: normal, safety_switch, obstacle</description>
-        <state readOnly="true">
-            <options>
-                <option value="normal">normal</option>
-                <option value="safety_switch">safety_switch</option>
-                <option value="obstacle">obstacle</option>
-            </options>
-        </state>
-    </channel-type>
     <channel-type id="rollerTurn">
         <item-type>String</item-type>
         <label>Roller Control</label>
@@ -264,16 +252,22 @@
         <label>Roller Position</label>
         <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
     </channel-type>
-    <channel-type id="relayTrigger">
-        <kind>trigger</kind>
-        <label>Relay Event Trigger</label>
-        <description>Triggers channel for events, type code be btn_on, btn_off, out_on, out_off</description>
-        <event/>
-    </channel-type>
     <channel-type id="rollerTimer">
         <item-type>Number</item-type>
         <label>Roller Timer</label>
         <description>Limit the number of seconds the motor is turning</description>
+    </channel-type>
+    <channel-type id="rollerStop">
+        <item-type>String</item-type>
+        <label>Roller stop reason</label>
+        <description>Last cause for stopping: normal, safety_switch, obstacle</description>
+        <state readOnly="true">
+            <options>
+                <option value="normal">normal</option>
+                <option value="safety_switch">safety switch</option>
+                <option value="obstacle">obstacle detected</option>
+            </options>
+        </state>
     </channel-type>
     <channel-type id="rollerDirection">
         <item-type>String</item-type>
@@ -286,4 +280,20 @@
             </options>
         </state>
     </channel-type>
+    <channel-type id="ledStatusDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Status LED</label>
+        <description>Disable LED indication for network status</description>
+    </channel-type>
+    <channel-type id="ledPowerDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Power LED</label>
+        <description>Disable LED indication for output status</description>
+    </channel-type>
+    <channel-type id="maxPower">
+        <item-type>Number</item-type>
+        <label>Max Power</label>
+        <description>Overpower threshold in Watts</description>
+    </channel-type>
+
 </thing:thing-descriptions>
