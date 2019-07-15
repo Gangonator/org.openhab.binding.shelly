@@ -123,7 +123,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 hasBattery = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
-                isBulb = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId());
+                isBulb = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_COLOR.getId())
+                        || deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_WHITE.getId());
                 isSmoke = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());

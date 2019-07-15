@@ -139,7 +139,12 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return new ThingUID(THING_TYPE_SHELLYPLUG, devid);
         }
         if (name.startsWith("shellybulb")) {
-            return new ThingUID(THING_TYPE_SHELLYBULB, devid);
+            if (mode.equals(SHELLY_MODE_COLOR)) {
+                return new ThingUID(THING_TYPE_SHELLYBULB_COLOR, devid);
+            }
+            if (mode.equals(SHELLY_MODE_WHITE)) {
+                return new ThingUID(THING_TYPE_SHELLYBULB_WHITE, devid);
+            }
         }
         if (name.startsWith("shellysense")) {
             return new ThingUID(THING_TYPE_SHELLYSENSE, devid);
