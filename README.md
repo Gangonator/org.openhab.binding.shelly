@@ -1,52 +1,92 @@
-# <bindingName> Binding
+# Shelly Binding (org.openhab.binding.shelly)
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
+This openHAB 2 Binding implements control for the Shelly series of devices. This includes sending commands to the devices as well as reding the device status and sensor data.
 
-_If possible, provide some resources like pictures, a YouTube video, etc. to give an impression of what can be done with this binding. You can place such resources into a `doc` folder next to this README.md._
+Author: Markus Michels (markus7017)
+Check  https://community.openhab.org/t/shelly-binding/56862/65 for more information, questions and contributing ideas. Any comment is welcome!
+
+Release: alpha3, check master branch for stable release
+
+---
+
+Known issues:
+
+* Shelly RGBW2 is not yet finally implemented
+* Shelly Plug S is work in progress, the standard Plug not yet tested
+* Event callback are not yet processed (they will be received, but processing results in a exception)
+* The polling frequency is way to high and needs to be optimized by utilizing the event callback when sensor data has changed, req. the fix above
+* Some channels might be missing, some need some fixes. If you see something post on the forum or send me a PM.
+* The event trigger channel is not yet implemented - this will trigger a notification to an OH rule each time an event is received
+* The binding starts one update thread per device, this needs to be consolidated making the device handling more efficient
+
+
+Please note:
+This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
+
+Channel definitions are subject to change with any alpha or beta release. Please make sure to delete all Shelly things when updating the binding and clean out the JSON DB:
+- delete all Shelly things from PaperUI's Inbox and Thing list
+- stop OH
+- copy the jar to the addons/ folder
+- run openhab-cli clean-cache
+- start OH, wait until everything is initialized
+- run the device discovery
+
+If you hit a problem make sure to post a TRACE log (or send PM) so I could look into the details.
+
+Looking for contribution: If you are familar with HTML and CSS you are welcome to contribute a nice HABpanel widget. ;-)
+
+---
+
+## Supported Devices
+
+Devices
+
+* Shelly 1     - fully supported
+* Shelly 2     - fully supported
+* Shelly 2.5   - fully supported
+* Shelly HT    - implenmented, feedback open
+* Shelly Bulb  - implenmented, feedback open
+* Shelly Smoke - implenmented, feedback open
+* Shelly 1PM   - should get discovered, but no special handling yet - contact we if you can do testing
+* Shelly Sense - not yet implemented  - contact we if you can do testing
+
+## Binding installation
+
+# Discovery
 
 ## Supported Things
 
-_Please describe the different supported things / devices within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
+|Thing  |Type                          |
+|-------|------------------------------|
+| ||
 
-## Discovery
-
-_Describe the available auto-discovery features here. Mention for what it works and what needs to be kept in mind when using it._
 
 ## Binding Configuration
 
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it. In this section, you should link to this file and provide some information about the options. The file could e.g. look like:_
-
-```
-# Configuration for the Philips Hue Binding
-#
-# Default secret key for the pairing of the Philips Hue Bridge.
-# It has to be between 10-40 (alphanumeric) characters 
-# This may be changed by the user for security reasons.
-secret=EclipseSmartHome
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```ESH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
 
 ## Thing Configuration
 
-_Describe what is needed to manually configure a thing, either through the (Paper) UI or via a thing-file. This should be mainly about its mandatory and optional configuration parameters. A short example entry for a thing file can help!_
 
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
+|Group      | Channel   |Type                                                                              |
+|-----------|-----------|----------------------------------------------------------------------------------|
+|    |  |             |
 
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
 
 ## Full Example
 
-_Provide a full usage example based on textual configuration files (*.things, *.items, *.sitemap)._
+Note: PaperUI is recommended, if you want to use text files make sure to replace the thing id from you channel definition 
 
-## Any custom content here!
+* .things
 
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+* .items
+
+
+* .sitemap
+
+* .rules
+
+## Notes
+

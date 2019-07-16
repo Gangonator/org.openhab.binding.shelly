@@ -76,33 +76,23 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
             // Get device settings
             ShellySettingsGlobal settings = api.getSettings();
+            String mode = getString(settings.mode.toLowerCase());
+            logger.trace("name={}, mode={}", name, mode);
 
             Map<String, Object> properties = new HashMap<>(5);
-            logger.trace("set vendor");
             properties.put(PROPERTY_VENDOR, "Shelly");
-            logger.trace("set model");
             properties.put(PROPERTY_MODEL_ID, getString(settings.device.type));
-            logger.trace("set mac");
             properties.put(PROPERTY_MAC_ADDRESS, getString(settings.device.mac));
-            logger.trace("set fw");
             properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.device.fw));
-            logger.trace("set ip");
             properties.put(CONFIG_DEVICEIP, address);
-            logger.trace("set name");
-            addProperty(properties, "name", name);
-            logger.trace("set mode");
-            addProperty(properties, "mode", getString(settings.mode));
-            logger.trace("set hostname");
+            addProperty(properties, "mode", mode);
             addProperty(properties, "hostname", getString(settings.device.hostname));
-            logger.trace("set numMetersl");
             addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
-            logger.trace("set numRollersl");
             addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
-            logger.trace("set numOutputs");
             addProperty(properties, "numOutputs", getInteger(settings.device.num_outputs).toString());
 
-            logger.trace("set getThingUID");
-            ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
+            logger.trace("getThingUID");
+            ThingUID thingUID = getThingUID(name, mode);
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                     .withRepresentationProperty(name).build();
@@ -188,7 +178,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             }
         }
 
-        logger.info("Unsupported Shelly Device discovered: {}", name);
+        logger.info("Unsupported Shelly Device discovered: {} (mode {})", name, mode);
         return null;
 
     }
