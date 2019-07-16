@@ -76,7 +76,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
             // Get device settings
             ShellySettingsGlobal settings = api.getSettings();
-            String mode = getString(settings.mode.toLowerCase());
+            String mode = getString(settings.mode).toLowerCase();
             logger.trace("name={}, mode={}", name, mode);
 
             Map<String, Object> properties = new HashMap<>(5);
