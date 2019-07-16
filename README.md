@@ -17,6 +17,7 @@ Known issues:
 * The polling frequency is way to high and needs to be optimized by utilizing the event callback when sensor data has changed, req. the fix above
 * Some channels might be missing, some need some fixes. If you see something post on the forum or send me a PM.
 * The event trigger channel is not yet implemented - this will trigger a notification to an OH rule each time an event is received
+* http authentication is currently not implemented, this means you have to disable http auth for the build-in web server
 * The binding starts one update thread per device, this needs to be consolidated making the device handling more efficient
 
 
@@ -45,10 +46,12 @@ Devices
 * Shelly 2     - fully supported
 * Shelly 2.5   - fully supported
 * Shelly HT    - implenmented, feedback open
-* Shelly Bulb  - implenmented, feedback open
 * Shelly Smoke - implenmented, feedback open
+* Shelly Bulb  - implenmented, feedback open
 * Shelly 1PM   - should get discovered, but no special handling yet - contact we if you can do testing
-* Shelly Sense - not yet implemented  - contact we if you can do testing
+* Shelly 4Pro  - should get discovered, but no special handling yet - contact we if you can do testing
+* Shelly RGBW2 - should get discovered, but no special handling yet - contact we if you can do testing
+* Shelly Sense - should get discovered, but no special handling yet - contact we if you can do testing
 
 ## Binding installation
 
@@ -56,9 +59,20 @@ Devices
 
 ## Supported Things
 
-|Thing  |Type                          |
-|-------|------------------------------|
-| ||
+|Thing             |Type                                                       |
+|------------------|-----------------------------------------------------------|
+| shelly1          | Shelly Single Relay Switch                                |
+| shelly1pm        | Shelly Single Relay Switch with integrated Power Meter    |
+| shelly2-relay    | Shelly Double Relay Switch (Shelly2 and Shelly2.5)        |
+| shelly2-roller   | Shelly2 in Roller Mode (Shelly2 and Shelly2.5)            |
+| shelly4pro       | Shelly 4x Relay Switch                                    |
+| shellyht         | Shelly Sensor (temp+humidity)                             |
+| shellysmoke      | Shelly Sensor (temp+humidity)                             |
+| shellybulb-color | Shelly Bulb in Color Mode                                 |
+| shellybulb-white | Shelly Bulb in White Mode                                 |
+| shellyrgbw2      | Shelly RGB Controller                                     |
+| shellysense      | Shelly Motion and IR Controller                           |
+
 
 
 ## Binding Configuration
@@ -66,7 +80,12 @@ Devices
 
 ## Thing Configuration
 
-
+|Parameter  |Description                                                       |Mandantory|Default         |
+|-----------|------------------------------------------------------------------|----------|----------------|
+|deviceIp   | IP address of the Shelly device                                  |    yes   |       -        |
+|userId   |                                   |       |       -        |
+|   |                                   |       |       -        |
+|   |                                   |       |       -        |
 
 ## Channels
 

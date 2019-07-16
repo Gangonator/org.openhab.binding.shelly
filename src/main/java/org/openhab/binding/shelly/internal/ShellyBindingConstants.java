@@ -55,7 +55,9 @@ public class ShellyBindingConstants {
 
     // List of all Configuration Properties
     public static final String            CONFIG_DEVICEIP              = "deviceIp";
-    public static final String            CONFIG_IDENTITY              = "identity";
+    public static final String            CONFIG_UPDATE_INTERVAL       = "updateInterval";
+    public static final String            CONFIG_UPDATE_HTTP_USER      = "userId";
+    public static final String            CONFIG_UPDATE_HTTP_PWD       = "password";
 
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL  = "relay";

@@ -81,6 +81,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private ScheduledFuture<?>          statusJob;
     private int                         skipUpdate     = 0;
     private int                         requestUpdates = 1;
+    private int                         skipCount      = UPDATE_SKIP_COUNT;
 
     private String                      deviceName     = "";
     private String                      deviceType     = "";
@@ -106,16 +107,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     public void initialize() {
         logger.debug("Start initializing!");
         config = getConfigAs(ShellyConfiguration.class);
+        if (config.updateInterval == 0) {
+            config.updateInterval = 15;
+        }
+        skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
+
+        config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
+        handlerFactory.registerDeviceListener(this);
+        api = new ShellyHttpApi(config);
 
         // Example for background initialization:
         scheduler.schedule(() -> {
-
             try {
-                config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
-                handlerFactory.registerDeviceListener(this);
-
-                api = new ShellyHttpApi(config);
-
                 ShellySettingsGlobal settings = api.getSettings();
                 deviceName = "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
                 deviceType = settings.device.type;
@@ -166,10 +169,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.info("Unable to get status from Shelly: {}", e.getMessage());
             }
 
-            InetSocketAddress address = new InetSocketAddress("192.168.6.152", 50000);
-            client = new CoapClient("coap://192.168.6.81:5683/cit/s");
+            InetSocketAddress address = new InetSocketAddress(config.localIp, 50000);
+            client = new CoapClient("coap://" + config.deviceIp + "/cit/s");
             // endPoint = new CoapEndpoint(address);
             endPoint = new CoapEndpoint(NetworkConfig.getStandard());
+
             /*
              * if (!endPoint.isStarted()) { try { endPoint.start(); logger.info("Started set client endpoint " + endPoint.getAddress()); } catch
              * (IOException e) { logger.error("Could not set and start client endpoint", e); } }
@@ -186,7 +190,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 @Override
                 public void onError() {
-                    logger.error("CoaOBSERVING FAILED");
+                    logger.error("CoapOBSERVING FAILED");
                 }
             });
 
@@ -398,7 +402,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     public void updateStatus() {
         try {
-            if ((requestUpdates > 0) || (skipUpdate++ % UPDATE_SKIP_COUNT == 0)) {
+            if ((requestUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
                 logger.trace("Updating device status for device {}", deviceName);
                 ShellySettingsStatus status = api.gerStatus();
 
@@ -497,7 +501,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.trace("{} more updates requested", requestUpdates);
                 }
             } else {
-                // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % UPDATE_SKIP_COUNT, UPDATE_SKIP_COUNT);
+                // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
             }
         } catch (RuntimeException | IOException e) {
             logger.debug("Unable to update the device status: {}", e.getMessage());

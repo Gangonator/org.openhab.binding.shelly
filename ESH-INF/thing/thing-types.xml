@@ -304,35 +304,35 @@
         <description>Control the relay output</description>
     </channel-type>
    <channel-type id="meterWatts">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower1">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower2">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower3">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
    <channel-type id="meterTotal">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Total Watt</label>
         <description>Total power consumption in Watt</description>
         <state readOnly="true">
@@ -416,7 +416,7 @@
         <description>Disable LED indication for output status</description>
     </channel-type>
     <channel-type id="maxPower">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Max Power</label>
         <description>Overpower threshold in Watts</description>
     </channel-type>
@@ -509,7 +509,7 @@
     </channel-type>
 
     <channel-type id="sensorTemp">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Temperature</label>
         <description>Temperature from the sensor</description>
         <state readOnly="true">
@@ -527,7 +527,7 @@
         </state>
     </channel-type>
     <channel-type id="sensorHumidity">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
         <state readOnly="true">
@@ -535,14 +535,14 @@
     </channel-type>
 
     <channel-type id="batValue">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Battery capacity</label>
         <description>estimated remaining battery capacity in %</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="batVoltage">
-        <item-type>Number</item-type>
+        <item-type>Decimal</item-type>
         <label>Battery voltage</label>
         <description>Battery voltage in V</description>
         <state readOnly="true">

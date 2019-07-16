@@ -301,7 +301,7 @@ public class ShellyApiJson {
 
     public class ShellySettingsSensor {
         public String  temperature_units; // Either'C'or'F'
-        public Double  temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
+        public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer humidity_threshold; // RH delta in % which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
         public String  report_url; // URL gets posted on updates with sensor data
@@ -334,7 +334,7 @@ public class ShellyApiJson {
 
     public class ShellySettingsSmoke {
         public String  temperature_units; // Either 'C' or 'F'
-        public Double  temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
+        public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
     }
 
