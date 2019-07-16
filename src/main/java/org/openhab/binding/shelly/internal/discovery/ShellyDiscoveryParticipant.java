@@ -64,7 +64,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         String name = service.getName().toLowerCase();
         String address = StringUtils.substringBetween(service.toString(), "/", ":80");
         if (address == null) {
-            logger.warn("Discovered Shelly device doesn't have an IP address: {}", service);
+            logger.warn("Discovered Shelly device {} doesn't have an IP address, service-info={}", name, service);
             return null;
         }
 
@@ -79,32 +79,33 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
             Map<String, Object> properties = new HashMap<>(5);
             properties.put(PROPERTY_VENDOR, "Shelly");
-            properties.put(PROPERTY_MODEL_ID, settings.device.type);
-            properties.put(PROPERTY_MAC_ADDRESS, settings.device.mac);
-            properties.put(PROPERTY_FIRMWARE_VERSION, settings.device.fw);
+            properties.put(PROPERTY_MODEL_ID, getString(settings.device.type));
+            properties.put(PROPERTY_MAC_ADDRESS, getString(settings.device.mac));
+            properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.device.fw));
             properties.put(CONFIG_DEVICEIP, address);
             addProperty(properties, "name", name);
-            addProperty(properties, "hostname", settings.device.hostname);
-            addProperty(properties, "mode", settings.mode);
-            if (settings.device.num_meters != null) {
-                addProperty(properties, "numMeters", settings.device.num_meters.toString());
-            }
-            if (settings.device.num_meters != null) {
-                addProperty(properties, "numRollers", settings.device.num_rollers.toString());
-            }
-            if (settings.device.num_outputs != null) {
-                addProperty(properties, "numOutputs", settings.device.num_outputs.toString());
-            }
-
+            addProperty(properties, "hostname", getString(settings.device.hostname));
+            addProperty(properties, "mode", getString(settings.mode));
+            addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
+            addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
+            addProperty(properties, "numOutputs", getInteger(settings.device.num_outputs).toString());
             ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
+            logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                     .withRepresentationProperty(name).build();
         } catch (RuntimeException | IOException e) {
-            logger.error("Device discovery failed: {}", e.getMessage());
+            logger.error("Device discovery failed for device {}, IP {}: {}", name, address, e.getMessage());
         }
 
         return null;
+    }
 
+    private String getString(String value) {
+        return value != null ? value : "";
+    }
+
+    private Integer getInteger(Object value) {
+        return (value != null ? (Integer) value : 0);
     }
 
     private void addProperty(Map<String, Object> properties, String key, String value) {

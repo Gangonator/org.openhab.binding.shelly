@@ -110,6 +110,10 @@ public class ShellyApiJson {
         public Boolean connected;
     }
 
+    public class ShellyStatusMqtt {
+        public Boolean connected;
+    }
+
     public class ShellySettingsHwInfo {
         public String  hw_revision;
         public Integer batch_id;
@@ -225,11 +229,7 @@ public class ShellyApiJson {
     }
 
     public class ShellySettingsStatus {
-        public ShellySettingsWiFiNetwork wifi_sta;
-
-        class mqtt {
-            public Boolean connected;
-        }
+        public ShellySettingsWiFiNetwork       wifi_sta;
 
         public String                          time;
         public Integer                         serial;
@@ -254,6 +254,33 @@ public class ShellyApiJson {
 
         public String  turn; // Accepted values are on and off. This will turn ON/OFF the respective output channel when request is sent .
         public Integer timer; // A one-shot flip-back timer in seconds.
+    }
+
+    public class ShellyShortStatusRelay {
+        public Boolean is_valid;
+        public Boolean has_timer; // Whether a timer is currently armed for this channel
+        public Boolean overpower; // Shelly1PM only if maximum allowed power was exceeded
+        public Boolean ison; // Whether output channel is on or off
+    }
+
+    public class ShellyStatusRelay {
+        public ShellySettingsWiFiNetwork         wifi_sta; // WiFi status
+        public ShellySettingsCloud               cloud; // Cloud status
+        public ShellyStatusMqtt                  mqtt; // mqtt status
+        public String                            time; // current time
+        public Integer                           serial;
+        public String                            mac; // MAC
+        public ArrayList<ShellyShortStatusRelay> relays; // relay status
+        public ArrayList<ShellySettingsMeter>    meters; // current meter value
+
+        public Boolean                           has_update; // If a newer firmware version is available
+        public ShellySettingsUpdate              update; // /status/firmware value
+
+        public Integer                           ram_total; // Total and available amount of system memory in bytes
+        public Integer                           ram_free;
+        public Integer                           fs_size;
+        public Integer                           fs_free; // Total and available amount of file system space in bytes
+        public Integer                           uptime; // econds elapsed since boot
     }
 
     public class ShellyControlRoller {

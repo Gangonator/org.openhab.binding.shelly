@@ -22,12 +22,12 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
@@ -54,8 +54,8 @@ public class ShellyHttpApi {
     public static final String SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
     public static final String SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
     public static final String SHELLY_URL_STATUS_RELEAY         = "/status/relay";
-
     public static final String SHELLY_URL_CONTROL_RELEAY        = "/relay";
+
     public static final String SHELLY_URL_CONTROL_ROLLER        = "/roller";
 
     public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{1}={2}";
@@ -124,9 +124,9 @@ public class ShellyHttpApi {
         return gson.fromJson(result, ShellySettingsStatus.class);
     }
 
-    public ShellyControlRelay getRelayStatus(Integer relayIndex) throws IOException {
-        String result = request(SHELLY_URL_CONTROL_RELEAY + "/" + relayIndex.toString(), null);
-        return gson.fromJson(result, ShellyControlRelay.class);
+    public ShellyStatusRelay getRelayStatus(Integer relayIndex) throws IOException {
+        String result = request(SHELLY_URL_STATUS_RELEAY + "/" + relayIndex.toString(), null);
+        return gson.fromJson(result, ShellyStatusRelay.class);
     }
 
     public void setRelayTurn(Integer relayIndex, String turnMode) throws IOException {
@@ -213,11 +213,9 @@ public class ShellyHttpApi {
             }
 
             return httpResponse;
-        } catch (
-
-        IOException e) {
+        } catch (IOException e) {
             throw new IOException(
-                    "Shelly API call failed, url=" + url + ", response=" + httpResponse + ", input=" + postData);
+                    "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage());
         }
     }
 

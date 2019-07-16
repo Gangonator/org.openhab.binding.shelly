@@ -1,4 +1,4 @@
---- Shelly2: Get Settings
+--- Shelly2: /settings
 {
 	"device" : {
 		"type":"SHSW-21",
@@ -255,3 +255,110 @@
 }
 
 
+--- Shelly Plug S: /settings
+{
+	"device":{
+		"type":"SHPLG-S",
+		"mac":"XX50E3376D1F",
+		"hostname":"shellyplug-s-376D1F",
+		"num_outputs":1,
+		"num_meters":1
+	},
+	"wifi_ap":{
+		"enabled":false,
+		"ssid":"shellyplug-s-376D1F",
+		"key":""
+	},
+	"wifi_sta":{
+		"enabled":true,
+		"ssid":"yyyy",
+		"ipv4_method":"static",
+		"ip":"192.168.2.2",
+		"gw":"192.168.2.1",
+		"mask":"255.255.255.0",
+		"dns":"192.168.2.1"},
+		"wifi_sta1":{
+			"enabled":false,"ssid":null,
+			"ipv4_method":"dhcp",
+			"ip":null,
+			"gw":null,
+			"mask":null,
+			"dns":null
+		},
+		"mqtt": {
+			"enable":false,
+			"server":"192.168.33.3:1883",
+			"user":"","
+			reconnect_timeout_max":60.000000,
+			"reconnect_timeout_min":2.000000,
+			"clean_session":true,
+			"keep_alive":60,
+			"will_topic":"shellies/shellyplug-s-376D1F/online",
+			"will_message":"false",
+			"max_qos":0,
+			"retain":false,
+			"update_period":30
+		},
+		"sntp": {
+			"server":"time.google.com"
+		},
+		"login":
+			{"enabled":false,
+			"unprotected":false,
+			"username":"xxxx",
+			"password":"xxx"},
+			"pin_code":"i+CQ72",
+			"coiot_execute_enable":true,
+			"name":"",
+			"fw":"20190711-084501/v1.5.0-hotfix4@3b4f7414",
+			"build_info":{
+				"build_id":"20190711-084501/v1.5.0-hotfix4@3b4f7414",
+				"build_timestamp":"2019-07-11T08:45:01Z",
+				"build_version":"1.0"
+		},
+		"cloud":{
+			"enabled":true,
+			"connected":true
+		},
+		"timezone":"Europe/Berlin",
+		"lat":50.110901,
+		"lng":8.682130,
+		"tzautodetect":true,
+		"time":"17:58",
+		"hwinfo":{
+			"hw_revision":"prod-190325-test",
+			"batch_id":1
+		},
+		"max_power":2500,
+		"led_status_disable":true,
+		"led_power_disable":false,
+		"relays":[
+			{
+				"ison":true,
+				"has_timer":false,
+				"overpower":false,
+				"default_state":"off",
+				"auto_on":0.00,
+				"auto_off":0.00,
+				"btn_on_url":null,
+				"out_on_url":null,
+				"out_off_url":null,
+				"schedule":true,
+				"schedule_rules":[
+					"1730-0123-on",
+					"2350-0123456-off",
+					"0800-456-on"]
+			}
+		],
+		"meters":[
+			{
+			"power":3.75,
+			"is_valid":true,
+			"timestamp":1563127101,
+			"counters":[
+				3.690, 3.676, 3.671],
+			"total":9251}
+		]
+	}
+	
+--- Shelly2: /status/relay/0

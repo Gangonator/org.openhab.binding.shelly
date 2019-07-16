@@ -11,6 +11,9 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
+            <channel-group id="meter" typeId="v1Meter">
+                <label>Meter</label>
+            </channel-group>
         </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
@@ -189,7 +192,7 @@
             <channel id="position" typeId="rollerPosition" />
             <channel id="direction" typeId="rollerDirection" />
             <channel id="stopReason" typeId="rollerStop" />
-            <channel id="direction" typeId="rollerCalibrating" />
+            <channel id="calibrating" typeId="rollerCalibrating" />
         </channels>
     </channel-group-type>
 
@@ -220,6 +223,13 @@
             <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
+   <channel-group-type id="v1Meter">
+       <label>Power Meter</label>
+       <description>Power consumption</description>
+        <channels>
+            <channel id="currentWatts" typeId="meterWatts" />
+        </channels>
+   </channel-group-type>
    <channel-group-type id="ledControl">
        <label>LED control</label>
        <description>Control the LEDs</description>
@@ -381,7 +391,7 @@
     <channel-type id="rollerCalibrating">
         <item-type>Switch</item-type>
         <label>Calibrating</label>
-        <description>ON: Roller is calibratings</description>
+        <description>ON: Roller is calibrating</description>
     </channel-type>
     
     <channel-type id="rollerDirection">

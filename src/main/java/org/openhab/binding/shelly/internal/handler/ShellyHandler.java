@@ -46,7 +46,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
@@ -54,6 +53,8 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusRelay;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
@@ -119,7 +120,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 deviceName = "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
                 deviceType = settings.device.type;
                 isRoller = settings.mode.equals(SHELLY_MODE_ROLLER);
-                hasMeter = settings.device.num_meters > 0;
+                hasMeter = ((settings.relays != null) || (settings.device.num_meters > 0));  // Shelly1 has a meter, nevertheless numMeters is null!
                 hasBattery = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
@@ -400,19 +401,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if ((requestUpdates > 0) || (skipUpdate++ % UPDATE_SKIP_COUNT == 0)) {
                 logger.trace("Updating device status for device {}", deviceName);
                 ShellySettingsStatus status = api.gerStatus();
-                updateStatus(ThingStatus.ONLINE);   // if api call was successful thing must be online
 
                 // map status to channels
                 if ((status.relays != null) && !isRoller) {
                     int i = 0;
-                    for (ShellySettingsRelay relay : status.relays) {
-                        ShellyControlRelay control = api.getRelayStatus(i);
-                        if (control.is_valid) {
+                    ShellyStatusRelay rstatus = api.getRelayStatus(i);
+                    for (ShellyShortStatusRelay relay : rstatus.relays) {
+                        if ((relay.is_valid == null) || relay.is_valid) {
                             Integer r = i + 1;
                             String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
                             updateChannel(groupName, CHANNEL_RELAY_OUTPUT, relay.ison ? OnOffType.ON : OnOffType.OFF);
-                            updateChannel(groupName, CHANNEL_RELAY_TIMER, control.has_timer ? control.timer : 0);
-                            updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, control.overpower);
+                            // updateChannel(groupName, CHANNEL_RELAY_TIMER, relay.has_timer ? relay.
+                            updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, relay.overpower);
                         }
                         i++;
                     }
@@ -439,10 +439,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     for (ShellySettingsMeter meter : status.meters) {
                         if (meter.is_valid) {
                             updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_CURRENTWATTS, meter.power);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                            if (meter.total != null) {
+                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
+                            }
+                            if (meter.counters != null) {
+                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
+                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
+                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                            }
                         }
                     }
                 }
