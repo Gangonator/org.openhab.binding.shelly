@@ -139,7 +139,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         logger.trace("devid={}", devid);
 
         if (name.startsWith("shelly1pm")) {
-            return new ThingUID(THING_TYPE_SHELLY1, devid);
+            return new ThingUID(THING_TYPE_SHELLY1PM, devid);
         }
         if (name.startsWith("shelly1")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);
