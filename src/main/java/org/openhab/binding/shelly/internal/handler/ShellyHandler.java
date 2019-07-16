@@ -13,8 +13,6 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -549,9 +547,17 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
-    private String convertTimestamp(Long timestamp) {
-        Date date = new Date(timestamp * 1000L);
-        SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        return jdf.format(date);
+    @Override
+    public void dispose() {
+        logger.debug("Shutdown thing");
+        try {
+            if (statusJob != null) {
+                statusJob.cancel(true);
+            }
+        } catch (Exception e) {
+            logger.debug("Exception on dispose(): {} ({})", e.getMessage(), e.getClass());
+        } finally {
+            super.dispose();
+        }
     }
 }
