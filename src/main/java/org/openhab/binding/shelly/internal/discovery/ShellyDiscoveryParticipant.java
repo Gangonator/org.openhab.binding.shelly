@@ -78,22 +78,37 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             ShellySettingsGlobal settings = api.getSettings();
 
             Map<String, Object> properties = new HashMap<>(5);
+            logger.trace("set vendor");
             properties.put(PROPERTY_VENDOR, "Shelly");
+            logger.trace("set model");
             properties.put(PROPERTY_MODEL_ID, getString(settings.device.type));
+            logger.trace("set mac");
             properties.put(PROPERTY_MAC_ADDRESS, getString(settings.device.mac));
+            logger.trace("set fw");
             properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.device.fw));
+            logger.trace("set ip");
             properties.put(CONFIG_DEVICEIP, address);
+            logger.trace("set name");
             addProperty(properties, "name", name);
-            addProperty(properties, "hostname", getString(settings.device.hostname));
+            logger.trace("set mode");
             addProperty(properties, "mode", getString(settings.mode));
+            logger.trace("set hostname");
+            addProperty(properties, "hostname", getString(settings.device.hostname));
+            logger.trace("set numMetersl");
             addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
+            logger.trace("set numRollersl");
             addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
+            logger.trace("set numOutputs");
             addProperty(properties, "numOutputs", getInteger(settings.device.num_outputs).toString());
+
+            logger.trace("set getThingUID");
             ThingUID thingUID = getThingUID(name, settings.mode.toLowerCase());
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                     .withRepresentationProperty(name).build();
-        } catch (RuntimeException | IOException e) {
+        } catch (RuntimeException |
+
+                IOException e) {
             logger.error("Device discovery failed for device {}, IP {}: {}", name, address, e.getMessage());
         }
 
@@ -120,7 +135,8 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     }
 
     public ThingUID getThingUID(String name, String mode) {
-        String devid = StringUtils.substringAfter(name, "-");
+        String devid = StringUtils.substringAfterLast(name, "-");
+        logger.trace("devid={}", devid);
 
         if (name.startsWith("shelly1pm")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);
