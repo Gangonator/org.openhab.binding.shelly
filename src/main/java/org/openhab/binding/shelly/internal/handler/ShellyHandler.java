@@ -13,6 +13,8 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -438,16 +440,22 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (hasMeter && (status.meters != null)) {
+                    int m = 0;
                     for (ShellySettingsMeter meter : status.meters) {
                         if (meter.is_valid) {
-                            updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_CURRENTWATTS, meter.power);
+                            Integer meterIndex = m + 1;
+                            String groupName = CHANNEL_GROUP_METER + meterIndex.toString();
+                            updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, meter.power);
                             if (meter.total != null) {
-                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_TOTALWATTS, meter.total);
+                                updateChannel(groupName, CHANNEL_METER_TOTALWATTS, meter.total);
                             }
                             if (meter.counters != null) {
-                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN1, meter.counters[0]);
-                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN2, meter.counters[1]);
-                                updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                                updateChannel(groupName, CHANNEL_METER_LASTMIN1, meter.counters[0]);
+                                updateChannel(groupName, CHANNEL_METER_LASTMIN2, meter.counters[1]);
+                                updateChannel(groupName, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                            }
+                            if (meter.timestamp != null) {
+                                updateChannel(groupName, CHANNEL_METER_LASTMIN1, meter.counters[0]);
                             }
                         }
                     }
@@ -457,7 +465,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     ShellySettingsGlobal settings = api.getSettings();
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable);
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable);
-                    updateChannel(CHANNEL_GROUP_METER, CHANNEL_METER_MAXPOWER, settings.max_power);
+                    updateChannel(CHANNEL_GROUP_METER1, CHANNEL_METER_MAXPOWER, settings.max_power);
                 }
 
                 if (isBulb) {
@@ -545,6 +553,19 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             return true;
         }
         return false;
+
+    }
+
+    private String convertTimestamp(Long timestamp) {
+        Object o = timestamp;
+        if (o == null) {
+            return "n/a";
+        }
+
+        Date date = new java.util.Date(timestamp * 1000L);
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        sdf.setTimeZone(java.util.TimeZone.getDefault());
+        return sdf.format(date);
     }
 
     @Override

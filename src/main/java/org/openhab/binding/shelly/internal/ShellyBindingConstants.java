@@ -78,12 +78,14 @@ public class ShellyBindingConstants {
 
     // Power meter
     public static final String            CHANNEL_GROUP_METER          = "meter";
+    public static final String            CHANNEL_GROUP_METER1         = CHANNEL_GROUP_METER + "1";
     public static final String            CHANNEL_METER_CURRENTWATTS   = "currentWatts";
     public static final String            CHANNEL_METER_LASTMIN1       = "lastPower1";
     public static final String            CHANNEL_METER_LASTMIN2       = "lastPower2";
     public static final String            CHANNEL_METER_LASTMIN3       = "lastPower3";
     public static final String            CHANNEL_METER_TOTALWATTS     = "totalWatts";
     public static final String            CHANNEL_METER_MAXPOWER       = "maxPower";
+    public static final String            CHANNEL_METER_TIMESTAMP      = "timestamp";
 
     public static final String            CHANNEL_GROUP_LED_CONTROL    = "ledControl";
     public static final String            CHANNEL_LED_STATUS_DISABLE   = "ledStatusDisable";

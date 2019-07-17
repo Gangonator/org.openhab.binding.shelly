@@ -11,7 +11,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter" typeId="v1Meter">
+            <channel-group id="meter1" typeId="v1Meter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -30,8 +30,11 @@
             <channel-group id="relay2" typeId="relayChannel">
                 <label>Relay 2</label>
             </channel-group>
-            <channel-group id="meter" typeId="meter">
-                <label>Meter</label>
+            <channel-group id="meter1" typeId="meter">
+                <label>Power Meter Channel1</label>
+            </channel-group>
+            <channel-group id="meter2" typeId="meter">
+                <label>Power Meter Channel 2</label>
             </channel-group>
         </channel-groups>
 
@@ -46,8 +49,8 @@
             <channel-group id="roller1" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
-            <channel-group id="meter" typeId="meter">
-                <label>Meter</label>
+            <channel-group id="meter1" typeId="meter">
+                <label>Power Meter</label>
             </channel-group>
         </channel-groups>
 
@@ -61,8 +64,8 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter" typeId="simpleMeter">
-                <label>Meter</label>
+            <channel-group id="meter1" typeId="simpleMeter">
+                <label>Power Meter</label>
             </channel-group>
         </channel-groups>
 
@@ -75,11 +78,11 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter" typeId="simpleMeter">
-                <label>Meter</label>
+            <channel-group id="meter1" typeId="meter">
+                <label>Power Meter</label>
             </channel-group>
             <channel-group id="led" typeId="ledControl">
-                <label>Meter</label>
+                <label>LED Control</label>
             </channel-group>
         </channel-groups>
 
@@ -92,10 +95,10 @@
 
         <channel-groups>
             <channel-group id="sensor" typeId="htSensor">
-                <label>Meter</label>
+                <label>Sensor Data</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
-                <label>Meter</label>
+                <label>Battery Status</label>
             </channel-group>
         </channel-groups>
 
@@ -108,10 +111,10 @@
 
         <channel-groups>
             <channel-group id="sensor" typeId="smokeSensor">
-                <label>Meter</label>
+                <label>Sensor</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
-                <label>Battery</label>
+                <label>Battery Status</label>
             </channel-group>
         </channel-groups>
 
@@ -124,7 +127,7 @@
         <description>Shelly Bulb in color mode</description>
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb control</label>
+                <label>Bulb Control</label>
             </channel-group>
             <channel-group id="color" typeId="colorControl">
                 <label>Color control</label>
@@ -136,13 +139,13 @@
 
     <thing-type id="shellybulb-white">
         <label>Shelly Bulb - White</label>
-        <description>Shelly Bulb in white mode</description>
+        <description>Shelly Bulb in White Mode</description>
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb control</label>
+                <label>Bulb Control</label>
             </channel-group>
             <channel-group id="color" typeId="colorWhiteMode">
-                <label>White colorcontrol</label>
+                <label>White Color Control</label>
             </channel-group>
         </channel-groups>
 
@@ -150,12 +153,12 @@
     </thing-type>
  
     <thing-type id="shellyrgbw2-color">
-        <label>Shelly RGW2 Color Mode</label>
-        <description>Shelly RWG2 controller device - color mode</description>
+        <label>Shelly RGBW2 Color Mode</label>
+        <description>Shelly RGBW2 Controller - Color Mode</description>
 
         <channel-groups>
             <channel-group id="color" typeId="colorControl">
-                <label>Color control</label>
+                <label>Color Control</label>
             </channel-group>
         </channel-groups>
 
@@ -163,12 +166,12 @@
     </thing-type>
  
     <thing-type id="shellyrgbw2-white">
-        <label>Shelly RGW2 White Mode</label>
-        <description>Shelly RWG2 controller device - white mode</description>
+        <label>Shelly RGBW2 White Mode</label>
+        <description>Shelly RGBW2 Controller - White Mode</description>
 
         <channel-groups>
             <channel-group id="color" typeId="colorWhiteMode">
-                <label>White color control</label>
+                <label>White Color Control</label>
             </channel-group>
         </channel-groups>
 
@@ -304,35 +307,35 @@
         <description>Control the relay output</description>
     </channel-type>
    <channel-type id="meterWatts">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower1">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower2">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower3">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minutet</description>
         <state readOnly="true">
         </state>
     </channel-type>
    <channel-type id="meterTotal">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Total Watt</label>
         <description>Total power consumption in Watt</description>
         <state readOnly="true">
@@ -416,7 +419,7 @@
         <description>Disable LED indication for output status</description>
     </channel-type>
     <channel-type id="maxPower">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Max Power</label>
         <description>Overpower threshold in Watts</description>
     </channel-type>
@@ -509,7 +512,7 @@
     </channel-type>
 
     <channel-type id="sensorTemp">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Temperature from the sensor</description>
         <state readOnly="true">
@@ -527,7 +530,7 @@
         </state>
     </channel-type>
     <channel-type id="sensorHumidity">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
         <state readOnly="true">
@@ -535,14 +538,14 @@
     </channel-type>
 
     <channel-type id="batValue">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Battery capacity</label>
         <description>estimated remaining battery capacity in %</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="batVoltage">
-        <item-type>Decimal</item-type>
+        <item-type>Number</item-type>
         <label>Battery voltage</label>
         <description>Battery voltage in V</description>
         <state readOnly="true">
