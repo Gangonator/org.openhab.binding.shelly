@@ -122,7 +122,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 ShellySettingsGlobal settings = api.getSettings();
                 deviceName = "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
                 deviceType = settings.device.type;
-                isRoller = settings.mode.equals(SHELLY_MODE_ROLLER);
+                String mode = settings.mode != null ? settings.mode : "";
+                String fwDate = StringUtils.substringBefore(settings.fw, "/");
+                String fwVersion = StringUtils.substringBetween(settings.fw, "/", "@");
+                String fwId = StringUtils.substringAfter(settings.fw, "@");
+                logger.info("Initializing device {}, type {}, Firmware: {} / {} ({})", deviceName, deviceType, fwVersion, fwDate, fwId);
+
+                isRoller = mode.equals(SHELLY_MODE_ROLLER);
                 hasMeter = ((settings.relays != null) || (settings.device.num_meters > 0));  // Shelly1 has a meter, nevertheless numMeters is null!
                 hasBattery = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
@@ -132,26 +138,46 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 isSmoke = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                         deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
-
-                logger.info("Initializing device {}, type {}", deviceName, deviceType);
                 logger.debug("Device is a roller: {}, a Plug S: {},  Bulb: {}, HT or Smoke Sensor: {}, has a Meter: {}, has a Battery: {}",
                         isRoller ? "yes" : "no", isPlugS ? "yes" : "no", isBulb ? "yes" : "no",
                         isSensor ? "yes" : "no", hasMeter ? "yes" : "no", hasBattery ? "yes" : "no");
 
                 // update thing properties
+                logger.debug("Update thing properties");
                 ShellySettingsStatus status = api.gerStatus();
                 Configuration configuration = this.getConfig();
                 configuration.put("time", status.time);
                 configuration.put("uptime", status.uptime.toString() + "sec");
-                configuration.put("mode", settings.mode);
+                configuration.put("mode", mode);
                 configuration.put("updateStaus", status.update.status);
                 configuration.put("updateAvailable", status.update.has_update ? "yes" : "no");
                 configuration.put("oldVersion", status.update.old_version);
                 configuration.put("newVersion", status.update.new_version);
                 this.updateConfiguration(configuration);
 
+                logger.trace("Firmware check");
+                if (fwVersion.compareTo("v1.5.0") < 0) {
+                    logger.info("WARNING: Firmware too old");
+                    logger.info(
+                            "The binding was tested with Version 1.5+ only. Older versions might work, but doesn't support all features or lead into technical issues.");
+                    logger.info("You should consider to upgrade the device to v1.5.0 or newer!");
+                }
+                if (status.update.has_update) {
+                    logger.info("INFO: New firmware available for this device: current version: {}, new version: {}", status.update.old_version,
+                            status.update.new_version);
+                }
+
+                String thingUID = this.getThing().getThingTypeUID().getAsString();
+                String reqMode = StringUtils.substringAfter(thingUID, "-");
+                if (thingUID.contains("-") && !mode.equals(reqMode)) {
+                    logger.info("Thing is not in {} mode, going offline. May run discovery to find the thing for the requested mode.");
+                    ;
+                }
+
+                logger.debug("Set event URLs if device supports them");
                 if (settings.relays != null) {
                     // set event URLs for Shelly2/4 Pro
+                    logger.trace("Set Switch/Out event URLs for Relay or Roller");
                     int i = 0;
                     for (ShellySettingsRelay relay : settings.relays) {
                         logger.info("Relay[{}]: btn_on_url={}/btn_off_url={}, out_on_url={}, out_off_url={}", i,
@@ -160,9 +186,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         i++;
                     }
                 }
-
                 if (isSensor) {
                     // set event URL for HT (report_url)
+                    logger.trace("Set Sensor Reporting URL");
                     api.setSensorEventUrls(deviceName);
                 }
             } catch (RuntimeException | IOException e) {
@@ -442,8 +468,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 if (hasMeter && (status.meters != null)) {
                     int m = 0;
                     for (ShellySettingsMeter meter : status.meters) {
+                        Integer meterIndex = m + 1;
                         if (meter.is_valid) {
-                            Integer meterIndex = m + 1;
                             String groupName = CHANNEL_GROUP_METER + meterIndex.toString();
                             updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, meter.power);
                             if (meter.total != null) {
@@ -455,8 +481,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 updateChannel(groupName, CHANNEL_METER_LASTMIN3, meter.counters[2]);
                             }
                             if (meter.timestamp != null) {
-                                updateChannel(groupName, CHANNEL_METER_LASTMIN1, meter.counters[0]);
+                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, meter.timestamp);
                             }
+                            m++;
                         }
                     }
                 }

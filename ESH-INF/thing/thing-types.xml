@@ -20,7 +20,7 @@
 	</thing-type>
 	
     <thing-type id="shelly2-relay">
-        <label>Shelly2 Relay (SHSW-21, SHSW-25)</label>
+        <label>Shelly2 Relay (SHSW-21)</label>
         <description>Shelly2 device with two relays</description>
 
         <channel-groups>
@@ -31,7 +31,41 @@
                 <label>Relay 2</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter Channel1</label>
+                <label>Power Meter Channel 1</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+    <thing-type id="shelly2-roller">
+        <label>Shelly2 Roller (SHSW-21)</label>
+        <description>Shelly2 in Roller Mode</description>
+
+        <channel-groups>
+            <channel-group id="roller1" typeId="rollerControl">
+                <label>Roller Control</label>
+            </channel-group>
+            <channel-group id="meter1" typeId="meter">
+                <label>Power Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+
+    <thing-type id="shelly25-relay">
+        <label>Shelly2.5 Relay (SHSW-25)</label>
+        <description>Shelly2.5 device with two relays, 2 meters</description>
+
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay 1</label>
+            </channel-group>
+            <channel-group id="relay2" typeId="relayChannel">
+                <label>Relay 2</label>
+            </channel-group>
+            <channel-group id="meter1" typeId="meter">
+                <label>Power Meter Channel 1</label>
             </channel-group>
             <channel-group id="meter2" typeId="meter">
                 <label>Power Meter Channel 2</label>
@@ -40,17 +74,19 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
-
-     <thing-type id="shelly2-roller">
-        <label>Shelly2 Roller (SHSW-21, SHSW-25)</label>
-        <description>Shelly2 roller device</description>
+    <thing-type id="shelly25-roller">
+        <label>Shelly2.5 Roller (SHSW-25)</label>
+        <description>Shelly2 in Roller Mode</description>
 
         <channel-groups>
             <channel-group id="roller1" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter</label>
+                <label>Power Meter Channel 1</label>
+            </channel-group>
+            <channel-group id="meter2" typeId="meter">
+                <label>Power Meter Channel 2</label>
             </channel-group>
         </channel-groups>
 
@@ -71,7 +107,7 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
-     <thing-type id="shellyplug-s">
+     <thing-type id="shellyplugs">
         <label>Shelly PlugS</label>
         <description>Shelly PlugS device</description>
         <channel-groups>

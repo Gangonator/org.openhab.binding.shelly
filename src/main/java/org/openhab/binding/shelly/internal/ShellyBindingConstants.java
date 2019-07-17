@@ -32,9 +32,11 @@ public class ShellyBindingConstants {
     // public static final ThingTypeUID THING_TYPE_SHELLY25 = new ThingTypeUID(BINDING_ID, "shellyswitch25");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY     = new ThingTypeUID(BINDING_ID, "shelly2-relay");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER    = new ThingTypeUID(BINDING_ID, "shelly2-roller");
+    public static final ThingTypeUID      THING_TYPE_SHELLY25_RELAY    = new ThingTypeUID(BINDING_ID, "shelly25-relay");
+    public static final ThingTypeUID      THING_TYPE_SHELLY25_ROLLER   = new ThingTypeUID(BINDING_ID, "shelly25-roller");
     public static final ThingTypeUID      THING_TYPE_SHELLY4PRO        = new ThingTypeUID(BINDING_ID, "shelly4pro");
     public static final ThingTypeUID      THING_TYPE_SHELLYPLUG        = new ThingTypeUID(BINDING_ID, "shellyplug");
-    public static final ThingTypeUID      THING_TYPE_SHELLYPLUGS       = new ThingTypeUID(BINDING_ID, "shellyplug-s");
+    public static final ThingTypeUID      THING_TYPE_SHELLYPLUGS       = new ThingTypeUID(BINDING_ID, "shellyplugs");
     public static final ThingTypeUID      THING_TYPE_SHELLYBULB_COLOR  = new ThingTypeUID(BINDING_ID, "shellybulb-color");
     public static final ThingTypeUID      THING_TYPE_SHELLYBULB_WHITE  = new ThingTypeUID(BINDING_ID, "shellybulb-white");
     public static final ThingTypeUID      THING_TYPE_SHELLYHT          = new ThingTypeUID(BINDING_ID, "shellyht");
@@ -44,7 +46,8 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_WHITE = new ThingTypeUID(BINDING_ID, "shellyrgbw2-white");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS   = Collections
-            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER,
+            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1,
+                    THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER, THING_TYPE_SHELLY25_RELAY, THING_TYPE_SHELLY25_ROLLER,
                     THING_TYPE_SHELLY4PRO, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUGS, THING_TYPE_SHELLYBULB_COLOR,
                     THING_TYPE_SHELLYBULB_WHITE, THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYRGBW2_COLOR,
                     THING_TYPE_SHELLYRGBW2_WHITE)

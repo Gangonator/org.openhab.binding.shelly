@@ -134,8 +134,15 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         if (name.startsWith("shelly1")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);
         }
-        if (name.startsWith("shellyswitch") || // Shelly v2
-                name.startsWith("shellyswitch25")) { // Shelly v2.5
+        if (name.startsWith("shellyswitch25")) { // Shelly v2.5
+            if (mode.equals(SHELLY_MODE_RELAY)) {
+                return new ThingUID(THING_TYPE_SHELLY25_RELAY, devid);
+            }
+            if (mode.equals(SHELLY_MODE_ROLLER)) {
+                return new ThingUID(THING_TYPE_SHELLY25_ROLLER, devid);
+            }
+        }
+        if (name.startsWith("shellyswitch")) { // Shelly v2
             if (mode.equals(SHELLY_MODE_RELAY)) {
                 return new ThingUID(THING_TYPE_SHELLY2_RELAY, devid);
             }
