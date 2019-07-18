@@ -283,7 +283,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
                         break;
                     case CHANNEL_LED_POWER_DISABLE:
-                        logger.info("Set STATUS LED disabled to {}", command.toString());
+                        logger.info("Set POWER LED disabled to {}", command.toString());
                         api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                         break;
 
@@ -528,7 +528,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         String fullName = group + "#" + channel;
         Object current = channelData.get(fullName);
         if ((current == null) || !current.equals(value)) {
-            logger.trace("Updating channel {}.{} with {}", group, channel, value);
+            logger.trace("Updating channel {}.{} with {} (type {})", group, channel, value, value.getClass());
             if (value instanceof String) {
                 updateState(fullName, new StringType((String) value));
             }
@@ -570,7 +570,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }
 
         Date date = new java.util.Date(timestamp * 1000L);
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
         return sdf.format(date);
     }

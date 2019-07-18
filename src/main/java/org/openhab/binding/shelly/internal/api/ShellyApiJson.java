@@ -302,6 +302,10 @@ public class ShellyApiJson {
         public Long    current_pos; // current position 0..100, 100=open
     }
 
+    public static final String SHELLY_STOPR_NORMAL   = "normal";
+    public static final String SHELLY_STOPR_SAFETYSW = "safety_switch";
+    public static final String SHELLY_STOPR_OBSTACLE = "obstacle";
+
     public class ShellySettingsSensor {
         public String  temperature_units; // Either'C'or'F'
         public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update

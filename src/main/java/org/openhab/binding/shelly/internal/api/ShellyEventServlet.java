@@ -1,10 +1,13 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional information.
+ *
+ * This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.shelly.internal.api;
 
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
@@ -19,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,24 +37,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main OSGi service and HTTP servlet for TelekomTV NOTIFY.
+ * Main OSGi service and HTTP servlet for MagentaTV NOTIFY.
  *
  * @author Markus Michels - Initial contribution
+ * @author Gaël L'hopital - derived from Netatmo binding's servlet
  */
 @Component(service = HttpServlet.class, configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true)
-public class ShellyCallback extends HttpServlet {
-    private static final long    serialVersionUID = 549582869577534569L;
+public class ShellyEventServlet extends HttpServlet {
+    private static final long              serialVersionUID = 549582869577534569L;
+    private final Logger                   logger           = LoggerFactory.getLogger(ShellyEventServlet.class);
 
-    private final Logger         logger           = LoggerFactory.getLogger(ShellyCallback.class);
+    private @Nullable HttpService          httpService;
+    private @Nullable ShellyHandlerFactory handlerFactory;
 
-    private HttpService          httpService;
-    private ShellyHandlerFactory handlerFactory;
-
-    /**
-     * OSGi activation callback.
-     *
-     * @param config Config properties
-     */
+    @SuppressWarnings("null")
     @Activate
     protected void activate(Map<String, Object> config) {
         try {
@@ -61,9 +61,7 @@ public class ShellyCallback extends HttpServlet {
         }
     }
 
-    /**
-     * OSGi de-activation callback.
-     */
+    @SuppressWarnings("null")
     @Deactivate
     protected void deactivate() {
         httpService.unregister(SHELLY_CALLBACK_URI);
@@ -71,11 +69,25 @@ public class ShellyCallback extends HttpServlet {
     }
 
     /**
-     * Event callback handler
+     * Notify servlet handler (will be called by jetty
+     *
+     * Format of SOAP message: <e:propertyset xmlns:e="urn:schemas-upnp-org:event-1-0"> <e:property>
+     * <uniqueDeviceID>1C18548DAF7DE9BC231249DB28D2A650</uniqueDeviceID> </e:property> <e:property> <messageBody>X-pairingCheck:5218C0AA</messageBody>
+     * </e:property> </e:propertyset>
+     *
+     * Format of event message: <?xml version="1.0"?> <e:propertyset xmlns:e="urn:schemas-upnp-org:event-1-0"> <e:property>
+     * <STB_Mac>AC6FBB61B1E5</STB_Mac> </e:property> <e:property> <STB_playContent>{&quot;new_play_mode&quot;:0,&quot;playBackState&quot;:1,&
+     * quot;mediaType&quot;:1,&quot;mediaCode&quot;:&quot;3682&quot;}</ STB_playContent> </e:property> </e:propertyset>
+     *
+     * @param request
+     * @param resp
+     *
+     * @throws ServletException, IOException
      */
     @SuppressWarnings("null")
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
+    protected void service(@Nullable HttpServletRequest request, @Nullable HttpServletResponse resp)
+            throws ServletException, IOException {
         String data = inputStreamToString(request);
         String path = request.getRequestURI();
         try {
@@ -108,12 +120,6 @@ public class ShellyCallback extends HttpServlet {
         }
     }
 
-    @SuppressWarnings("resource")
-    private String inputStreamToString(HttpServletRequest request) throws IOException {
-        Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
-    }
-
     private void setHeaders(HttpServletResponse response) {
         response.setCharacterEncoding(CHARSET_UTF8);
         // response.setHeader("Access-Control-Allow-Origin", "*");
@@ -123,22 +129,32 @@ public class ShellyCallback extends HttpServlet {
         // Content-Type, Accept");
     }
 
+    @SuppressWarnings("resource")
+    private String inputStreamToString(@Nullable HttpServletRequest request) throws IOException {
+        @SuppressWarnings("null")
+        Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
         this.handlerFactory = handlerFactory;
-        logger.debug("ShellyHandlerFactory bound to CallbackServlet");
+        logger.debug("HandlerFactory bound");
     }
 
     public void unsetShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
         this.handlerFactory = null;
+        logger.debug("HandlerFactory unbound");
     }
 
     @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
+        logger.debug("httpService bound");
     }
 
     public void unsetHttpService(HttpService httpService) {
         this.httpService = null;
+        logger.debug("httpService unbound");
     }
 }
