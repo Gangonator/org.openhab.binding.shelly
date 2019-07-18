@@ -466,8 +466,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 if (isPlugS) {
                     ShellySettingsGlobal settings = api.getSettings();
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable);
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable);
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, settings.led_status_disable ? OnOffType.ON : OnOffType.OFF);
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, settings.led_power_disable ? OnOffType.ON : OnOffType.OFF);
                     updateChannel(CHANNEL_GROUP_METER1, CHANNEL_METER_MAXPOWER, settings.max_power);
                 }
 
