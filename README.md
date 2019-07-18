@@ -5,7 +5,7 @@ This openHAB 2 Binding implements control for the Shelly series of devices. This
 Author: Markus Michels (markus7017)
 Check  https://community.openhab.org/t/shelly-binding/56862/65 for more information, questions and contributing ideas. Any comment is welcome!
 
-Release: alpha3, check master branch for stable release
+Release: alpha4, check master branch for stable release
 
 ---
 

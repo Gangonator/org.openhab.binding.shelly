@@ -83,10 +83,7 @@
                 <label>Roller Control</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter Channel 1</label>
-            </channel-group>
-            <channel-group id="meter2" typeId="meter">
-                <label>Power Meter Channel 2</label>
+                <label>Power Meter</label>
             </channel-group>
         </channel-groups>
 
@@ -107,15 +104,16 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
-     <thing-type id="shellyplugs">
-        <label>Shelly PlugS</label>
-        <description>Shelly PlugS device</description>
+    <thing-type id="shellyplugs">
+        <label>Shelly Plug-S (SHPLG-S)</label>
+        <description>Shelly Plug-S</description>
+
         <channel-groups>
             <channel-group id="relay1" typeId="relayChannel">
-                <label>Relay</label>
+                <label>Relay 1</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter</label>
+                <label>Power Meter Channel 1</label>
             </channel-group>
             <channel-group id="led" typeId="ledControl">
                 <label>LED Control</label>
@@ -243,14 +241,14 @@
     </channel-type>
     <channel-group-type id="meter">
        <label>Power Meter</label>
-       <description>Power co nsumption</description>
+       <description>Power consumption for the relay</description>
         <channels>
             <channel id="currentWatts" typeId="meterWatts" />
             <channel id="lastPower1" typeId="lastPower1" />
             <channel id="lastPower2" typeId="lastPower2" />
             <channel id="lastPower3" typeId="lastPower3" />
             <channel id="totalWatts" typeId="meterTotal" />
-            <channel id="overpower" typeId="overpower" />
+            <channel id="timestamp" typeId="meterTimestamp" />
         </channels>
     </channel-group-type>
    <channel-group-type id="simpleMeter">
@@ -374,6 +372,13 @@
         <item-type>Number</item-type>
         <label>Total Watt</label>
         <description>Total power consumption in Watt</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+   <channel-type id="meterTimestamp">
+        <item-type>String</item-type>
+        <label>Last Update</label>
+        <description>Timestamp of last measurement</description>
         <state readOnly="true">
         </state>
     </channel-type>

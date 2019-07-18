@@ -86,12 +86,12 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.device.fw));
             properties.put(CONFIG_DEVICEIP, address);
             addProperty(properties, "mode", mode);
+            addProperty(properties, "firmware", getString(settings.device.fw));
             addProperty(properties, "hostname", getString(settings.device.hostname));
             addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
             addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
             addProperty(properties, "numOutputs", getInteger(settings.device.num_outputs).toString());
 
-            logger.trace("getThingUID");
             ThingUID thingUID = getThingUID(name, mode);
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
@@ -126,7 +126,6 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
     public ThingUID getThingUID(String name, String mode) {
         String devid = StringUtils.substringAfterLast(name, "-");
-        logger.trace("devid={}", devid);
 
         if (name.startsWith("shelly1pm")) {
             return new ThingUID(THING_TYPE_SHELLY1PM, devid);

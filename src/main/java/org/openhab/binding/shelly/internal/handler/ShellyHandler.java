@@ -12,7 +12,6 @@ import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,17 +20,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.californium.core.CoapClient;
-import org.eclipse.californium.core.CoapHandler;
-import org.eclipse.californium.core.CoapObserveRelation;
-import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.coap.CoAP.Code;
-import org.eclipse.californium.core.coap.CoAP.Type;
-import org.eclipse.californium.core.coap.Option;
-import org.eclipse.californium.core.coap.OptionSet;
-import org.eclipse.californium.core.coap.Request;
-import org.eclipse.californium.core.network.CoapEndpoint;
-import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -75,8 +63,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private ShellyConfiguration         config;
     private ShellyHttpApi               api;
 
-    private CoapClient                  client;
-    private CoapEndpoint                endPoint;
+    // private CoapClient client;
+    // private CoapEndpoint endPoint;
 
     private ScheduledFuture<?>          statusJob;
     private int                         skipUpdate     = 0;
@@ -120,7 +108,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         scheduler.schedule(() -> {
             try {
                 ShellySettingsGlobal settings = api.getSettings();
-                deviceName = "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
+                deviceName = settings.device.hostname != null && !settings.device.hostname.isEmpty() ? settings.device.hostname.toLowerCase()
+                        : "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
                 deviceType = settings.device.type;
                 String mode = settings.mode != null ? settings.mode : "";
                 String fwDate = StringUtils.substringBefore(settings.fw, "/");
@@ -195,81 +184,34 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.info("Unable to get status from Shelly: {}", e.getMessage());
             }
 
-            InetSocketAddress address = new InetSocketAddress(config.localIp, 50000);
-            client = new CoapClient("coap://" + config.deviceIp + "/cit/s");
-            // endPoint = new CoapEndpoint(address);
-            endPoint = new CoapEndpoint(NetworkConfig.getStandard());
-
             /*
-             * if (!endPoint.isStarted()) { try { endPoint.start(); logger.info("Started set client endpoint " + endPoint.getAddress()); } catch
-             * (IOException e) { logger.error("Could not set and start client endpoint", e); } }
+             * // InetSocketAddress address = new InetSocketAddress(config.localIp, 50000); client = new CoapClient("coap://" + config.deviceIp +
+             * "/cit/s"); // endPoint = new CoapEndpoint(address); endPoint = new CoapEndpoint(NetworkConfig.getStandard()); // // if
+             * (!endPoint.isStarted()) { try { endPoint.start(); logger.info("Started set client endpoint " + endPoint.getAddress()); } catch //
+             * (IOException e) { logger.error("Could not set and start client endpoint", e); } } // client.setEndpoint(endPoint); client.useNONs();
+             * @SuppressWarnings("unused") CoapObserveRelation relation = client.observe(new CoapHandler() {
+             * @Override public void onLoad(@Nullable CoapResponse response) { String content = response.getResponseText();
+             * logger.info("NOTIFICATION: {}" + content); }
+             * @Override public void onError() { logger.error("CoapOBSERVING FAILED"); } }); client.get(new CoapHandler() {
+             * @Override public void onLoad(@Nullable CoapResponse response) { String content = response.getResponseText();
+             * logger.info("NOTIFICATION: {}" + content); }
+             * @Override public void onError() { logger.error("CoapREAD FAILED"); } }); logger.info("Start COAP Observer"); OptionSet optionSet = new
+             * OptionSet(); optionSet.addOption(new Option(3332, "COIOT_OPTION_GLOBAL_DEVID")); optionSet.addOption(new Option(3412,
+             * "COIOT_OPTION_STATUS_VALIDITY")); optionSet.addOption(new Option(3420, "COIOT_OPTION_STATUS_SERIAL")); // ---- optionSet is not used!
+             * --- Request request = new Request(Code.GET, Type.NON); // request.setObserve(); request.setURI("coap://192.168.6.81:5683/cit/d");
+             * request.setOptions(optionSet); // tclient.setTimeout(10000); // String content1 = tclient.get().getResponseText(); //
+             * logger.info("Shelly device: {}", content1); CoapClient tclient = new CoapClient("coap://192.168.6.81:5683/cit/d"); tclient.advanced(new
+             * CoapHandler() {
+             * @Override public void onLoad(@Nullable CoapResponse response) { String content = response.getResponseText();
+             * logger.info("NOTIFICATION: {}" + content); }
+             * @Override public void onError() { logger.error("CoapREAD FAILED"); } }, request);
              */
-            client.setEndpoint(endPoint);
-            client.useNONs();
-            @SuppressWarnings("unused")
-            CoapObserveRelation relation = client.observe(new CoapHandler() {
-                @Override
-                public void onLoad(@Nullable CoapResponse response) {
-                    String content = response.getResponseText();
-                    logger.info("NOTIFICATION: {}" + content);
-                }
-
-                @Override
-                public void onError() {
-                    logger.error("CoapOBSERVING FAILED");
-                }
-            });
-
-            if (false) {
-                client.get(new CoapHandler() {
-                    @Override
-                    public void onLoad(@Nullable CoapResponse response) {
-                        String content = response.getResponseText();
-                        logger.info("NOTIFICATION: {}" + content);
-                    }
-
-                    @Override
-                    public void onError() {
-                        logger.error("CoapREAD FAILED");
-                    }
-                });
-
-                logger.info("Start COAP Observer");
-                OptionSet optionSet = new OptionSet();
-                optionSet.addOption(new Option(3332, "COIOT_OPTION_GLOBAL_DEVID"));
-                optionSet.addOption(new Option(3412, "COIOT_OPTION_STATUS_VALIDITY"));
-                optionSet.addOption(new Option(3420, "COIOT_OPTION_STATUS_SERIAL"));
-                /* ---- optionSet is not used! --- */
-
-                Request request = new Request(Code.GET, Type.NON);
-                // request.setObserve();
-                request.setURI("coap://192.168.6.81:5683/cit/d");
-                request.setOptions(optionSet);
-
-                // tclient.setTimeout(10000);
-                // String content1 = tclient.get().getResponseText();
-                // logger.info("Shelly device: {}", content1);
-                CoapClient tclient = new CoapClient("coap://192.168.6.81:5683/cit/d");
-                tclient.advanced(new CoapHandler() {
-                    @Override
-                    public void onLoad(@Nullable CoapResponse response) {
-                        String content = response.getResponseText();
-                        logger.info("NOTIFICATION: {}" + content);
-                    }
-
-                    @Override
-                    public void onError() {
-                        logger.error("CoapREAD FAILED");
-                    }
-                }, request);
-            }
 
             if (statusJob == null || statusJob.isCancelled()) {
                 statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
                         UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
             }
 
-            updateStatus(ThingStatus.ONLINE);
         }, 2, TimeUnit.SECONDS);
 
         // logger.debug("Finished initializing!");
@@ -416,10 +358,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * Returns the coap endpoint that can be used within coap clients.
      *
      * @return the coap endpoint
+     *
+     *         public @Nullable CoapEndpoint getEndpoint() { return endPoint; }
      */
-    public @Nullable CoapEndpoint getEndpoint() {
-        return endPoint;
-    }
 
     /**
      * Device device status events
@@ -466,25 +407,58 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (hasMeter && (status.meters != null)) {
-                    int m = 0;
-                    for (ShellySettingsMeter meter : status.meters) {
-                        Integer meterIndex = m + 1;
-                        if (meter.is_valid) {
-                            String groupName = CHANNEL_GROUP_METER + meterIndex.toString();
-                            updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, meter.power);
-                            if (meter.total != null) {
-                                updateChannel(groupName, CHANNEL_METER_TOTALWATTS, meter.total);
+                    if (!isRoller) {
+                        // In Relay mode we map eacher meter to the matching channel group
+                        int m = 0;
+                        for (ShellySettingsMeter meter : status.meters) {
+                            Integer meterIndex = m + 1;
+                            if (meter.is_valid) {
+                                String groupName = CHANNEL_GROUP_METER + meterIndex.toString();
+                                updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, meter.power);
+                                if (meter.total != null) {
+                                    updateChannel(groupName, CHANNEL_METER_TOTALWATTS, meter.total);
+                                }
+                                if (meter.counters != null) {
+                                    updateChannel(groupName, CHANNEL_METER_LASTMIN1, meter.counters[0]);
+                                    updateChannel(groupName, CHANNEL_METER_LASTMIN2, meter.counters[1]);
+                                    updateChannel(groupName, CHANNEL_METER_LASTMIN3, meter.counters[2]);
+                                }
+                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(meter.timestamp));
+                                m++;
                             }
-                            if (meter.counters != null) {
-                                updateChannel(groupName, CHANNEL_METER_LASTMIN1, meter.counters[0]);
-                                updateChannel(groupName, CHANNEL_METER_LASTMIN2, meter.counters[1]);
-                                updateChannel(groupName, CHANNEL_METER_LASTMIN3, meter.counters[2]);
-                            }
-                            if (meter.timestamp != null) {
-                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, meter.timestamp);
-                            }
-                            m++;
                         }
+                    } else {
+                        // In Roller Mode we accumulate all meters to a single set of meters
+                        Double currentWatts = 0.0;
+                        Double totalWatts = 0.0;
+                        Double lastMin1 = 0.0;
+                        Double lastMin2 = 0.0;
+                        Double lastMin3 = 0.0;
+                        Long timestamp = 0l;
+                        String groupName = CHANNEL_GROUP_METER + "1";
+                        for (ShellySettingsMeter meter : status.meters) {
+                            if (meter.is_valid) {
+                                currentWatts += meter.power;
+                                if (meter.total != null) {
+                                    totalWatts += meter.total;
+                                }
+                                if (meter.counters != null) {
+                                    lastMin1 += meter.counters[0];
+                                    lastMin1 += meter.counters[1];
+                                    lastMin1 += meter.counters[2];
+                                }
+                                if (meter.timestamp > timestamp) {
+                                    timestamp = meter.timestamp;
+                                }
+                            }
+                        }
+
+                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
+                        updateChannel(groupName, CHANNEL_METER_TOTALWATTS, totalWatts);
+                        updateChannel(groupName, CHANNEL_METER_LASTMIN1, lastMin1);
+                        updateChannel(groupName, CHANNEL_METER_LASTMIN2, lastMin2);
+                        updateChannel(groupName, CHANNEL_METER_LASTMIN3, lastMin3);
+                        updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
                     }
                 }
 
@@ -529,11 +503,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
+                updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
+
                 if (requestUpdates > 0) {
                     --requestUpdates;
                     logger.trace("{} more updates requested", requestUpdates);
                 }
-            } else {
+            } else
+
+            {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
             }
         } catch (RuntimeException | IOException e) {
