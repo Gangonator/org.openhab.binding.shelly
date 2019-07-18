@@ -144,7 +144,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 configuration.put("newVersion", status.update.new_version);
                 this.updateConfiguration(configuration);
 
-                logger.trace("Firmware check");
+                logger.trace("Firmware check ({})", settings.fw);
                 if (fwVersion.compareTo("v1.5.0") < 0) {
                     logger.info("WARNING: Firmware too old");
                     logger.info(
@@ -206,6 +206,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
              * logger.info("NOTIFICATION: {}" + content); }
              * @Override public void onError() { logger.error("CoapREAD FAILED"); } }, request);
              */
+
+            requestUpdates = 3; // request 3 updates in a row (during the furst 2+3*3 sec)
 
             if (statusJob == null || statusJob.isCancelled()) {
                 statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
@@ -569,7 +571,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         Date date = new java.util.Date(timestamp * 1000L);
         SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        sdf.setTimeZone(java.util.TimeZone.getDefault());
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
         return sdf.format(date);
     }
 

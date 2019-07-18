@@ -288,7 +288,7 @@ public class ShellyApiJson {
         public Long    duration; // If specified, the motor will move for this period in seconds. If missing, the value of
                                  // maxtime in /settings/roller/N will be used.
         public String  state; // One of stop, open, close
-        public Long    power; // Current power consumption in Watts
+        public Double  power; // Current power consumption in Watts
         public Boolean is_valid;// If the power meter functions properly
         public Boolean safety_switch; // Whether the safety input is currently triggered
         public Boolean overtemperature;

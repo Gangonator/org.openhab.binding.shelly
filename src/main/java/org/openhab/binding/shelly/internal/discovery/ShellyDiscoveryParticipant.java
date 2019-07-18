@@ -83,10 +83,11 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             properties.put(PROPERTY_VENDOR, "Shelly");
             properties.put(PROPERTY_MODEL_ID, getString(settings.device.type));
             properties.put(PROPERTY_MAC_ADDRESS, getString(settings.device.mac));
-            properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.device.fw));
+            properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.fw));
+            properties.put("hwRev", getString(settings.hwinfo.hw_revision));
+            properties.put("hwBatch", getInteger(settings.hwinfo.batch_id).toString());
             properties.put(CONFIG_DEVICEIP, address);
             addProperty(properties, "mode", mode);
-            addProperty(properties, "firmware", getString(settings.device.fw));
             addProperty(properties, "hostname", getString(settings.device.hostname));
             addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
             addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
