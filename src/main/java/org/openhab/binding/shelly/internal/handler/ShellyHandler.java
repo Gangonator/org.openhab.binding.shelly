@@ -280,11 +280,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                     case CHANNEL_LED_STATUS_DISABLE:
                         logger.info("Set STATUS LED disabled to {}", command.toString());
-                        api.setLedStatus("led_status_disable", (OnOffType) command == OnOffType.ON);
+                        api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
                         break;
                     case CHANNEL_LED_POWER_DISABLE:
                         logger.info("Set STATUS LED disabled to {}", command.toString());
-                        api.setLedStatus("led_status_disable", (OnOffType) command == OnOffType.ON);
+                        api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                         break;
 
                     case CHANNEL_BULB_POWER:

@@ -211,10 +211,13 @@ public class ShellyApiJson {
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
 
-    public static final String SHELLY_MODE_RELAY  = "relay";  // Relay: relay mode
-    public static final String SHELLY_MODE_ROLLER = "roller"; // Relay: roller mode
-    public static final String SHELLY_MODE_COLOR  = "color";  // Bulb: color mode
-    public static final String SHELLY_MODE_WHITE  = "white";  // Bulb: white mode
+    public static final String SHELLY_MODE_RELAY         = "relay";  // Relay: relay mode
+    public static final String SHELLY_MODE_ROLLER        = "roller"; // Relay: roller mode
+    public static final String SHELLY_MODE_COLOR         = "color";  // Bulb: color mode
+    public static final String SHELLY_MODE_WHITE         = "white";  // Bulb: white mode
+
+    public static final String SHELLY_LED_STATUS_DISABLE = "led_status_disable";
+    public static final String SHELLY_LED_POWER_DISABLE  = "led_power_disable";
 
     public class ShellySettingsAttributes {
         public String device_type; // Device model identifier
