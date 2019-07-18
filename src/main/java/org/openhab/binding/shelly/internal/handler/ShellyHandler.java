@@ -72,7 +72,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                         skipCount      = UPDATE_SKIP_COUNT;
 
     private String                      deviceName     = "";
-    private String                      deviceType     = "";
     private boolean                     isRoller       = false;  // true for Shelly2 in roller mode
     private boolean                     isSensor       = false;  // true for HT
     private boolean                     hasMeter       = false;
@@ -110,23 +109,24 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 ShellySettingsGlobal settings = api.getSettings();
                 deviceName = settings.device.hostname != null && !settings.device.hostname.isEmpty() ? settings.device.hostname.toLowerCase()
                         : "shelly-" + settings.device.mac.toUpperCase().substring(6, 11);
-                deviceType = settings.device.type;
+                String thingType = this.getThing().getThingTypeUID().getId();
                 String mode = settings.mode != null ? settings.mode : "";
                 String fwDate = StringUtils.substringBefore(settings.fw, "/");
                 String fwVersion = StringUtils.substringBetween(settings.fw, "/", "@");
                 String fwId = StringUtils.substringAfter(settings.fw, "@");
-                logger.info("Initializing device {}, type {}, Firmware: {} / {} ({})", deviceName, deviceType, fwVersion, fwDate, fwId);
+                logger.info("Initializing device {}, type {}, Firmware: {} / {} ({}); Thing Type=", deviceName, settings.device.type, fwVersion,
+                        fwDate, fwId, thingType);
 
                 isRoller = mode.equals(SHELLY_MODE_ROLLER);
                 hasMeter = ((settings.relays != null) || (settings.device.num_meters > 0));  // Shelly1 has a meter, nevertheless numMeters is null!
-                hasBattery = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
-                        deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
-                isPlugS = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
-                isBulb = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_COLOR.getId())
-                        || deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_WHITE.getId());
-                isSmoke = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
-                isSensor = deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
-                        deviceType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+                hasBattery = thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
+                        thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+                isPlugS = thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
+                isBulb = thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_COLOR.getId())
+                        || thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYBULB_WHITE.getId());
+                isSmoke = thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+                isSensor = thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
+                        thingType.equals(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
                 logger.debug("Device is a roller: {}, a Plug S: {},  Bulb: {}, HT or Smoke Sensor: {}, has a Meter: {}, has a Battery: {}",
                         isRoller ? "yes" : "no", isPlugS ? "yes" : "no", isBulb ? "yes" : "no",
                         isSensor ? "yes" : "no", hasMeter ? "yes" : "no", hasBattery ? "yes" : "no");
