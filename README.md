@@ -9,16 +9,6 @@ Release: alpha4, check master branch for stable release
 
 ---
 
-Known issues:
-
-* Shelly RGBW2 is not yet finally implemented
-* Shelly Plug S is work in progress, the standard Plug not yet tested
-* Event callback are not yet processed (they will be received, but processing results in a exception)
-* The polling frequency is way to high and needs to be optimized by utilizing the event callback when sensor data has changed, req. the fix above
-* Some channels might be missing, some need some fixes. If you see something post on the forum or send me a PM.
-* The event trigger channel is not yet implemented - this will trigger a notification to an OH rule each time an event is received
-* http authentication is currently not implemented, this means you have to disable http auth for the build-in web server
-* The binding starts one update thread per device, this needs to be consolidated making the device handling more efficient
 
 
 Please note:

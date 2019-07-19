@@ -505,7 +505,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
-                updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
+                    logger.info("Thing {} is online", deviceName);
+                    updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
+                }
 
                 if (requestUpdates > 0) {
                     --requestUpdates;

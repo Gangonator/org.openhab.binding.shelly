@@ -167,11 +167,11 @@ public class ShellyApiJson {
     }
 
     public class ShellySettingsMeter {
-        public Double   power;
         public Boolean  is_valid;
-        public Long     timestamp;
+        public Double   power;
         public Double[] counters = { 0.0, 0.0, 0.0 };
-        public Long     total;
+        public Double   total;
+        public Long     timestamp;
     }
 
     public class ShellySettingsUpdate {

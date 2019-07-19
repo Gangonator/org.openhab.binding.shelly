@@ -54,7 +54,7 @@ public class ShellyBindingConstants {
                     .collect(Collectors.toSet()));
 
     public static final int               UPDATE_STATUS_INTERVAL       = 3; // check for updates every x sec
-    public static final int               UPDATE_SKIP_COUNT            = 5; // update every x triggers or when a key was pressed
+    public static final int               UPDATE_SKIP_COUNT            = 20; // update every x triggers or when a key was pressed
 
     // List of all Configuration Properties
     public static final String            CONFIG_DEVICEIP              = "deviceIp";
