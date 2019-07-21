@@ -124,8 +124,6 @@ public class ShellyHttpApi {
             thingType = profile.thingType;
         }
         String json = request(SHELLY_URL_SETTINGS, null);
-        logger.debug("Shelly settings info : {}", json);
-
         ShellyApiJson j = new ShellyApiJson();
         profile = j.new ShellyDeviceProfile();
         profile.settingsJson = json;
@@ -189,8 +187,9 @@ public class ShellyHttpApi {
 
     public ShellySettingsStatus gerStatus() throws IOException {
         String result = request(SHELLY_URL_STATUS, null);
-        logger.debug("Shelly status info : {}", result);
-        return gson.fromJson(result, ShellySettingsStatus.class);
+        ShellySettingsStatus status = gson.fromJson(result, ShellySettingsStatus.class);
+        status.json = result;
+        return status;
     }
 
     public ShellyStatusRelay getRelayStatus(Integer relayIndex) throws IOException {

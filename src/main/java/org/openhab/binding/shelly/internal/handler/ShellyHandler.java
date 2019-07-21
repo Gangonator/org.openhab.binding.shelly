@@ -103,17 +103,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 initializeThing();
             } catch (RuntimeException | IOException e) {
                 logger.info("Unable to initialize thing {}: {}, retrying later", getThing().getLabel(), e.getMessage());
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Unable to initialize thing: " + e.getMessage());
-            } finally {
                 // even this initialization failed we start the status update
                 // the updateJob will then try to auto-initialize the thing
                 // in this case the thing stays in status INITIALIZING
-                if (statusJob == null || statusJob.isCancelled()) {
-                    statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
-                            UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
-                    logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
-                            skipCount * UPDATE_STATUS_INTERVAL);
-                }
             }
 
         }, 2, TimeUnit.SECONDS);
@@ -129,6 +121,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         logger.debug(
                 "Device is a roller: {}, Plug S: {},  Bulb: {}, HT or Smoke Sensor: {}, has a Meter: {}, has a Battery: {}, has LEDs: {}",
                 p.isRoller, p.isPlugS, p.isBulb, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed);
+        logger.debug("Shelly settings info : {}", p.settingsJson);
 
         // update thing properties
         ShellySettingsStatus status = api.gerStatus();
@@ -156,6 +149,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         thingName = p.hostname;
         requestUpdates(3); // request 3 updates in a row (during the furst 2+3*3 sec)
         logger.info("Thing {} successfully initialized.", thingName);
+
+        if (statusJob == null || statusJob.isCancelled()) {
+            statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
+                    UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
+            logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
+                    skipCount * UPDATE_STATUS_INTERVAL);
+        }
     }
 
     @SuppressWarnings("null")
@@ -260,12 +260,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     protected void updateStatus() {
         try {
             if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
-                if ((profile == null) || (getThing().getStatus() != ThingStatus.ONLINE)) {
+                if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     initializeThing();  // may fire an exception if initialization failed
                 }
 
-                logger.debug("Updating device status for device {}", thingName);
+                logger.trace("Updating status for device {}", thingName);
                 ShellySettingsStatus status = api.gerStatus();
+                logger.debug("Shelly status info : {}", status.json);
 
                 // map status to channels
                 if (profile.hasRelays && !profile.isRoller) {
@@ -502,7 +503,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 } else {
                     channelData.replace(fullName, value);
                 }
-                logger.trace("Channel {}.{} with {} (type {}) updated.", group, channel, value, value.getClass());
+                logger.trace("Channel {}.{} updated with {} (type {}).", group, channel, value, value.getClass());
                 return true;
             }
         } catch (RuntimeException e) {

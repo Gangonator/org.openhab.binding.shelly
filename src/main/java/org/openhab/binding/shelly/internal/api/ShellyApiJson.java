@@ -253,6 +253,8 @@ public class ShellyApiJson {
         public Long                            fs_size;
         public Long                            fs_free;
         public Long                            uptime;
+
+        public String                          json;
     }
 
     public class ShellyControlRelay {
