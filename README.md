@@ -5,11 +5,9 @@ This openHAB 2 Binding implements control for the Shelly series of devices. This
 Author: Markus Michels (markus7017)
 Check  https://community.openhab.org/t/shelly-binding/56862/65 for more information, questions and contributing ideas. Any comment is welcome!
 
-Release: alpha4, check master branch for stable release
-
 ---
 
-
+Release: alpha5, check master branch for stable release
 
 Please note:
 This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
@@ -17,8 +15,9 @@ This is a beta release, it has bugs, requires manual install etc. Questions, fee
 Channel definitions are subject to change with any alpha or beta release. Please make sure to delete all Shelly things when updating the binding and clean out the JSON DB:
 - delete all Shelly things from PaperUI's Inbox and Thing list
 - stop OH
-- copy the jar to the addons/ folder
 - run openhab-cli clean-cache
+- check the JSON db files for shelly references, remove all entries
+- copy the jar to the addons/ folder
 - start OH, wait until everything is initialized
 - run the device discovery
 

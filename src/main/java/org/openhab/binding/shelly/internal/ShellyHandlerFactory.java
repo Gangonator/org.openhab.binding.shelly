@@ -7,6 +7,8 @@
 
 package org.openhab.binding.shelly.internal;
 
+import static org.openhab.binding.shelly.internal.ShellyBindingConstants.THING_TYPE_SHELLYBULB;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -20,6 +22,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.shelly.internal.handler.ShellyDeviceListener;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
+import org.openhab.binding.shelly.internal.handler.ShellyHandlerBulb;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -49,6 +52,9 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
+        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB)) {
+            return new ShellyHandlerBulb(thing, this, networkAddressService);
+        }
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             return new ShellyHandler(thing, this, networkAddressService);
         }
@@ -56,8 +62,8 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
-    public void onUpdateEvent(String deviceName, Map<String, String[]> parameters, String data) {
-        deviceListeners.forEach(listener -> listener.onUpdateEvent(deviceName, parameters, data));
+    public void onUpdateEvent(String deviceName, String eventType, Map<String, String[]> parameters, String data) {
+        deviceListeners.forEach(listener -> listener.onUpdateEvent(deviceName, eventType, parameters, data));
     }
 
     /**

@@ -22,10 +22,13 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
+import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
@@ -42,60 +45,63 @@ import com.google.gson.Gson;
  * @author Markus Michels - Initial contribution
  */
 public class ShellyHttpApi {
-    public static final String SHELLY_NULL_URL                  = "null";
-    public static final String SHELLY_URL_DEVINFO               = "/shelly";
-    public static final String SHELLY_URL_STATUS                = "/status";
-    public static final String SHELLY_URL_SETTINGS              = "/settings";
-    public static final String SHELLY_URL_SETTINGS_AP           = "/settings/ap";
-    public static final String SHELLY_URL_SETTINGS_STA          = "/settings/sta";
-    public static final String SHELLY_URL_SETTINGS_LOGIN        = "/settings/sta";
-    public static final String SHELLY_URL_SETTINGS_CLOUD        = "/settings/cloud";
+    public static final String  SHELLY_API_MIN_FWVERSION         = "v1.5.0";
 
-    public static final String SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
-    public static final String SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
-    public static final String SHELLY_URL_STATUS_RELEAY         = "/status/relay";
-    public static final String SHELLY_URL_CONTROL_RELEAY        = "/relay";
+    public static final String  SHELLY_NULL_URL                  = "null";
+    public static final String  SHELLY_URL_DEVINFO               = "/shelly";
+    public static final String  SHELLY_URL_STATUS                = "/status";
+    public static final String  SHELLY_URL_SETTINGS              = "/settings";
+    public static final String  SHELLY_URL_SETTINGS_AP           = "/settings/ap";
+    public static final String  SHELLY_URL_SETTINGS_STA          = "/settings/sta";
+    public static final String  SHELLY_URL_SETTINGS_LOGIN        = "/settings/sta";
+    public static final String  SHELLY_URL_SETTINGS_CLOUD        = "/settings/cloud";
 
-    public static final String SHELLY_URL_CONTROL_ROLLER        = "/roller";
+    public static final String  SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
+    public static final String  SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
+    public static final String  SHELLY_URL_STATUS_RELEAY         = "/status/relay";
+    public static final String  SHELLY_URL_CONTROL_RELEAY        = "/relay";
 
-    public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{1}={2}";
-    public static final String SHELLY_URL_SETTINGS_BULB         = "/settings/light";
-    public static final String SHELLY_URL_CONTROL_BULB          = "/light";
+    public static final String  SHELLY_URL_CONTROL_ROLLER        = "/roller";
 
-    public static final String SHELLY_BTNT_MOMENTARY            = "momentary";
-    public static final String SHELLY_BTNT_TOGGLE               = "toggle";
-    public static final String SHELLY_BTNT_EDGE                 = "edge";
-    public static final String SHELLY_BTNT_DETACHED             = "detached";
-    public static final String SHELLY_STATE_LAST                = "last";
-    public static final String SHELLY_STATE_STOP                = "stop";
-    public static final String SHELLY_INP_MODE_OPENCLOSE        = "openclose";
-    public static final String SHELLY_DEVMODE_RELAY             = "relay";
-    public static final String SHELLY_OBSTMODE_DISABLED         = "disabled";
-    public static final String SHELLY_SAFETYM_WHILEOPENING      = "while_opening";
-    public static final String SHELLY_ALWD_TRIGGER_NONE         = "none";
-    public static final String SHELLY_ALWD_ROLLER_TURN_OPEN     = "open";
-    public static final String SHELLY_ALWD_ROLLER_TURN_CLOSE    = "close";
-    public static final String SHELLY_ALWD_ROLLER_TURN_STOP     = "stop";
+    public static final String  SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{0}={1}";
+    public static final String  SHELLY_URL_SETTINGS_BULB         = "/settings/light";
+    public static final String  SHELLY_URL_CONTROL_BULB          = "/light";
 
-    public static final String SHELLY_CALLBACK_URI              = "/shelly/event";
-    public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
-    public static final String CHARSET_UTF8                     = "utf-8";
+    public static final String  SHELLY_BTNT_MOMENTARY            = "momentary";
+    public static final String  SHELLY_BTNT_TOGGLE               = "toggle";
+    public static final String  SHELLY_BTNT_EDGE                 = "edge";
+    public static final String  SHELLY_BTNT_DETACHED             = "detached";
+    public static final String  SHELLY_STATE_LAST                = "last";
+    public static final String  SHELLY_STATE_STOP                = "stop";
+    public static final String  SHELLY_INP_MODE_OPENCLOSE        = "openclose";
+    public static final String  SHELLY_DEVMODE_RELAY             = "relay";
+    public static final String  SHELLY_OBSTMODE_DISABLED         = "disabled";
+    public static final String  SHELLY_SAFETYM_WHILEOPENING      = "while_opening";
+    public static final String  SHELLY_ALWD_TRIGGER_NONE         = "none";
+    public static final String  SHELLY_ALWD_ROLLER_TURN_OPEN     = "open";
+    public static final String  SHELLY_ALWD_ROLLER_TURN_CLOSE    = "close";
+    public static final String  SHELLY_ALWD_ROLLER_TURN_STOP     = "stop";
 
-    public static final String OPENHAB_HTTP_PORT                = "OPENHAB_HTTP_PORT";
-    public static final String OPENHAB_DEF_PORT                 = "8080";
+    public static final String  SHELLY_CALLBACK_URI              = "/shelly/event";
+    public static final String  CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
+    public static final String  CHARSET_UTF8                     = "utf-8";
 
-    public static final String HTTP_GET                         = "GET";
-    public static final String HTTP_PUT                         = "PUT";
-    public static final String HTTP_POST                        = "POST";
-    public static final String HTTP_DELETE                      = "DELETE";
-    public static int          SHELLY_API_TIMEOUT               = 5000;
+    public static final String  OPENHAB_HTTP_PORT                = "OPENHAB_HTTP_PORT";
+    public static final String  OPENHAB_DEF_PORT                 = "8080";
 
-    private final Logger       logger                           = LoggerFactory.getLogger(ShellyHandler.class);
-    private String             localIp                          = "";
-    private String             deviceIp                         = "";
-    private String             localPort                        = OPENHAB_DEF_PORT;
+    public static final String  HTTP_GET                         = "GET";
+    public static final String  HTTP_PUT                         = "PUT";
+    public static final String  HTTP_POST                        = "POST";
+    public static final String  HTTP_DELETE                      = "DELETE";
+    public static int           SHELLY_API_TIMEOUT               = 5000;
 
-    private Gson               gson                             = new Gson();
+    private final Logger        logger                           = LoggerFactory.getLogger(ShellyHandler.class);
+    private String              localIp                          = "";
+    private String              deviceIp                         = "";
+    private String              localPort                        = OPENHAB_DEF_PORT;
+
+    private ShellyDeviceProfile profile;
+    private Gson                gson                             = new Gson();
 
     public ShellyHttpApi(ShellyConfiguration config) {
         this.deviceIp = config.deviceIp;
@@ -112,10 +118,73 @@ public class ShellyHttpApi {
         return gson.fromJson(json, ShellySettingsDevice.class);
     }
 
-    public ShellySettingsGlobal getSettings() throws IOException {
+    public ShellyDeviceProfile getDeviceProfile(String _thingType) throws IOException {
+        String thingType = _thingType;
+        if ((_thingType == null) && (profile != null) && (profile.thingType != null)) {
+            thingType = profile.thingType;
+        }
         String json = request(SHELLY_URL_SETTINGS, null);
         logger.debug("Shelly settings info : {}", json);
-        return gson.fromJson(json, ShellySettingsGlobal.class);
+
+        ShellyApiJson j = new ShellyApiJson();
+        profile = j.new ShellyDeviceProfile();
+        profile.settingsJson = json;
+        profile.settings = gson.fromJson(json, ShellySettingsGlobal.class);
+
+        // General settings
+        profile.mac = getString(profile.settings.device.mac);
+        profile.hostname = profile.settings.device.hostname != null && !profile.settings.device.hostname.isEmpty()
+                ? profile.settings.device.hostname.toLowerCase()
+                : "shelly-" + profile.mac.toUpperCase().substring(6, 11);
+        profile.mode = getString(profile.settings.mode) != null ? getString(profile.settings.mode).toLowerCase() : "";
+        profile.hwRev = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.hw_revision) : "";
+        profile.hwBatchId = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.batch_id.toString()) : "";
+        profile.fwDate = getString(StringUtils.substringBefore(profile.settings.fw, "/"));
+        profile.fwVersion = getString(StringUtils.substringBetween(profile.settings.fw, "/", "@"));
+        profile.fwId = getString(StringUtils.substringAfter(profile.settings.fw, "@"));
+
+        // Shelly1 has a meter, nevertheless numMeters is null!
+        profile.thingType = thingType;
+        profile.isRoller = profile.mode.equalsIgnoreCase(SHELLY_MODE_ROLLER);
+        profile.isPlugS = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
+        profile.hasLed = profile.isPlugS;
+        profile.isBulb = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId());
+        profile.isBulbColor = profile.isBulb && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
+        profile.isSmoke = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+        profile.isSensor = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
+                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+        profile.hasBattery = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
+                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+        profile.maxPower = profile.settings.max_power != null ? profile.settings.max_power : 0;
+
+        profile.numRollers = getInteger(profile.settings.device.num_rollers);
+        profile.numRelays = getInteger(profile.settings.device.num_outputs);
+        profile.numMeters = getInteger(profile.settings.device.num_meters);
+        if ((profile.numMeters == 0) && (profile.numRelays > 0)) {
+            profile.numMeters = 1; // Shelly 1 reports no meters, but has one
+        }
+        profile.hasMeter = profile.numMeters > 0;
+        profile.hasRelays = profile.numRelays > 0;
+
+        profile.supportsActionUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_BTN_ON);
+        profile.supportsSensorUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_REPORT);
+        return profile;
+    }
+
+    public void setEventURLs() throws IOException {
+        if (profile.supportsActionUrls) {
+            // set event URLs for Shelly2/4 Pro
+            logger.trace("Check/set Action event URLs for Relay or Roller");
+            int i = 0;
+            for (ShellySettingsRelay relay : profile.settings.relays) {
+                logger.info("Current settings for relay[{}]: btn_on_url={}/btn_off_url={}, out_on_url={}, out_off_url={}", i,
+                        relay.btn_on_url, relay.btn_off_url, relay.out_on_url, relay.out_off_url);
+                setRelayEventUrls(i, profile.hostname);
+                i++;
+            }
+        }
+        setSensorEventUrls(profile.hostname);
+
     }
 
     public ShellySettingsStatus gerStatus() throws IOException {
@@ -157,10 +226,10 @@ public class ShellyHttpApi {
     public void setRelayEventUrls(Integer relayIndex, String deviceName) throws IOException {
         String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
                 + relayIndex.toString();
-        request(buildEventUrl(relayIndex, "btn_on_url", eventUrl), null);
-        request(buildEventUrl(relayIndex, "btn_off_url", eventUrl), null);
-        request(buildEventUrl(relayIndex, "out_on_url", eventUrl), null);
-        request(buildEventUrl(relayIndex, "out_off_url", eventUrl), null);
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl), null);
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl), null);
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl), null);
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_REPORT, eventUrl), null);
     }
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
@@ -169,9 +238,14 @@ public class ShellyHttpApi {
     }
 
     public void setSensorEventUrls(String deviceName) throws IOException {
-        String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
-        String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, "report_url", urlEncode(eventUrl));
-        request(setUrl, null);
+        if (profile.supportsSensorUrls) {
+            // set event URL for HT (report_url)
+            logger.trace("Check/set Sensor Reporting URL");
+
+            String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
+            String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, SHELLY_API_EVENTURL_REPORT, urlEncode(eventUrl));
+            request(setUrl, null);
+        }
     }
 
     public void setLedStatus(String ledName, Boolean value) throws IOException {
@@ -242,6 +316,14 @@ public class ShellyHttpApi {
             throw new IOException(
                     "Unsupported encoding format: " + StandardCharsets.UTF_8.toString() + ", input=" + input);
         }
+    }
+
+    static public String getString(String value) {
+        return value != null ? value : "";
+    }
+
+    static public Integer getInteger(Object value) {
+        return (value != null ? (Integer) value : 0);
     }
 
 }

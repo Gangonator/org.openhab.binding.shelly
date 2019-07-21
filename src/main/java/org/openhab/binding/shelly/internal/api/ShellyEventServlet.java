@@ -95,16 +95,19 @@ public class ShellyEventServlet extends HttpServlet {
             if (ipAddress == null) {
                 ipAddress = request.getRemoteAddr();
             }
-            logger.trace("CallbackServlet: Reqeust from {}:{}{} ({}, {})", ipAddress, request.getRemotePort(), path,
-                    request.getRemoteHost(), request.getProtocol());
+            Map<String, String[]> parameters = request.getParameterMap();
+            logger.trace("CallbackServlet: {} Reqeust from {}:{}/{}?{}", request.getProtocol(), ipAddress, request.getRemotePort(), path,
+                    parameters.toString());
             if (!path.toLowerCase().startsWith(SHELLY_CALLBACK_URI) || !path.contains("/event/shelly")) {
                 logger.info("ERROR: CallbackServletreceived unknown request- path = {}, data={}", path, data);
                 return;
             }
 
+            // URL looks like <ip address>:<remote port>/shelly/event/shellyht-XXXXXX/sensordata?hum=53,temp=26.50
             String deviceName = StringUtils.substringBetween(path, "/event/", "/");
-            Map<String, String[]> parameters = request.getParameterMap();
-            handlerFactory.onUpdateEvent(deviceName, parameters, data);
+            String eventData = StringUtils.substringAfterLast(path, "/");
+            String eventType = StringUtils.substringBefore(eventData, "?");
+            handlerFactory.onUpdateEvent(deviceName, eventType, parameters, data);
 
         } catch (RuntimeException e) {
             if (data != null) {

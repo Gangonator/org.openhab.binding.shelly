@@ -136,7 +136,7 @@
             </channel-group>
         </channel-groups>
 
-        <config-description-ref uri="thing-type:shelly:generic" />
+        <config-description-ref uri="thing-type:shelly:battery" />
     </thing-type>
  
     <thing-type id="shellysmoke">
@@ -152,13 +152,13 @@
             </channel-group>
         </channel-groups>
 
-        <config-description-ref uri="thing-type:shelly:generic" />
+        <config-description-ref uri="thing-type:shelly:battery" />
     </thing-type>
  
 
-     <thing-type id="shellybulb-color">
+     <thing-type id="shellybulb">
         <label>Shelly Bulb - Color</label>
-        <description>Shelly Bulb in color mode</description>
+        <description>Shelly Bulb</description>
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
                 <label>Bulb Control</label>
@@ -166,20 +166,8 @@
             <channel-group id="color" typeId="colorControl">
                 <label>Color control</label>
             </channel-group>
-        </channel-groups>
-
-        <config-description-ref uri="thing-type:shelly:generic" />
-    </thing-type>
-
-    <thing-type id="shellybulb-white">
-        <label>Shelly Bulb - White</label>
-        <description>Shelly Bulb in White Mode</description>
-        <channel-groups>
-            <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb Control</label>
-            </channel-group>
-            <channel-group id="color" typeId="colorWhiteMode">
-                <label>White Color Control</label>
+            <channel-group id="white" typeId="colorWhiteMode">
+                <label>White control</label>
             </channel-group>
         </channel-groups>
 
@@ -271,8 +259,8 @@
        <label>LED control</label>
        <description>Control the LEDs</description>
         <channels>
-            <channel id="ledStatusDisable" typeId="ledStatusDisable" />
-            <channel id="ledPowerDisable" typeId="ledPowerDisable" />
+            <channel id="statusLed" typeId="ledStatusDisable" />
+            <channel id="powerLed" typeId="ledPowerDisable" />
         </channels>
     </channel-group-type>
 
@@ -281,7 +269,7 @@
        <description>Data from the Sensor</description>
         <channels>
             <channel id="temperature" typeId="sensorTemp" />
-            <channel id="unit" typeId="sensorTempUnit" />
+            <channel id="tempUnit" typeId="sensorTempUnit" />
             <channel id="humidity" typeId="sensorHumidity" />
         </channels>
     </channel-group-type>
@@ -306,7 +294,8 @@
        <label>Control</label>
        <description>Bulb control</description>
         <channels>
-            <channel id="power" typeId="power" />
+            <channel id="power" typeId="bulbPower" />
+            <channel id="colorMode" typeId="colorMode" />
             <channel id="defaultState" typeId="defaultState" />
             <channel id="flipbackTimer" typeId="bulbTimer" />
             <channel id="autoOn" typeId="autoOn" />
@@ -317,6 +306,7 @@
        <label>Colors</label>
        <description>Light colors</description>
         <channels>
+            <channel id="color" typeId="colorPicker" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
@@ -465,6 +455,15 @@
         <description>Overpower threshold in Watts</description>
     </channel-type>
 
+    <channel-type id="colorPicker">
+        <item-type>Color</item-type>
+        <label>Color Picker</label>
+        <description>The color channel allows to control the color of a light.</description>
+        <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
     <channel-type id="colorRed">
         <item-type>Number</item-type>
         <label>Red</label>
@@ -501,7 +500,7 @@
         <description>brightness, 0..100, applies in mode=white</description>
     </channel-type>
     <channel-type id="colorEffect">
-        <item-type>String</item-type>
+        <item-type>Number</item-type>
         <label>Effect</label>
         <description>Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath, 4: Flash, 5: On/Off Gradual, 6: Red/Green Change</description>
         <state readOnly="true">
@@ -517,10 +516,15 @@
         </state>
     </channel-type>
 
-    <channel-type id="power">
+    <channel-type id="bulbPower">
         <item-type>Switch</item-type>
         <label>Power</label>
         <description>Power ON/OFF</description>
+    </channel-type>
+    <channel-type id="colorMode">
+        <item-type>Switch</item-type>
+        <label>Color/White Mode</label>
+        <description>ON: Bulb is in color mode, OFF: Bulb ist in White Mode</description>
     </channel-type>
     <channel-type id="defaultState">
         <item-type>Switch</item-type>

@@ -25,7 +25,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.osgi.service.component.annotations.Component;
@@ -75,43 +75,35 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             ShellyHttpApi api = new ShellyHttpApi(config);
 
             // Get device settings
-            ShellySettingsGlobal settings = api.getSettings();
-            String mode = getString(settings.mode).toLowerCase();
-            logger.trace("name={}, mode={}", name, mode);
+            @SuppressWarnings({ "null", "deprecation" })
+            String thingType = StringUtils.substringBeforeLast(name, "-");
+            ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
+            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode);
 
             Map<String, Object> properties = new HashMap<>(5);
             properties.put(PROPERTY_VENDOR, "Shelly");
-            properties.put(PROPERTY_MODEL_ID, getString(settings.device.type));
-            properties.put(PROPERTY_MAC_ADDRESS, getString(settings.device.mac));
-            properties.put(PROPERTY_FIRMWARE_VERSION, getString(settings.fw));
-            properties.put("hwRev", getString(settings.hwinfo.hw_revision));
-            properties.put("hwBatch", getInteger(settings.hwinfo.batch_id).toString());
+            properties.put(PROPERTY_MODEL_ID, profile.thingType);
+            properties.put(PROPERTY_MAC_ADDRESS, profile.mac);
+            properties.put(PROPERTY_FIRMWARE_VERSION, profile.fwVersion + "/" + profile.fwDate + "(" + profile.fwId + ")");
+            properties.put("hwRev", profile.hwRev);
+            properties.put("hwBatchId", profile.hwBatchId);
             properties.put(CONFIG_DEVICEIP, address);
-            addProperty(properties, "mode", mode);
-            addProperty(properties, "hostname", getString(settings.device.hostname));
-            addProperty(properties, "numMeters", getInteger(settings.device.num_meters).toString());
-            addProperty(properties, "numRollers", getInteger(settings.device.num_rollers).toString());
-            addProperty(properties, "numOutputs", getInteger(settings.device.num_outputs).toString());
+            addProperty(properties, "mode", profile.mode);
+            addProperty(properties, "hostname", profile.hostname);
+            addProperty(properties, "numRelays", profile.numRelays.toString());
+            addProperty(properties, "numRollers", profile.numRollers.toString());
+            addProperty(properties, "numMeters", profile.numMeters.toString());
 
-            ThingUID thingUID = getThingUID(name, mode);
+            ThingUID thingUID = this.getThingUID(name, profile.mode);
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                     .withRepresentationProperty(name).build();
-        } catch (RuntimeException |
-
-                IOException e) {
-            logger.error("Device discovery failed for device {}, IP {}: {}", name, address, e.getMessage());
+        } catch (RuntimeException | IOException e) {
+            logger.error("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, service.getName(), e.getMessage(),
+                    e.getClass());
         }
 
         return null;
-    }
-
-    private String getString(String value) {
-        return value != null ? value : "";
-    }
-
-    private Integer getInteger(Object value) {
-        return (value != null ? (Integer) value : 0);
     }
 
     private void addProperty(Map<String, Object> properties, String key, String value) {
@@ -121,8 +113,9 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     @Override
     public ThingUID getThingUID(@Nullable ServiceInfo service) {
         logger.info("ServiceInfo {}", service);
+        @SuppressWarnings("null")
         String name = service.getName().toLowerCase();
-        return getThingUID(name, null);
+        return getThingUID(name, "");
     }
 
     public ThingUID getThingUID(String name, String mode) {
@@ -160,12 +153,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return new ThingUID(THING_TYPE_SHELLYPLUG, devid);
         }
         if (name.startsWith("shellybulb")) {
-            if (mode.equals(SHELLY_MODE_COLOR)) {
-                return new ThingUID(THING_TYPE_SHELLYBULB_COLOR, devid);
-            }
-            if (mode.equals(SHELLY_MODE_WHITE)) {
-                return new ThingUID(THING_TYPE_SHELLYBULB_WHITE, devid);
-            }
+            return new ThingUID(THING_TYPE_SHELLYBULB, devid);
         }
         if (name.startsWith("shellysense")) {
             return new ThingUID(THING_TYPE_SHELLYSENSE, devid);
@@ -177,12 +165,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return new ThingUID(THING_TYPE_SHELLYSMOKE, devid);
         }
         if (name.startsWith("shellyrgbw2")) {
-            if (mode.equals(SHELLY_MODE_COLOR)) {
-                return new ThingUID(THING_TYPE_SHELLYRGBW2_COLOR, devid);
-            }
-            if (mode.equals(SHELLY_MODE_WHITE)) {
-                return new ThingUID(THING_TYPE_SHELLYRGBW2_WHITE, devid);
-            }
+            return new ThingUID(THING_TYPE_SHELLYRGBW2, devid);
         }
 
         logger.info("Unsupported Shelly Device discovered: {} (mode {})", name, mode);

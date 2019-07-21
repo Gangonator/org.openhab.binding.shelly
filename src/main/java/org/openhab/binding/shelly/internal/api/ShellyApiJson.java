@@ -139,6 +139,12 @@ public class ShellyApiJson {
         ArrayList<ShellySettingsScheduleRules> schedule_rules;
     }
 
+    public static final String SHELLY_API_EVENTURL_BTN_ON  = "btn_on_url";
+    public static final String SHELLY_API_EVENTURL_BTN_OFF = "btn_off_url";
+    public static final String SHELLY_API_EVENTURL_SW_ON   = "out_on_url";
+    public static final String SHELLY_API_EVENTURL_SW_OFF  = "out_off_url";
+    public static final String SHELLY_API_EVENTURL_REPORT  = "report_url";
+
     public class ShellySettingsRoller {
         public Double                          maxtime;
         public Double                          maxtime_open;
@@ -203,7 +209,7 @@ public class ShellyApiJson {
         public String                         time;
         public ShellySettingsHwInfo           hwinfo;
         public String                         mode;
-        public Integer                        max_power;
+        public Long                           max_power;
         public ArrayList<ShellySettingsRelay> relays;
         public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
@@ -364,19 +370,60 @@ public class ShellyApiJson {
         public Integer auto_off; // see above
     }
 
-    public static final String SHELLY_BULB_TURN        = "turn";
-    public static final String SHELLY_BULB_DEFSTATE    = "def_state";
-    public static final String SHELLY_BULB_TIMER       = "timer";
-    public static final String SHELLY_BULB_AUTOON      = "auto_on";
-    public static final String SHELLY_BULB_AUTOOFF     = "aut_off";
+    public static final String  SHELLY_BULB_TURN        = "turn";
+    public static final String  SHELLY_BULB_DEFSTATE    = "def_state";
+    public static final String  SHELLY_BULB_TIMER       = "timer";
+    public static final String  SHELLY_BULB_AUTOON      = "auto_on";
+    public static final String  SHELLY_BULB_AUTOOFF     = "aut_off";
 
-    public static final String SHELLY_COLOR_RED        = "red";
-    public static final String SHELLY_COLOR_BLUE       = "blue";
-    public static final String SHELLY_COLOR_GREEN      = "green";
-    public static final String SHELLY_COLOR_WHITE      = "white";
-    public static final String SHELLY_COLOR_GAIN       = "gain";
-    public static final String SHELLY_COLOR_BRIGHTNESS = "brightness";
-    public static final String SHELLY_COLOR_TEMP       = "temp";
-    public static final String SHELLY_COLOR_EFFECT     = "effect";
+    public static final String  SHELLY_COLOR_RED        = "red";
+    public static final String  SHELLY_COLOR_BLUE       = "blue";
+    public static final String  SHELLY_COLOR_GREEN      = "green";
+    public static final String  SHELLY_COLOR_WHITE      = "white";
+    public static final String  SHELLY_COLOR_GAIN       = "gain";
+    public static final String  SHELLY_COLOR_BRIGHTNESS = "brightness";
+    public static final String  SHELLY_COLOR_TEMP       = "temp";
+    public static final String  SHELLY_COLOR_EFFECT     = "effect";
+
+    public static final Integer SHELLY_MAX_BRIGHTNESS   = 100;
+    public static final Integer SHELLY_MAX_GAIN         = 100;
+    public static final Integer SHELLY_MAX_COLOR        = 255;
+    public static final int     SHELLY_DIM_STEPSIZE     = 10;
+
+    public class ShellyDeviceProfile {
+        public String               thingType;
+        public String               settingsJson;
+        public ShellySettingsGlobal settings;
+
+        public String               hostname;
+        public String               mode;
+
+        public String               hwRev;
+        public String               hwBatchId;
+        public String               mac;
+        public String               fwId;
+        public String               fwVersion;
+        public String               fwDate;
+
+        public Long                 maxPower;
+        public Integer              numMeters;
+        public Integer              numRelays;
+        public Integer              numRollers;
+
+        public Boolean              hasRelays; // true if it has at least 1 power meter
+        public Boolean              hasMeter; // true if it has at least 1 power meter
+        public Boolean              hasBattery; // true if battery device
+        public Boolean              hasLed; // true if battery device
+        public Boolean              isRoller;  // true for Shelly2 in roller mode
+        public Boolean              isPlugS;  // true if it is a Shelly Plug S
+        public Boolean              isBulb; // true if it is a Shelly Bulb
+        public Boolean              isBulbColor; // true if bulb is in color mode
+        public Boolean              isSensor; // true for HT & Smoke
+        public Boolean              isSmoke; // true for Smoke
+
+        public Boolean              supportsActionUrls;  // true if the action urls are supported
+        public Boolean              supportsSensorUrls; // true if sensor url is supported
+
+    }
 
 }
