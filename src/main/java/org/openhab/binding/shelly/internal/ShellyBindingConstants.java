@@ -28,8 +28,6 @@ public class ShellyBindingConstants {
     // List of all Thing Type UIDs
     public static final ThingTypeUID      THING_TYPE_SHELLY1          = new ThingTypeUID(BINDING_ID, "shelly1");
     public static final ThingTypeUID      THING_TYPE_SHELLY1PM        = new ThingTypeUID(BINDING_ID, "shelly1pm");
-    // public static final ThingTypeUID THING_TYPE_SHELLY2 = new ThingTypeUID(BINDING_ID, "shellyswitch");
-    // public static final ThingTypeUID THING_TYPE_SHELLY25 = new ThingTypeUID(BINDING_ID, "shellyswitch25");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY    = new ThingTypeUID(BINDING_ID, "shelly2-relay");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER   = new ThingTypeUID(BINDING_ID, "shelly2-roller");
     public static final ThingTypeUID      THING_TYPE_SHELLY25_RELAY   = new ThingTypeUID(BINDING_ID, "shelly25-relay");
@@ -42,12 +40,13 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYSENSE      = new ThingTypeUID(BINDING_ID, "shellysense");
     public static final ThingTypeUID      THING_TYPE_SHELLYSMOKE      = new ThingTypeUID(BINDING_ID, "shellysmoke");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2      = new ThingTypeUID(BINDING_ID, "shellyrgbw2");
+    public static final ThingTypeUID      THING_TYPE_SHELLYSIMULATOR  = new ThingTypeUID(BINDING_ID, "shelly-simulator");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS  = Collections
-            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1,
+            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM,
                     THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER, THING_TYPE_SHELLY25_RELAY, THING_TYPE_SHELLY25_ROLLER,
                     THING_TYPE_SHELLY4PRO, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUGS, THING_TYPE_SHELLYBULB,
-                    THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYRGBW2)
+                    THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYRGBW2, THING_TYPE_SHELLYSIMULATOR)
                     .collect(Collectors.toSet()));
 
     public static final int               UPDATE_STATUS_INTERVAL      = 3; // check for updates every x sec

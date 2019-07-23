@@ -95,7 +95,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
         handlerFactory.registerDeviceListener(this);
         api = new ShellyHttpApi(config);
-        channelData = new HashMap<>();
 
         // Example for background initialization:
         scheduler.schedule(() -> {
@@ -114,6 +113,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private void initializeThing() throws IOException {
         // Get the thing global settings and initialize device capabilities
         logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
+        channelData = new HashMap<>();  // clear any cached channels
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
@@ -184,7 +184,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 case CHANNEL_RELAY_OUTPUT:
                     if (!profile.isRoller) {
                         // extract relay number of group name (relay0->0, relay1->1...)
-                        api.setRelayTurn(rIndex, (OnOffType) command == OnOffType.ON ? "ON" : "OFF");
+                        api.setRelayTurn(rIndex, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     } else {
                         logger.info("Shelly is in roller mode, channel command {} ignored", channelUID.toString());
                     }
@@ -238,7 +238,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 logger.trace("Updating status for device {}", thingName);
-                ShellySettingsStatus status = api.gerStatus();
+                ShellySettingsStatus status;
+                status = api.gerStatus();
                 logger.debug("Shelly status info for {}: {}", thingName, status.json);
 
                 // map status to channels
@@ -497,17 +498,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected void updateProperties(ShellyDeviceProfile profile, ShellySettingsStatus status) {
         Map<String, String> properties = new HashMap<String, String>();
-        if (status.wifi_sta != null) {
-            properties.put("wifiNetwork", getString(status.wifi_sta.ssid));
-            properties.put("networkIp", getString(status.wifi_sta.ip));
-        }
+        properties.put("mode", profile.mode);
         properties.put("time", status.time);
         properties.put("uptime", status.uptime.toString() + "sec");
-        properties.put("mode", profile.mode);
+        if (status.wifi_sta != null) {
+            properties.put("wifiNetwork", getString(status.wifi_sta.ssid));
+            properties.put("wifiRssi", getInteger(status.wifi_sta.rssi).toString());
+            properties.put("networkIp", getString(status.wifi_sta.ip));
+        }
         properties.put("updateStaus", status.update.status);
         properties.put("updateAvailable", status.update.has_update ? "yes" : "no");
-        properties.put("oldVersion", status.update.old_version);
-        properties.put("newVersion", status.update.new_version);
+        properties.put("updateCurrentVersion", status.update.old_version);
+        properties.put("updateNewVersion", status.update.new_version);
         updateProperties(properties);
     }
 

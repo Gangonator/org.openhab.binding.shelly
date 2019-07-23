@@ -362,21 +362,21 @@
     <channel-type id="lastPower1">
         <item-type>Number</item-type>
         <label>Last Power #1</label>
-        <description>Last power consumption #1 - one rounded minutet</description>
+        <description>Last power consumption #1 - one rounded minute</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
         <label>Last Power #2</label>
-        <description>Last power consumption #2 - one rounded minutet</description>
+        <description>Last power consumption #2 - one rounded minute</description>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
         <label>Last Power #3</label>
-        <description>Last power consumption #3 - one rounded minutet</description>
+        <description>Last power consumption #3 - one rounded minute</description>
         <state readOnly="true">
         </state>
     </channel-type>
@@ -616,15 +616,11 @@
         <item-type>Number</item-type>
         <label>Auto ON timer</label>
         <description>When Off - Turn On After xx seconds; 0 disables the timer</description>
-        <state readOnly="true">
-        </state>
     </channel-type>
     <channel-type id="timerAutoOff">
         <item-type>Number</item-type>
         <label>Auto OFF timer</label>
         <description>When ON - Turn On After xx seconds; 0 disables the timer</description>
-        <state readOnly="true">
-        </state>
     </channel-type>
     <channel-type id="timerActive">
         <item-type>Switch</item-type>

@@ -17,8 +17,12 @@ import java.util.ArrayList;
  */
 public class ShellyApiJson {
 
-    public static final String SHELLY_API_ON  = "on";
-    public static final String SHELLY_API_OFF = "off";
+    public static final String SHELLY_API_ON       = "on";
+    public static final String SHELLY_API_OFF      = "off";
+
+    public static final String SHELLY_CLASS_RELAY  = "relay";  // Relay: relay mode
+    public static final String SHELLY_CLASS_ROLLER = "roller"; // Relay: roller mode
+    public static final String SHELLY_CLASS_LIGHT  = "light";  // Bulb: color mode
 
     public class ShellyCommonSettings {
         public Boolean reset; // Will perform a factory reset of the device
@@ -62,6 +66,7 @@ public class ShellyApiJson {
     public class ShellySettingsWiFiNetwork {
         public Boolean      enabled;
         public String       ssid;
+        public Integer      rssi;
 
         public String       ipv4_method;
         public final String SHELLY_IPM_STATIC = "static";

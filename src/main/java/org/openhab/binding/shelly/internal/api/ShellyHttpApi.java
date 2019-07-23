@@ -73,7 +73,6 @@ public class ShellyHttpApi {
     public static final String SHELLY_STATE_LAST                = "last";
     public static final String SHELLY_STATE_STOP                = "stop";
     public static final String SHELLY_INP_MODE_OPENCLOSE        = "openclose";
-    public static final String SHELLY_DEVMODE_RELAY             = "relay";
     public static final String SHELLY_OBSTMODE_DISABLED         = "disabled";
     public static final String SHELLY_SAFETYM_WHILEOPENING      = "while_opening";
     public static final String SHELLY_ALWD_TRIGGER_NONE         = "none";
@@ -82,6 +81,7 @@ public class ShellyHttpApi {
     public static final String SHELLY_ALWD_ROLLER_TURN_STOP     = "stop";
 
     public static final String SHELLY_CALLBACK_URI              = "/shelly/event";
+    public static final String SHELLY_SIMULATOR_URI             = "/shelly/simulator";
     public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
     public static final String CHARSET_UTF8                     = "utf-8";
 
@@ -158,7 +158,8 @@ public class ShellyHttpApi {
         if ((_thingType == null) && (profile != null) && (profile.thingType != null)) {
             thingType = profile.thingType;
         }
-        String json = request(SHELLY_URL_SETTINGS, null);
+        String json;
+        json = request(SHELLY_URL_SETTINGS, null);
         profile = new ShellyDeviceProfile();
         profile.settingsJson = json;
         profile.settings = gson.fromJson(json, ShellySettingsGlobal.class);
@@ -278,13 +279,13 @@ public class ShellyHttpApi {
     }
 
     public void setTimer(Integer index, String timerName, Double value) throws IOException {
-        String type = "relay";
+        String type = SHELLY_CLASS_RELAY;
         if (profile.isRoller) {
-            type = "roller";
+            type = SHELLY_CLASS_ROLLER;
         } else if (profile.isBulb) {
-            type = "light";
+            type = SHELLY_CLASS_LIGHT;
         }
-        String uri = SHELLY_URL_SETTINGS + "/" + type + "/" + index + "?" + timerName + "=" + value.toString();
+        String uri = SHELLY_URL_SETTINGS + "/" + type + "/" + index + "?" + timerName + "=" + ((Integer) value.intValue()).toString();
         request(uri, null);
     }
 
