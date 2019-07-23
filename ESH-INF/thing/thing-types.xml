@@ -630,5 +630,7 @@
         <item-type>Switch</item-type>
         <label>Auto ON/OFF timer active</label>
         <description>ON: A timer is active, OFF: no timer active</description>
+        <state readOnly="true">
+        </state>
     </channel-type>
 </thing:thing-descriptions>
