@@ -2,6 +2,7 @@ package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
+import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
 
@@ -16,8 +17,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyDeviceProfile;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
+import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +47,9 @@ public class ShellyHandlerBulb extends ShellyHandler {
     @SuppressWarnings("null")
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        super.handleCommand(channelUID, command);
+
         if (command instanceof RefreshType) {
+            // not yet implemented
             return;
         }
 
@@ -54,32 +57,22 @@ public class ShellyHandlerBulb extends ShellyHandler {
         if (profile == null) {
             return;
         }
-
         try {
             if (profile.isBulbColor) {
                 String groupName = channelUID.getGroupId();
                 switch (channelUID.getIdWithoutGroup()) {
+                    default: // non-bulb commands will be handled by the generic handler
+                        super.handleCommand(channelUID, command);
+                        break;
+
                     case CHANNEL_BULB_POWER:
                         logger.info("Switch bulb {}", command.toString());
                         api.setBulbParm(0, SHELLY_BULB_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
-                        break;
-                    case CHANNEL_BULB_TIMER:
-                        logger.info("Sez flip-back timer to {}", command.toString());
-                        api.setBulbParm(0, SHELLY_BULB_TIMER, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                         break;
                     case CHANNEL_BULB_DEFSTATE:
                         logger.info("Default state for the bulb is {}", command.toString());
                         api.setBulbSettings(0, SHELLY_BULB_DEFSTATE, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                         break;
-                    case CHANNEL_BULB_AUTOON:
-                        logger.info("Set auto-on to {}", command.toString());
-                        api.setBulbSettings(0, SHELLY_BULB_AUTOON, ((DecimalType) command).toString());
-                        break;
-                    case CHANNEL_BULB_AUTOOFF:
-                        logger.info("Set auto-on to {}", command.toString());
-                        api.setBulbSettings(0, SHELLY_BULB_AUTOOFF, ((DecimalType) command).toString());
-                        break;
-
                     case CHANNEL_COLOR_PICKER:
                         if (command instanceof HSBType) {
                             HSBType hsb = (HSBType) command;
@@ -125,6 +118,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
                     case CHANNEL_COLOR_BLUE:
                         setBulbColor(SHELLY_COLOR_BLUE, command, SHELLY_MAX_COLOR);
                         break;
+
                     case CHANNEL_COLOR_WHITE:
                         setBulbColor(SHELLY_COLOR_WHITE, command, SHELLY_MAX_COLOR);
                         break;
@@ -137,6 +131,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
                     case CHANNEL_COLOR_TEMP:
                         setBulbColor(SHELLY_COLOR_TEMP, command, MAX_COLOR_TEMPERATURE);
                         break;
+
                     case CHANNEL_COLOR_EFFECT:
                         logger.info("Set color effect to {}", command.toString());
                         api.setBulbParm(0, SHELLY_COLOR_EFFECT, ((DecimalType) command).toString());
@@ -148,6 +143,30 @@ public class ShellyHandlerBulb extends ShellyHandler {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
         }
+    }
+
+    @Override
+    public void updateThingStatus() throws IOException {
+        if (profile.isBulb) {
+            ShellySettingsBulb settings = api.getBulbSettings();
+            updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_COLOR_MODE, profile.mode.equals(SHELLY_MODE_COLOR));
+            updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_POWER, ShellyHttpApi.getBool(settings.ison));
+            updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_DEFSTATE, getString(settings.default_state));
+            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(settings.effect));
+            updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(settings.auto_on));
+            updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(settings.auto_off));
+            if (profile.isBulbColor) {
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(settings.red));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(settings.blue));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(settings.green));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(settings.white));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(settings.gain));
+            } else {
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, getInteger(settings.brightness));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(settings.temp));
+            }
+        }
+
     }
 
     private void setBulbColor(String colorName, Integer value) throws IOException {

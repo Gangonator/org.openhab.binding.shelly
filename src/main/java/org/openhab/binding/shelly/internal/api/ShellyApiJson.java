@@ -123,20 +123,20 @@ public class ShellyApiJson {
     }
 
     public class ShellySettingsRelay {
-        public String                          name;
-        public Boolean                         ison;
-        public Boolean                         has_timer;
-        public Boolean                         overpower;
-        public String                          default_state; // Accepted values: off, on, last, switch
-        public String                          btn_type; // Accepted values: momentary, toggle, edge, detached - // see SHELLY_BTNT_xxx
-        public Integer                         auto_on; // Automatic flip back timer, seconds. Will engage after turning Shelly1 OFF.
-        public Integer                         auto_off; // Automatic flip back timer, seconds. Will engage after turning Shelly1 ON.
-        public String                          btn_on_url; // URL to access when SW input is activated
-        public String                          btn_off_url; // URL to access when SW input is deactivated
-        public String                          out_on_url; // URL to access when output is activated
-        public String                          out_off_url; // URL to access when output is deactivated
-        public Boolean                         schedule;
-        ArrayList<ShellySettingsScheduleRules> schedule_rules;
+        public String  name;
+        public Boolean ison;
+        public Boolean overpower;
+        public String  default_state; // Accepted values: off, on, last, switch
+        public String  btn_type; // Accepted values: momentary, toggle, edge, detached - // see SHELLY_BTNT_xxx
+        public Boolean has_timer; // Whether a timer is currently armed for this channel
+        public Double  auto_on; // Automatic flip back timer, seconds. Will engage after turning Shelly1 OFF.
+        public Double  auto_off; // Automatic flip back timer, seconds. Will engage after turning Shelly1 ON.
+        public String  btn_on_url; // URL to access when SW input is activated
+        public String  btn_off_url; // URL to access when SW input is deactivated
+        public String  out_on_url; // URL to access when output is activated
+        public String  out_off_url; // URL to access when output is deactivated
+        public Boolean schedule;
+        // ArrayList<ShellySettingsScheduleRules> schedule_rules;
     }
 
     public static final String SHELLY_API_EVENTURL_BTN_ON  = "btn_on_url";
@@ -146,30 +146,30 @@ public class ShellyApiJson {
     public static final String SHELLY_API_EVENTURL_REPORT  = "report_url";
 
     public class ShellySettingsRoller {
-        public Double                          maxtime;
-        public Double                          maxtime_open;
-        public Double                          maxtime_close;
-        public String                          default_state; // see SHELLY_STATE_xxx
-        public Boolean                         swap;
-        public Boolean                         swap_inputs;
-        public String                          input_mode; // see SHELLY_INP_MODE_OPENCLOSE
-        public String                          button_type; // // see SHELLY_BTNT_xxx
-        public Integer                         btn_reverse;
-        public String                          state;
-        public Double                          power;
-        public Boolean                         is_valid;
-        public Boolean                         safety_switch;
-        public Boolean                         schedule;
-        ArrayList<ShellySettingsScheduleRules> schedule_rules;
-        public String                          obstacle_mode; // SHELLY_OBSTMODE_
-        public String                          obstacle_action; // see SHELLY_STATE_xxx
-        public Integer                         obstacle_power;
-        public Integer                         obstacle_delay;
-        public String                          safety_mode; // see SHELLY_SAFETYM_xxx
-        public String                          safety_action; // see SHELLY_STATE_xxx
-        public String                          safety_allowed_on_trigger; // see SHELLY_ALWD_TRIGGER_xxx
-        public Integer                         off_power;
-        public Boolean                         positioning;
+        public Double  maxtime;
+        public Double  maxtime_open;
+        public Double  maxtime_close;
+        public String  default_state; // see SHELLY_STATE_xxx
+        public Boolean swap;
+        public Boolean swap_inputs;
+        public String  input_mode; // see SHELLY_INP_MODE_OPENCLOSE
+        public String  button_type; // // see SHELLY_BTNT_xxx
+        public Integer btn_reverse;
+        public String  state;
+        public Double  power;
+        public Boolean is_valid;
+        public Boolean safety_switch;
+        public Boolean schedule;
+        // ArrayList<ShellySettingsScheduleRules> schedule_rules;
+        public String  obstacle_mode; // SHELLY_OBSTMODE_
+        public String  obstacle_action; // see SHELLY_STATE_xxx
+        public Integer obstacle_power;
+        public Integer obstacle_delay;
+        public String  safety_mode; // see SHELLY_SAFETYM_xxx
+        public String  safety_action; // see SHELLY_STATE_xxx
+        public String  safety_allowed_on_trigger; // see SHELLY_ALWD_TRIGGER_xxx
+        public Integer off_power;
+        public Boolean positioning;
     }
 
     public class ShellySettingsMeter {
@@ -209,7 +209,7 @@ public class ShellyApiJson {
         public String                         time;
         public ShellySettingsHwInfo           hwinfo;
         public String                         mode;
-        public Long                           max_power;
+        public Double                         max_power;
         public ArrayList<ShellySettingsRelay> relays;
         public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
@@ -295,8 +295,8 @@ public class ShellyApiJson {
     }
 
     public class ShellyControlRoller {
-        public Long    roller_pos; // number Desired position in percent
-        public Long    duration; // If specified, the motor will move for this period in seconds. If missing, the value of
+        public Integer roller_pos; // number Desired position in percent
+        public Integer duration; // If specified, the motor will move for this period in seconds. If missing, the value of
                                  // maxtime in /settings/roller/N will be used.
         public String  state; // One of stop, open, close
         public Double  power; // Current power consumption in Watts
@@ -307,7 +307,7 @@ public class ShellyApiJson {
         public String  last_direction; // Last direction of motion, open or close
         public Boolean calibrating;
         public Boolean positioning; // true when calibration was performed
-        public Long    current_pos; // current position 0..100, 100=open
+        public Integer current_pos; // current position 0..100, 100=open
     }
 
     public static final String SHELLY_STOPR_NORMAL   = "normal";
@@ -368,15 +368,17 @@ public class ShellyApiJson {
         public Integer effect; // Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath,
                                // 4: Flash, 5: On/Off Gradual, 6: Red/Green Change
         public String  default_state; // one of on, off or last
-        public Integer auto_on; // see above
-        public Integer auto_off; // see above
+        public Double  auto_on; // see above
+        public Double  auto_off; // see above
     }
+
+    public static final String  SHELLY_TIMER_AUTOON     = "auto_on";
+    public static final String  SHELLY_TIMER_AUTOOFF    = "aut_off";
+    public static final String  SHELLY_TIMER_ACTIVE     = "has_timer";
 
     public static final String  SHELLY_BULB_TURN        = "turn";
     public static final String  SHELLY_BULB_DEFSTATE    = "def_state";
     public static final String  SHELLY_BULB_TIMER       = "timer";
-    public static final String  SHELLY_BULB_AUTOON      = "auto_on";
-    public static final String  SHELLY_BULB_AUTOOFF     = "aut_off";
 
     public static final String  SHELLY_COLOR_RED        = "red";
     public static final String  SHELLY_COLOR_BLUE       = "blue";
@@ -391,41 +393,4 @@ public class ShellyApiJson {
     public static final Integer SHELLY_MAX_GAIN         = 100;
     public static final Integer SHELLY_MAX_COLOR        = 255;
     public static final int     SHELLY_DIM_STEPSIZE     = 10;
-
-    public class ShellyDeviceProfile {
-        public String               thingType;
-        public String               settingsJson;
-        public ShellySettingsGlobal settings;
-
-        public String               hostname;
-        public String               mode;
-
-        public String               hwRev;
-        public String               hwBatchId;
-        public String               mac;
-        public String               fwId;
-        public String               fwVersion;
-        public String               fwDate;
-
-        public Long                 maxPower;
-        public Integer              numMeters;
-        public Integer              numRelays;
-        public Integer              numRollers;
-
-        public Boolean              hasRelays; // true if it has at least 1 power meter
-        public Boolean              hasMeter; // true if it has at least 1 power meter
-        public Boolean              hasBattery; // true if battery device
-        public Boolean              hasLed; // true if battery device
-        public Boolean              isRoller;  // true for Shelly2 in roller mode
-        public Boolean              isPlugS;  // true if it is a Shelly Plug S
-        public Boolean              isBulb; // true if it is a Shelly Bulb
-        public Boolean              isBulbColor; // true if bulb is in color mode
-        public Boolean              isSensor; // true for HT & Smoke
-        public Boolean              isSmoke; // true for Smoke
-
-        public Boolean              supportsActionUrls;  // true if the action urls are supported
-        public Boolean              supportsSensorUrls; // true if sensor url is supported
-
-    }
-
 }

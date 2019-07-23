@@ -18,6 +18,20 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
 	</thing-type>
+    <thing-type id="shelly1pm">
+        <label>Shelly1PM (SHSW-PM)</label>
+        <description>Shelly1PM device with single relay and power meter</description>
+        <channel-groups>
+            <channel-group id="relay1" typeId="relayChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="meter1" typeId="meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
 	
     <thing-type id="shelly2-relay">
         <label>Shelly2 Relay (SHSW-21)</label>
@@ -169,6 +183,9 @@
             <channel-group id="white" typeId="colorWhiteMode">
                 <label>White control</label>
             </channel-group>
+            <channel-group id="meter" typeId="v1Meter">
+                <label>Meter</label>
+            </channel-group>
         </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
@@ -206,6 +223,9 @@
         <channels>
             <channel id="output" typeId="output" />
             <channel id="overpower" typeId="overpower" />
+            <channel id="autoOn" typeId="timerAutoOn" />
+            <channel id="autoOff" typeId="timerAutoOff" />
+            <channel id="timerActive" typeId="timerActive" />
             <channel id="trigger" typeId="relayTrigger" />
         </channels>
    </channel-group-type>
@@ -237,6 +257,7 @@
             <channel id="lastPower3" typeId="lastPower3" />
             <channel id="totalWatts" typeId="meterTotal" />
             <channel id="timestamp" typeId="meterTimestamp" />
+            <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
    <channel-group-type id="simpleMeter">
@@ -298,8 +319,9 @@
             <channel id="colorMode" typeId="colorMode" />
             <channel id="defaultState" typeId="defaultState" />
             <channel id="flipbackTimer" typeId="bulbTimer" />
-            <channel id="autoOn" typeId="autoOn" />
-            <channel id="autoOff" typeId="autoOff" />
+            <channel id="autoOn" typeId="timerAutoOn" />
+            <channel id="autoOff" typeId="timerAutoOff" />
+            <channel id="timerActive" typeId="timerActive" />
         </channels>
     </channel-group-type>
     <channel-group-type id="colorControl">
@@ -376,13 +398,6 @@
         <item-type>Switch</item-type>
         <label>Overpower</label>
         <description>ON: Device detected an over power situation</description>
-        <state readOnly="true">
-        </state>
-    </channel-type>
-    <channel-type id="relayTimer">
-        <item-type>Number</item-type>
-        <label>Auto-Timer</label>
-        <description>Toggles the output when timer expired</description>
         <state readOnly="true">
         </state>
     </channel-type>
@@ -597,4 +612,23 @@
         </state>
     </channel-type>
 
+    <channel-type id="timerAutoOn">
+        <item-type>Number</item-type>
+        <label>Auto ON timer</label>
+        <description>When Off - Turn On After xx seconds; 0 disables the timer</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="timerAutoOff">
+        <item-type>Number</item-type>
+        <label>Auto OFF timer</label>
+        <description>When ON - Turn On After xx seconds; 0 disables the timer</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="timerActive">
+        <item-type>Switch</item-type>
+        <label>Auto ON/OFF timer active</label>
+        <description>ON: A timer is active, OFF: no timer active</description>
+    </channel-type>
 </thing:thing-descriptions>

@@ -25,8 +25,8 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
+import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -78,6 +78,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             @SuppressWarnings({ "null", "deprecation" })
             String thingType = StringUtils.substringBeforeLast(name, "-");
             ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
+            logger.debug("Shelly settings : {}", profile.settingsJson);
             logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode);
 
             Map<String, Object> properties = new HashMap<>(5);

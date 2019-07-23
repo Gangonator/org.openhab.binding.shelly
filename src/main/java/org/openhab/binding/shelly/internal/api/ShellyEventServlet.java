@@ -90,6 +90,10 @@ public class ShellyEventServlet extends HttpServlet {
             throws ServletException, IOException {
         String data = inputStreamToString(request);
         String path = request.getRequestURI();
+        String deviceName = "";
+        String index = "";
+        String type = "";
+
         try {
             String ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
             if (ipAddress == null) {
@@ -103,20 +107,23 @@ public class ShellyEventServlet extends HttpServlet {
                 return;
             }
 
-            // URL looks like <ip address>:<remote port>/shelly/event/shellyht-XXXXXX/sensordata?hum=53,temp=26.50
-            String deviceName = StringUtils.substringBetween(path, "/event/", "/");
-            String eventData = StringUtils.substringAfterLast(path, "/");
-            String eventType = StringUtils.substringBefore(eventData, "?");
-            handlerFactory.onUpdateEvent(deviceName, eventType, parameters, data);
+            // URL looks like
+            // <ip address>:<remote port>/shelly/event/shellyrelay-XXXXXX/relay/n?xxxxx or
+            // <ip address>:<remote port>/shelly/event/shellyrelay-XXXXXX/roller/n?xxxxx or
+            // <ip address>:<remote port>/shelly/event/shellyht-XXXXXX/sensordata?hum=53,temp=26.50
+            deviceName = StringUtils.substringBetween(path, "/event/", "/");
+            if (path.contains("/relay/") || path.contains("/roller/") || path.contains("/light/")) {
+                index = StringUtils.substringAfterLast(path, "/");
+                type = StringUtils.substringBetween(path, deviceName + "/", "/" + index);
+            } else {
+                index = "";
+                type = StringUtils.substringAfterLast(path, "/");
+            }
+            handlerFactory.onUpdateEvent(deviceName, index, type, parameters, data);
 
         } catch (RuntimeException e) {
-            if (data != null) {
-                logger.info("ERROR: Exception processing callback: {} ({}), path={}, data='{}'", e.getMessage(),
-                        e.getClass(), path, data);
-            } else {
-                logger.info("ERROR: Exception processing callback: {} ({}), path={}", e.getMessage(), e.getClass(),
-                        path);
-            }
+            logger.info("ERROR: Exception processing callback: {} ({}), path={}, data='{}'; deviceName={}, index={}, type={}, parameters={}",
+                    e.getMessage(), e.getClass(), path, data, deviceName, index, type, request.getParameterMap().toString());
         } finally {
             setHeaders(resp);
             resp.getWriter().write("");

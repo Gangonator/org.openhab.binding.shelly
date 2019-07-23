@@ -63,9 +63,12 @@ public class ShellyBindingConstants {
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL = "relay";
     public static final String            CHANNEL_RELAY_OUTPUT        = "output";
-    public static final String            CHANNEL_RELAY_TIMER         = "timer";
     public static final String            CHANNEL_RELAY_OVERPOWER     = "overpower";
     public static final String            CHANNEL_RELAY_TRIGGER       = "trigger";
+
+    public static final String            CHANNEL_TIMER_AUTOON        = "autoOn";
+    public static final String            CHANNEL_TIMER_AUTOOFF       = "autoOff";
+    public static final String            CHANNEL_TIMER_ACTIVE        = "timerActive";
 
     // Roller
     public static final String            CHANNEL_GROUP_ROL_CONTROL   = "roller";
@@ -105,9 +108,6 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_BULB_COLOR_MODE     = "colorMode";
     public static final String            CHANNEL_BULB_POWER          = "power";
     public static final String            CHANNEL_BULB_DEFSTATE       = "defaultState";
-    public static final String            CHANNEL_BULB_AUTOON         = "autoOn";
-    public static final String            CHANNEL_BULB_AUTOOFF        = "autoOff";
-    public static final String            CHANNEL_BULB_TIMER          = "flipbackTimer";
 
     public static final String            CHANNEL_GROUP_COLOR_CONTROL = "color";
     public static final String            CHANNEL_COLOR_PICKER        = "color";
