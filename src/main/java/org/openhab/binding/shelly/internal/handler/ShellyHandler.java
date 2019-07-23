@@ -78,6 +78,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         super(thing);
         this.handlerFactory = handlerFactory;
         this.networkAddressService = networkAddressService;
+        thingName = this.getThing().getUID().getThingTypeId() + "-" + this.getThing().getUID().getId();
     }
 
     @Override
@@ -127,7 +128,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         updateProperties(p, status);
         if (p.fwVersion.compareTo(SHELLY_API_MIN_FWVERSION) < 0) {
             logger.info("WARNING: Firmware of device {} too old, installed: {}/{} ({}), minimal {} is recommended",
-                    thingName, p.fwVersion, p.fwDate, p.fwId, SHELLY_API_MIN_FWVERSION);
+                    p.hostname, p.fwVersion, p.fwDate, p.fwId, SHELLY_API_MIN_FWVERSION);
             logger.info(
                     "The binding was tested with Version 1.5+ only. Older versions might work, but doesn't support all features or lead into technical issues.");
             logger.info("You should consider to upgrade the device to v1.5.0 or newer!");
@@ -166,8 +167,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 return;
             }
             if (profile == null) {
-                logger.info("Thing not yet initialized, command ignored");
-                return;
+                logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
+                initializeThing();
             }
 
             // Process command
@@ -232,6 +233,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
+                    logger.debug("Status update triggers thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
                 }
 
@@ -419,7 +421,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (profile == null) {
                 logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
             }
-            requestUpdates(1);    // add another 10s to catch upcoming meter updates
+            requestUpdates(1);    // request update on next interval
+        }
+        if (profile == null) {
+            logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
         }
     }
 
@@ -431,10 +436,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return profile;
     }
 
-    protected void requestUpdates(int requestCount) {
+    protected boolean requestUpdates(int requestCount) {
         if (scheduledUpdates < 10) {  // < 30s
             scheduledUpdates += requestCount;
+            return true;
         }
+        return false;
     }
 
     protected boolean updateChannel(String group, String channel, Object value) {

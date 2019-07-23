@@ -27,7 +27,7 @@ public class ShellyBindingConstants {
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID      THING_TYPE_SHELLY1          = new ThingTypeUID(BINDING_ID, "shelly1");
-    public static final ThingTypeUID      THING_TYPE_SHELLY1PM        = new ThingTypeUID(BINDING_ID, "shsw1pm");
+    public static final ThingTypeUID      THING_TYPE_SHELLY1PM        = new ThingTypeUID(BINDING_ID, "shelly1pm");
     // public static final ThingTypeUID THING_TYPE_SHELLY2 = new ThingTypeUID(BINDING_ID, "shellyswitch");
     // public static final ThingTypeUID THING_TYPE_SHELLY25 = new ThingTypeUID(BINDING_ID, "shellyswitch25");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY    = new ThingTypeUID(BINDING_ID, "shelly2-relay");
