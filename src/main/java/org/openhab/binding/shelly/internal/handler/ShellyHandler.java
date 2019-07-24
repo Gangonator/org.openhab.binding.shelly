@@ -306,7 +306,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 String groupName = !profile.isBulb ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
                                 updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
                                 if (meter.total != null) {
-                                    updateChannel(groupName, CHANNEL_METER_TOTALWATTS, getDouble(meter.total));
+                                    Double kwh = getDouble(meter.total);
+                                    updateChannel(groupName, CHANNEL_METER_TOTALWATTS, kwh);
                                 }
                                 if (meter.counters != null) {
                                     updateChannel(groupName, CHANNEL_METER_LASTMIN1, getDouble(meter.counters[0]));
