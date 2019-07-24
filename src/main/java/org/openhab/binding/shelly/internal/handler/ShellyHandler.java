@@ -65,6 +65,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                         skipUpdate       = 0;
     private int                         scheduledUpdates = 0;
     private int                         skipCount        = UPDATE_SKIP_COUNT;
+    private boolean                     refreshSettings  = false;
 
     private String                      thingName        = "";
     private Map<String, Object>         channelData      = new HashMap<>();
@@ -114,6 +115,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         // Get the thing global settings and initialize device capabilities
         logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
+        refreshSettings = false;
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
@@ -147,7 +149,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         profile = p; // all initialization done, so keep the profile
         thingName = p.hostname;
-        requestUpdates(3); // request 3 updates in a row (during the furst 2+3*3 sec)
+        requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
         logger.info("Thing {} successfully initialized.", thingName);
 
         if (statusJob == null || statusJob.isCancelled()) {
@@ -169,6 +171,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (profile == null) {
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
+            } else {
+                if (refreshSettings) {
+                    logger.trace("Refresh settings for device {}", thingName);
+                    refreshSettings = false;
+                    profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+                }
             }
 
             // Process command
@@ -176,11 +184,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             Integer rIndex = 0;
             if (groupName.startsWith(CHANNEL_GROUP_RELAY_CONTROL) && groupName.length() > CHANNEL_GROUP_RELAY_CONTROL.length()) {
                 rIndex = Integer.parseInt(StringUtils.substringAfter(channelUID.getGroupId(), CHANNEL_GROUP_RELAY_CONTROL)) - 1;
-            }
-            if (groupName.startsWith(CHANNEL_GROUP_ROL_CONTROL) && groupName.length() > CHANNEL_GROUP_ROL_CONTROL.length()) {
+            } else if (groupName.startsWith(CHANNEL_GROUP_ROL_CONTROL) && groupName.length() > CHANNEL_GROUP_ROL_CONTROL.length()) {
                 rIndex = Integer.parseInt(StringUtils.substringAfter(channelUID.getGroupId(), CHANNEL_GROUP_ROL_CONTROL)) - 1;
             }
             switch (channelUID.getIdWithoutGroup()) {
+                default:
+                    logger.trace("Unknown command {} for device {}", channelUID.getAsString(), thingName);
+                    return;
                 case CHANNEL_RELAY_OUTPUT:
                     if (!profile.isRoller) {
                         // extract relay number of group name (relay0->0, relay1->1...)
@@ -219,7 +229,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
             }
-            requestUpdates(1);
+            requestUpdates(1, true);  // request an update and force a refresh of the settings
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
@@ -244,6 +254,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // map status to channels
                 if (profile.hasRelays && !profile.isRoller) {
+                    logger.trace("{}: Updating relay(s)", thingName);
                     int i = 0;
                     ShellyStatusRelay rstatus = api.getRelayStatus(i);
                     for (ShellyShortStatusRelay relay : rstatus.relays) {
@@ -265,6 +276,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
                 if (profile.hasRelays && profile.isRoller) {
+                    logger.trace("{}: Updating roller", thingName);
                     int i = 0;
                     for (ShellySettingsRoller roller : status.rollers) {
                         if (roller.is_valid) {
@@ -282,6 +294,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.hasMeter) {
+                    logger.trace("{}: Updating standard meter", thingName);
                     if (!profile.isRoller) {
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;
@@ -304,6 +317,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         }
                     } else {
                         // In Roller Mode we accumulate all meters to a single set of meters
+                        logger.trace("{}: Updating roller meter", thingName);
                         Double currentWatts = 0.0;
                         Double totalWatts = 0.0;
                         Double lastMin1 = 0.0;
@@ -339,12 +353,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.hasLed) {
+                    logger.trace("{}: Updating LED settings", thingName);
                     ShellyDeviceProfile profile = api.getDeviceProfile(null);
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
                     updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
                 }
 
                 if (profile.isSensor || profile.hasBattery) {
+                    logger.trace("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (profile.isSensor) {
                         if (sdata.tmp.is_valid) {
@@ -356,15 +372,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
 
                     if (profile.hasBattery) {
+                        logger.trace("{}: Updating battery", thingName);
                         updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
                         updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                     }
                 }
 
                 // update thing status from specific thing handlers
+                logger.trace("{}: Updating secondary status", thingName);
                 updateThingStatus();
 
                 // update some properties
+                logger.trace("{}: Updating thing properties", thingName);
                 updateProperties(profile, status);
 
                 // If status update was successful the thing must be online
@@ -422,7 +441,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (profile == null) {
                 logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
             }
-            requestUpdates(1);    // request update on next interval
+            requestUpdates(1, false);    // request update on next interval
         }
         if (profile == null) {
             logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
@@ -437,7 +456,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return profile;
     }
 
-    protected boolean requestUpdates(int requestCount) {
+    protected boolean requestUpdates(int requestCount, boolean refreshSettings) {
+        this.refreshSettings = refreshSettings;
+        if (refreshSettings) {
+            logger.debug("Request a refresh of the settings for device {}", thingName);
+        }
         if (scheduledUpdates < 10) {  // < 30s
             scheduledUpdates += requestCount;
             return true;
@@ -452,7 +475,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             String fullName = mkChannelName(group, channel);
             Object current = channelData.get(fullName);
-            if ((current == null) || !current.equals(value)) {
+            // if ((current == null) || !current.equals(value))
+            {
                 if (value instanceof String) {
                     updateState(fullName, new StringType((String) value));
                 }

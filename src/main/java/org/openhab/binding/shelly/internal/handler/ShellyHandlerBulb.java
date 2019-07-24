@@ -137,7 +137,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
                         api.setBulbParm(0, SHELLY_COLOR_EFFECT, ((DecimalType) command).toString());
                         break;
                 }
-                super.requestUpdates(1);
+                super.requestUpdates(1, true);
             }
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
@@ -148,6 +148,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
     @Override
     public void updateThingStatus() throws IOException {
         if (profile.isBulb) {
+            logger.trace("Updating bulb status");
             ShellySettingsBulb settings = api.getBulbSettings();
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_COLOR_MODE, profile.mode.equals(SHELLY_MODE_COLOR));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_POWER, ShellyHttpApi.getBool(settings.ison));
@@ -156,12 +157,14 @@ public class ShellyHandlerBulb extends ShellyHandler {
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(settings.auto_on));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(settings.auto_off));
             if (profile.isBulbColor) {
+                logger.trace("Updating bulb color");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(settings.red));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(settings.blue));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(settings.green));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(settings.white));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(settings.gain));
             } else {
+                logger.trace("Updating bulb white");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, getInteger(settings.brightness));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(settings.temp));
             }
