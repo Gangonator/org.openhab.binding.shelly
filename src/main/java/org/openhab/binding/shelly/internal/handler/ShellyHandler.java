@@ -121,8 +121,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb: {}, is HT/Smoke Sensor: {}, has Meter: {}, has Battery: {}, has LEDs: {}",
-                p.hasRelays, p.isRoller, p.isPlugS, p.isBulb, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed);
+                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb: {}, is HT/Smoke Sensor: {}, has Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
+                p.hasRelays, p.isRoller, p.isPlugS, p.isBulb, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers, p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
         // update thing properties
@@ -257,25 +257,27 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.trace("{}: Updating relay(s)", thingName);
                     int i = 0;
                     ShellyStatusRelay rstatus = api.getRelayStatus(i);
-                    for (ShellyShortStatusRelay relay : rstatus.relays) {
-                        if ((relay.is_valid == null) || relay.is_valid) {
-                            Integer r = i + 1;
-                            String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
-                            updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
-                            updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
-                            if (relay.has_timer != null) {
-                                updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
-                                ShellySettingsRelay rsettings = profile.settings.relays.get(i);
-                                if (rsettings != null) {
-                                    updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDouble(rsettings.auto_on));
-                                    updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDouble(rsettings.auto_off));
+                    if (rstatus != null) {
+                        for (ShellyShortStatusRelay relay : rstatus.relays) {
+                            if ((relay.is_valid == null) || relay.is_valid) {
+                                Integer r = i + 1;
+                                String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
+                                updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
+                                updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
+                                if (relay.has_timer != null) {
+                                    updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
+                                    ShellySettingsRelay rsettings = profile.settings.relays.get(i);
+                                    if (rsettings != null) {
+                                        updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDouble(rsettings.auto_on));
+                                        updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDouble(rsettings.auto_off));
+                                    }
                                 }
                             }
+                            i++;
                         }
-                        i++;
                     }
                 }
-                if (profile.hasRelays && profile.isRoller) {
+                if (profile.hasRelays && profile.isRoller && (status.rollers != null)) {
                     logger.trace("{}: Updating roller", thingName);
                     int i = 0;
                     for (ShellySettingsRoller roller : status.rollers) {
@@ -293,7 +295,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
-                if (profile.hasMeter) {
+                if (profile.hasMeter && (status.meters != null)) {
                     logger.trace("{}: Updating standard meter", thingName);
                     if (!profile.isRoller) {
                         // In Relay mode we map eacher meter to the matching channel group
@@ -354,27 +356,29 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 if (profile.hasLed) {
                     logger.trace("{}: Updating LED settings", thingName);
-                    ShellyDeviceProfile profile = api.getDeviceProfile(null);
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
+                    ShellyDeviceProfile prf = api.getDeviceProfile(null);
+                    if (prf != null) {
+                        updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
+                        updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
+                    }
                 }
 
                 if (profile.isSensor || profile.hasBattery) {
                     logger.trace("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
-                    if (profile.isSensor) {
+                    if (sdata != null) {
                         if (sdata.tmp.is_valid) {
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP,
                                     sdata.tmp.units.toUpperCase().equals(SHELLY_TEMP_CELSIUS) ? getDouble(sdata.tmp.tC) : getDouble(sdata.tmp.tF));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, getString(sdata.tmp.units));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, getDouble(sdata.hum.value));
                         }
-                    }
 
-                    if (profile.hasBattery) {
-                        logger.trace("{}: Updating battery", thingName);
-                        updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
-                        updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
+                        if (profile.hasBattery) {
+                            logger.trace("{}: Updating battery", thingName);
+                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
+                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
+                        }
                     }
                 }
 

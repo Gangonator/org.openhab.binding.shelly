@@ -196,7 +196,10 @@ public class ShellyHttpApi {
         if ((profile.numMeters == 0) && (profile.numRelays > 0)) {
             profile.numMeters = 1; // Shelly 1 reports no meters, but has one
         }
-        profile.hasMeter = profile.numMeters > 0;
+        profile.hasMeter = (profile.numMeters > 0);
+        if ((profile.numRelays > 0) && (profile.settings.relays == null)) {
+            profile.numRelays = 0;
+        }
         profile.hasRelays = profile.numRelays > 0;
 
         profile.supportsActionUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_BTN_ON);
