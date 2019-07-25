@@ -382,8 +382,8 @@
     </channel-type>
    <channel-type id="meterTotal">
         <item-type>Number</item-type>
-        <label>Total Watt</label>
-        <description>Total power consumption in Watt</description>
+        <label>Total Energy (kw/h)</label>
+        <description>Total power consumption in kw/h</description>
         <state readOnly="true">
         </state>
     </channel-type>
