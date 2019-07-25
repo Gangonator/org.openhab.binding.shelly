@@ -191,7 +191,7 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
-    <thing-type id="shellyrgbw2">
+    <thing-type id="shellyrgbw2-color">
         <label>Shelly RGBW2 Color Mode</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
 
@@ -203,6 +203,33 @@
                 <label>Color control</label>
             </channel-group>
             <channel-group id="white" typeId="colorWhiteMode">
+                <label>White control</label>
+            </channel-group>
+            <channel-group id="meter" typeId="v1Meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+    <thing-type id="shellyrgbw2-color">
+        <label>Shelly RGBW2 Color Mode</label>
+        <description>Shelly RGBW2 Controller - Color Mode</description>
+
+        <channel-groups>
+            <channel-group id="bulb" typeId="bulbControl">
+                <label>Bulb Control</label>
+            </channel-group>
+            <channel-group id="white1" typeId="colorWhiteMode">
+                <label>White control</label>
+            </channel-group>
+            <channel-group id="white2" typeId="colorWhiteMode">
+                <label>White control</label>
+            </channel-group>
+            <channel-group id="white3" typeId="colorWhiteMode">
+                <label>White control</label>
+            </channel-group>
+            <channel-group id="white4" typeId="colorWhiteMode">
                 <label>White control</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">

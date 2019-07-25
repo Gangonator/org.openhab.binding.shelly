@@ -166,7 +166,12 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return new ThingUID(THING_TYPE_SHELLYSMOKE, devid);
         }
         if (name.startsWith("shellyrgbw2")) {
-            return new ThingUID(THING_TYPE_SHELLYRGBW2, devid);
+            if (mode.equals(SHELLY_MODE_COLOR)) {
+                return new ThingUID(THING_TYPE_SHELLYRGBW2_COLOR, devid);
+            }
+            if (mode.equals(SHELLY_MODE_WHITE)) {
+                return new ThingUID(THING_TYPE_SHELLYRGBW2_WHITE, devid);
+            }
         }
 
         logger.info("Unsupported Shelly Device discovered: {} (mode {})", name, mode);
