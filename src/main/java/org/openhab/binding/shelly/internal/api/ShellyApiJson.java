@@ -375,6 +375,8 @@ public class ShellyApiJson {
         public String  default_state; // one of on, off or last
         public Double  auto_on; // see above
         public Double  auto_off; // see above
+
+        public Integer dcpower; // RGW2:Set to true for 24 V power supply, false for 12 V
     }
 
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";

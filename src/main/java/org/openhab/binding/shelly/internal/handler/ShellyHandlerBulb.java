@@ -148,7 +148,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
     @Override
     public void updateThingStatus() throws IOException {
         if (profile.isBulb) {
-            logger.trace("Updating bulb status");
+            logger.trace("Updating bulb/rgw2 status");
             ShellySettingsBulb settings = api.getBulbSettings();
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_COLOR_MODE, profile.mode.equals(SHELLY_MODE_COLOR));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_POWER, ShellyHttpApi.getBool(settings.ison));
@@ -157,17 +157,20 @@ public class ShellyHandlerBulb extends ShellyHandler {
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(settings.auto_on));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(settings.auto_off));
             if (profile.isBulbColor) {
-                logger.trace("Updating bulb color");
+                logger.trace("Updating bulb/rgw2 color");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(settings.red));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(settings.blue));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(settings.green));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(settings.white));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(settings.gain));
             } else {
-                logger.trace("Updating bulb white");
+                logger.trace("Updating bulb/rgw2 white");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, getInteger(settings.brightness));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(settings.temp));
             }
+            // if (settings.dcpower != null) {
+            // updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_RGW2_DCPOWER, getInteger(settings.dcpower));
+            // }
         }
 
     }
