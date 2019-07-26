@@ -173,6 +173,8 @@
      <thing-type id="shellybulb">
         <label>Shelly Bulb - Color</label>
         <description>Shelly Bulb</description>
+        <category>Lightbulb</category>
+
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
                 <label>Bulb Control</label>
@@ -180,7 +182,7 @@
             <channel-group id="color" typeId="colorControl">
                 <label>Color control</label>
             </channel-group>
-            <channel-group id="white" typeId="colorWhiteMode">
+            <channel-group id="white" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">
@@ -194,6 +196,7 @@
     <thing-type id="shellyrgbw2-color">
         <label>Shelly RGBW2 Color Mode</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
+        <category>Lightbulb</category>
 
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
@@ -202,7 +205,7 @@
             <channel-group id="color" typeId="colorControl">
                 <label>Color control</label>
             </channel-group>
-            <channel-group id="white" typeId="colorWhiteMode">
+            <channel-group id="white" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">
@@ -215,21 +218,22 @@
     <thing-type id="shellyrgbw2-color">
         <label>Shelly RGBW2 Color Mode</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
+        <category>Lightbulb</category>
 
         <channel-groups>
             <channel-group id="bulb" typeId="bulbControl">
                 <label>Bulb Control</label>
             </channel-group>
-            <channel-group id="white1" typeId="colorWhiteMode">
+            <channel-group id="white1" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
-            <channel-group id="white2" typeId="colorWhiteMode">
+            <channel-group id="white2" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
-            <channel-group id="white3" typeId="colorWhiteMode">
+            <channel-group id="white3" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
-            <channel-group id="white4" typeId="colorWhiteMode">
+            <channel-group id="white4" typeId="whiteControl">
                 <label>White control</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">
@@ -244,7 +248,7 @@
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
         <channels>
-            <channel id="output" typeId="output" />
+            <channel id="output" typeId="system.power" />
             <channel id="overpower" typeId="overpower" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
@@ -327,7 +331,8 @@
        <label>Battery Status</label>
        <description>Stratus of the device's battery</description>
         <channels>
-            <channel id="value" typeId="batValue" />
+            <channel id="battery-level" typeId="system.battery-level" />
+            <channel id="low-battery" typeId="system.low-battery" />
             <channel id="voltage" typeId="batVoltage" />
         </channels>
     </channel-group-type>
@@ -349,7 +354,7 @@
        <label>Colors</label>
        <description>Light colors</description>
         <channels>
-            <channel id="color" typeId="colorPicker" />
+            <channel id="color" typeId="system.color" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
@@ -358,12 +363,12 @@
             <channel id="effect" typeId="colorEffect" />
         </channels>
     </channel-group-type>
-    <channel-group-type id="colorWhiteMode">
+    <channel-group-type id="whiteControl">
        <label>White settings</label>
        <description>Adjust colors when bulb is in white mode</description>
         <channels>
-            <channel id="brightness" typeId="colorBrightness" />
-            <channel id="temperatur" typeId="colorTemp" />
+            <channel id="brightness" typeId="system.brightness" />
+            <channel id="temperature" typeId="system.color-temperature" />
             <channel id="effect" typeId="colorEffect" />
         </channels>
     </channel-group-type>
@@ -486,15 +491,6 @@
         <description>Disable LED indication for output status</description>
     </channel-type>
 
-    <channel-type id="colorPicker">
-        <item-type>Color</item-type>
-        <label>Color Picker</label>
-        <description>The color channel allows to control the color of a light.</description>
-        <category>ColorLight</category>
-        <tags>
-            <tag>Lighting</tag>
-        </tags>
-    </channel-type>
     <channel-type id="colorRed">
         <item-type>Number</item-type>
         <label>Red</label>
@@ -519,16 +515,6 @@
         <item-type>Number</item-type>
         <label>Gain</label>
         <description>gain for all channels, 0..100, applies in mode=color</description>
-    </channel-type>
-    <channel-type id="colorTemp">
-        <item-type>Number</item-type>
-        <label>Gain</label>
-        <description>color temperature in K, 3000..6500, applies in mode=white</description>
-    </channel-type>
-    <channel-type id="colorBrightness">
-        <item-type>Number</item-type>
-        <label>Brightness</label>
-        <description>brightness, 0..100, applies in mode=white</description>
     </channel-type>
     <channel-type id="colorEffect">
         <item-type>Number</item-type>
@@ -613,13 +599,6 @@
         </state>
     </channel-type>
 
-    <channel-type id="batValue">
-        <item-type>Number</item-type>
-        <label>Battery capacity</label>
-        <description>estimated remaining battery capacity in %</description>
-        <state readOnly="true">
-        </state>
-    </channel-type>
     <channel-type id="batVoltage">
         <item-type>Number</item-type>
         <label>Battery voltage</label>

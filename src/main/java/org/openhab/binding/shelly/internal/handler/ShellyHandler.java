@@ -376,6 +376,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
+                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW, getDouble(sdata.bat.value) < 20.0 ? true : false);
+
                         }
                     }
                 }
