@@ -280,7 +280,6 @@
             <channel id="lastPower3" typeId="lastPower3" />
             <channel id="totalWatts" typeId="meterTotal" />
             <channel id="timestamp" typeId="meterTimestamp" />
-            <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
    <channel-group-type id="simpleMeter">
@@ -289,7 +288,6 @@
         <channels>
             <channel id="currentWatts" typeId="meterWatts" />
             <channel id="totalWatts" typeId="meterTotal" />
-            <channel id="maxPower" typeId="maxPower" />
         </channels>
     </channel-group-type>
    <channel-group-type id="v1Meter">
@@ -486,11 +484,6 @@
         <item-type>Switch</item-type>
         <label>Disable Power LED</label>
         <description>Disable LED indication for output status</description>
-    </channel-type>
-    <channel-type id="maxPower">
-        <item-type>Number</item-type>
-        <label>Max Power</label>
-        <description>Overpower threshold in Watts</description>
     </channel-type>
 
     <channel-type id="colorPicker">

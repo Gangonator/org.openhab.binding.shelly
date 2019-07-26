@@ -66,6 +66,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                         scheduledUpdates = 0;
     private int                         skipCount        = UPDATE_SKIP_COUNT;
     private boolean                     refreshSettings  = false;
+    private boolean                     channelCache     = false;
 
     private String                      thingName        = "";
     private Map<String, Object>         channelData      = new HashMap<>();
@@ -351,10 +352,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
                     }
                 }
-                if (profile.settings.max_power != null) {
-                    updateChannel(CHANNEL_GROUP_METER1, CHANNEL_METER_MAXPOWER, getDouble(profile.maxPower));
-                }
-
                 if (profile.hasLed) {
                     logger.trace("{}: Updating LED settings", thingName);
                     ShellyDeviceProfile prf = api.getDeviceProfile(null);
@@ -401,10 +398,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     --scheduledUpdates;
                     logger.trace("{} more updates requested", scheduledUpdates);
                 }
+                if (!channelCache && (scheduledUpdates == 0)) {
+                    logger.debug("Enabling channel cache for device {}", thingName);
+                    channelCache = true;
+                }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
             }
-        } catch (IOException e) {
+        } catch (
+
+        IOException e) {
             // http call failed: go offline except for battery devices, which might be in sleep mode
             // once the next update is successful the device goes back online
             if (e.getMessage().contains("Timeout")) {
@@ -478,43 +481,43 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             return false;
         }
         try {
-            String fullName = mkChannelName(group, channel);
-            Object current = channelData.get(fullName);
-            // if ((current == null) || !current.equals(value))
-            {
+            String channelId = mkChannelName(group, channel);
+            Object current = channelData.get(channelId);
+            if (channelCache && ((current == null) || !current.equals(value))) {
                 if (value instanceof String) {
-                    updateState(fullName, new StringType((String) value));
+                    updateState(channelId, new StringType((String) value));
                 }
                 if (value instanceof Integer) {
                     Integer v = (Integer) value;
-                    updateState(fullName, new DecimalType(v));
+                    updateState(channelId, new DecimalType(v));
                 }
                 if (value instanceof Long) {
                     Long v = (Long) value;
-                    updateState(fullName, new DecimalType(v));
+                    updateState(channelId, new DecimalType(v));
                 }
                 if (value instanceof Double) {
                     Double v = (Double) value;
-                    updateState(fullName, new DecimalType(v));
+                    updateState(channelId, new DecimalType(v));
                 }
                 if (value instanceof OnOffType) {
                     OnOffType v = (OnOffType) value;
-                    updateState(fullName, v);
+                    updateState(channelId, v);
                 }
                 if (value instanceof Boolean) {
                     Boolean v = (Boolean) value;
-                    updateState(fullName, v ? OnOffType.ON : OnOffType.OFF);
+                    updateState(channelId, v ? OnOffType.ON : OnOffType.OFF);
                 }
                 if (current == null) {
-                    channelData.put(fullName, value);
+                    channelData.put(channelId, value);
                 } else {
-                    channelData.replace(fullName, value);
+                    channelData.replace(channelId, value);
                 }
                 logger.trace("Channel {}.{} updated with {} (type {}).", group, channel, value, value.getClass());
                 return true;
             }
         } catch (RuntimeException e) {
-            logger.debug("Unable to update channel {}.{}#{} with {} (type {})", thingName, group, channel, value, value.getClass());
+            logger.debug("Unable to update channel {}.{}#{} with {} (type {}): {} ({})", thingName, group, channel, value, value.getClass(),
+                    e.getMessage());
         }
         return false;
 
@@ -539,6 +542,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         properties.put("updateAvailable", status.update.has_update ? "yes" : "no");
         properties.put("updateCurrentVersion", status.update.old_version);
         properties.put("updateNewVersion", status.update.new_version);
+        if (profile.settings.max_power != null) {
+            Double maxPower = getDouble(profile.settings.max_power);
+            properties.put("maxPower", maxPower.toString());
+        }
         updateProperties(properties);
     }
 
