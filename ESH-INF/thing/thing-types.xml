@@ -331,8 +331,8 @@
        <label>Battery Status</label>
        <description>Stratus of the device's battery</description>
         <channels>
-            <channel id="battery-level" typeId="system.battery-level" />
-            <channel id="low-battery" typeId="system.low-battery" />
+            <channel id="batteryLevel" typeId="system.battery-level" />
+            <channel id="lowBattery" typeId="system.low-battery" />
             <channel id="voltage" typeId="batVoltage" />
         </channels>
     </channel-group-type>
@@ -368,7 +368,7 @@
        <description>Adjust colors when bulb is in white mode</description>
         <channels>
             <channel id="brightness" typeId="system.brightness" />
-            <channel id="temperature" typeId="system.color-temperature" />
+            <channel id="colorTemperature" typeId="system.color-temperature" />
             <channel id="effect" typeId="colorEffect" />
         </channels>
     </channel-group-type>

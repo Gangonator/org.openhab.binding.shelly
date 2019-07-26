@@ -65,7 +65,7 @@ public class ShellyBindingConstants {
 
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL  = "relay";
-    public static final String            CHANNEL_RELAY_OUTPUT         = "power";
+    public static final String            CHANNEL_RELAY_OUTPUT         = "output";
     public static final String            CHANNEL_RELAY_OVERPOWER      = "overpower";
     public static final String            CHANNEL_RELAY_TRIGGER        = "trigger";
 
@@ -103,8 +103,8 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_HUM           = "humidity";
 
     public static final String            CHANNEL_GROUP_BATTERY        = "battery";
-    public static final String            CHANNEL_SENSOR_BAT_LEVEL     = "battery-level";
-    public static final String            CHANNEL_SENSOR_BAT_LOW       = "low-battery";
+    public static final String            CHANNEL_SENSOR_BAT_LEVEL     = "batteryLevel";
+    public static final String            CHANNEL_SENSOR_BAT_LOW       = "lowBattery";
     public static final String            CHANNEL_SENSOR_BAT_VOLT      = "voltage";
 
     public static final String            CHANNEL_GROUP_BULB_CONTROL   = "bulb";
@@ -120,7 +120,7 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_COLOR_WHITE          = "white";
     public static final String            CHANNEL_COLOR_GAIN           = "gain";
     public static final String            CHANNEL_COLOR_BRIGHTNESS     = "brightness";
-    public static final String            CHANNEL_COLOR_TEMP           = "color-temperature";
+    public static final String            CHANNEL_COLOR_TEMP           = "colorTemperature";
     public static final String            CHANNEL_COLOR_EFFECT         = "effect";
 
     // color temperature: 3000 = warm, 4750 = white, 6565 = cold
