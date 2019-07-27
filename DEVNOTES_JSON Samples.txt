@@ -1,0 +1,718 @@
+--- Shelly2: /settings
+{
+	"device" : {
+		"type":"SHSW-21",
+		"mac":"CC50E3559F55",
+		"hostname":"shellyswitch-559F55",
+		"num_outputs":2,
+		"num_meters":1,
+		"num_rollers":1
+	},
+	"wifi_ap":{
+		"enabled":false,
+		"ssid":"shellyswitch-559F55",
+		"key":""
+	},
+	"wifi_sta":{
+		"enabled":true,
+		"ssid":"TurtlePineHouse",
+		"ipv4_method":"static",
+		"ip":"192.168.6.81",
+		"gw":"192.168.6.137",
+		"mask":"255.255.255.0",
+		"dns":"192.168.6.137"
+	},
+	"wifi_sta1":{
+		"enabled":false,
+		"ssid":null,
+		"ipv4_method":"dhcp",
+		"ip":null,
+		"gw":null,
+		"mask":null,
+		"dns":null
+	},
+		"mqtt": {
+			"enable":true,
+			"server":"192.168.6.7:1883",
+			"user":"openhab",
+			"reconnect_timeout_max":60.000000,
+			"reconnect_timeout_min":2.000000,
+			"clean_session":true,
+			"keep_alive":60,
+			"will_topic":"shellies/shellyswitch-559F55/online",
+			"will_message":"false",
+			"max_qos":0,
+			"retain":true,
+			"update_period":30
+		},
+		"sntp": {
+			"server":"time.google.com"
+		},
+		"login":{
+			"enabled":true,
+			"unprotected":false,
+			"username":"admin",
+			"password":"bluebird"
+		},
+		"pin_code":"",
+		"coiot_execute_enable":true,
+		"name":"",
+		"fw":"20190531-075812/v1.5.0-hotfix2@022ec015",
+		"build_info":{
+			"build_id":"20190531-075812/v1.5.0-hotfix2@022ec015",
+			"build_timestamp":"2019-05-31T07:58:12Z",
+			"build_version":"1.0"
+		},
+		"cloud":{
+			"enabled":false,
+			"connected":false
+		},
+		"timezone":"Europe/Berlin",
+		"lat":49.864700,
+		"lng":8.625460,
+		"tzautodetect":true,
+		"time":"23:02",
+		"hwinfo":{
+			"hw_revision":"prod-2018-10c", 
+			"batch_id":5
+		},
+		"mode":"relay",
+		"max_power":1840,
+		"relays":[
+			{
+				"name":null,
+				"ison":false,
+				"has_timer":false,
+				"overpower":false,
+				"default_state":"last",
+				"btn_type":"edge",
+				"btn_reverse":0,
+				"auto_on":0.00,
+				"auto_off":0.00,
+				"btn_on_url":null,
+				"btn_off_url":null,
+				"out_on_url":null,
+				"out_off_url":null,
+				"schedule":false,
+				"schedule_rules":[
+				]
+			},
+			{
+				"name":null,
+				"ison":false,
+				"has_timer":false,
+				"overpower":false,
+				"default_state":"off",
+				"btn_type":"edge",
+				"btn_reverse":0,
+				"auto_on":0.00,
+				"auto_off":0.00,
+				"btn_on_url":null,
+				"btn_off_url":null,
+				"out_on_url":null,
+				"out_off_url":null,
+				"schedule":false,
+				"schedule_rules":[
+				]
+			}
+		],
+		"rollers":[
+			{
+				"maxtime":20.00,
+				"maxtime_open":20.00,
+				"maxtime_close":20.00,
+				"default_state":"stop",
+				"swap":false,
+				"swap_inputs":false,
+				"input_mode":"openclose",
+				"button_type":"toggle",
+				"btn_reverse":0,
+				"state":"stop",
+				"power":0.00,
+				"is_valid":true,
+				"safety_switch":false,
+				"schedule":false,
+				"schedule_rules":[
+				],
+				"obstacle_mode":"disabled",
+				"obstacle_action":"stop",
+				"obstacle_power":200,
+				"obstacle_delay":1,
+				"safety_mode":"while_opening",
+				"safety_action":"stop",
+				"safety_allowed_on_trigger":"none",
+				"off_power":2,
+				"positioning":true
+			}
+		],
+		"meters":[
+			{
+				"power":0.00,
+				"is_valid":true,
+				"timestamp":1562713329,
+				"counters":[0.000, 0.000, 0.000],
+				"total":19111
+			}
+		]
+	}
+
+----- Shelly2: /settings/relay/0
+
+{
+	"name":null,
+	"ison":false,
+	"has_timer":false,
+	"overpower":false,
+	"default_state":"last",
+	"btn_type":"edge",
+	"btn_reverse":0,
+	"auto_on":0.00,
+	"auto_off":0.00,
+	"btn_on_url":null,
+	"btn_off_url":null,
+	"out_on_url":null,
+	"out_off_url":null,
+	"schedule":false,
+	"schedule_rules":[]
+}
+
+
+------ Shelly2: /status/device
+{
+	"enabled":true,
+	"ssid":"TurtlePineHouse",
+	"ipv4_method":"static",
+	"ip":"192.168.6.81",
+	"gw":"192.168.6.137",
+	"mask":"255.255.255.0",
+	"dns":"192.168.6.137"�
+
+------ Shelly2: /status
+{
+	"wifi_sta":{
+		"connected":true,
+		"ssid":"TurtlePineHouse",
+		"ip":"192.168.6.81",
+		"rssi":-69},
+		"cloud":{
+			"enabled":false,
+			"connected":false
+	},
+	"mqtt":{
+		"connected":true
+	},
+	"time":"00:17",
+	"serial":1,
+	"has_update":false,
+	"mac":"CC50E3559F55",
+	"relays":[
+		{
+			"ison":false,
+			"has_timer":false,
+			"overpower":false,
+			"is_valid":true
+		},
+			{
+			"ison":false,
+			"has_timer":false,
+			"overpower":false,
+			"is_valid":true
+		}
+	],
+	"rollers":[
+		{
+			"state":"stop",
+			"power":0.00,
+			"is_valid":true,
+			"safety_switch":false,
+			"stop_reason":"normal",
+			"last_direction":"stop",
+			"current_pos":101,
+			"calibrating":false,
+			"positioning":true
+		}
+	],
+	"meters":[
+			{
+				"power":0.00,
+				"is_valid":true,
+				"timestamp":1562717876,
+				"counters":[0.000, 0.000, 0.000],
+				"total":19111
+			}
+	],
+	"update":{
+		"status":"idle",
+		"has_update":false,
+		"new_version":"20190531-075812/v1.5.0-hotfix2@022ec015",
+		"old_version":"20190531-075812/v1.5.0-hotfix2@022ec015"
+	},
+	"ram_total":50264,
+	"ram_free":37884,
+	"fs_size":233681,
+	"fs_free":156373,
+	"uptime":777069
+}
+
+
+--- Shelly Plug S: /settings
+{
+	"device":{
+		"type":"SHPLG-S",
+		"mac":"XX50E3376D1F",
+		"hostname":"shellyplug-s-376D1F",
+		"num_outputs":1,
+		"num_meters":1
+	},
+	"wifi_ap":{
+		"enabled":false,
+		"ssid":"shellyplug-s-376D1F",
+		"key":""
+	},
+	"wifi_sta":{
+		"enabled":true,
+		"ssid":"yyyy",
+		"ipv4_method":"static",
+		"ip":"192.168.2.2",
+		"gw":"192.168.2.1",
+		"mask":"255.255.255.0",
+		"dns":"192.168.2.1"},
+		"wifi_sta1":{
+			"enabled":false,"ssid":null,
+			"ipv4_method":"dhcp",
+			"ip":null,
+			"gw":null,
+			"mask":null,
+			"dns":null
+		},
+		"mqtt": {
+			"enable":false,
+			"server":"192.168.33.3:1883",
+			"user":"","
+			reconnect_timeout_max":60.000000,
+			"reconnect_timeout_min":2.000000,
+			"clean_session":true,
+			"keep_alive":60,
+			"will_topic":"shellies/shellyplug-s-376D1F/online",
+			"will_message":"false",
+			"max_qos":0,
+			"retain":false,
+			"update_period":30
+		},
+		"sntp": {
+			"server":"time.google.com"
+		},
+		"login":
+			{"enabled":false,
+			"unprotected":false,
+			"username":"xxxx",
+			"password":"xxx"},
+			"pin_code":"i+CQ72",
+			"coiot_execute_enable":true,
+			"name":"",
+			"fw":"20190711-084501/v1.5.0-hotfix4@3b4f7414",
+			"build_info":{
+				"build_id":"20190711-084501/v1.5.0-hotfix4@3b4f7414",
+				"build_timestamp":"2019-07-11T08:45:01Z",
+				"build_version":"1.0"
+		},
+		"cloud":{
+			"enabled":true,
+			"connected":true
+		},
+		"timezone":"Europe/Berlin",
+		"lat":50.110901,
+		"lng":8.682130,
+		"tzautodetect":true,
+		"time":"17:58",
+		"hwinfo":{
+			"hw_revision":"prod-190325-test",
+			"batch_id":1
+		},
+		"max_power":2500,
+		"led_status_disable":true,
+		"led_power_disable":false,
+		"relays":[
+			{
+				"ison":true,
+				"has_timer":false,
+				"overpower":false,
+				"default_state":"off",
+				"auto_on":0.00,
+				"auto_off":0.00,
+				"btn_on_url":null,
+				"out_on_url":null,
+				"out_off_url":null,
+				"schedule":true,
+				"schedule_rules":[
+					"1730-0123-on",
+					"2350-0123456-off",
+					"0800-456-on"]
+			}
+		],
+		"meters":[
+			{
+			"power":3.75,
+			"is_valid":true,
+			"timestamp":1563127101,
+			"counters":[
+				3.690, 3.676, 3.671],
+			"total":9251}
+		]
+	}
+	
+--- Shelly1: /status/relay/0
+{
+	"wifi_sta":{
+		"connected":true,
+		"ssid":"TurtlePineHouse",
+		"ip":"192.168.6.84",
+		"rssi":-70
+	},
+	"cloud":{
+		"enabled":false,
+		"connected":false
+	},
+	"mqtt":{
+		"connected":true
+	},
+	"time":"15:36",
+	"serial":1,
+	"has_update":false,
+	"mac":"CC50E325A73E",
+	"relays" :[
+		{
+			"ison":false,
+			"has_timer":false
+		}
+	],
+	"meters":[
+		{
+			"power":0.00,
+			"is_valid":"true"
+		}
+	],
+	"update":{
+		"status":"idle",
+		"has_update":false,
+		"new_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414",
+		"old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"
+	},
+	"ram_total":51104,
+	"ram_free":40356,
+	"fs_size":233681,
+	"fs_free":175951,
+	"uptime":3455
+}
+
+// Shelly 2: /status/relay/0
+{
+	"wifi_sta":{
+		"connected":true,
+		"ssid":"TurtlePineHouse",
+		"ip":"192.168.6.81",
+		"rssi":-69
+	},
+	"cloud":{
+		"enabled":false,
+		"connected":false
+	},
+	"mqtt":{
+		"connected":true
+	},
+	"time":"16:00",
+	"serial":1,
+	"has_update":true,
+	"mac":"CC50E3559F55",
+	"relays":[
+		{
+			"ison":false,
+			"has_timer":false,
+			"overpower":false,
+			"is_valid":true
+		},
+		{
+			"ison":false,
+			"has_timer":false,
+			"overpower":false,
+			"is_valid":true
+		}
+	],
+	"rollers":[
+		{
+			"state":"stop",
+			"power":0.00,
+			"is_valid":true,
+			"safety_switch":false,
+			"stop_reason":"normal",
+			"last_direction":"open",
+			"current_pos":101,
+			"calibrating":false,
+			"positioning":true
+		}
+	],
+	"meters":[
+		{
+			"power":0.00,
+			"is_valid":true,
+			"timestamp":1563292829,
+			"counters":[0.000, 0.000, 0.000],
+			"total":35473
+		}
+	],
+	"update":{
+		"status":"pending",
+		"has_update":true,
+		"new_version":"20190711-084105/v1.5.0-hotfix4@3b4f7414",
+		"old_version":"20190531-075812/v1.5.0-hotfix2@022ec015"
+	},
+	"ram_total":50264,
+	"ram_free":37548,
+	"fs_size":233681,
+	"fs_free":155620,
+	"uptime":1352018
+}
+
+--- Shelly Bulb: /settings
+{
+	"device":{
+		"type":"SHBLB-1",
+		"mac":"68C63ABC84D1",
+		"hostname":"shellybulb-XXXXXX",
+		"num_outputs":1
+	},
+	"wifi_ap":{
+		"enabled":false,
+		"ssid":"shellybulb-XXXXXX",
+		"key":""
+	},
+	"wifi_sta":{
+		"enabled":true,
+		"ssid":"Ankh-Morpork",
+		"ipv4_method":"static",
+		"ip":"192.168.2.71",
+		"gw":"192.168.2.1",
+		"mask":"255.255.255.0",
+		"dns":"192.168.2.1"
+	},
+	"wifi_sta1":{
+		"enabled":false,
+		"ssid":null,
+		"ipv4_method":"dhcp",
+		"ip":null,
+		"gw":null,
+		"mask":null,
+		"dns":null
+	},
+	"mqtt": {
+		"enable":false,"server":"192.168.2.80:1883","user":"","reconnect_timeout_max":60.000000,"reconnect_timeout_min":2.000000,
+		"clean_session":true,"keep_alive":60,"will_topic":"shellies/shellybulb-BC84D1/online","will_message":"false","max_qos":0,"retain":false,"update_period":30
+	},
+	"sntp": {"server":"time.google.com"},
+	"login":{"enabled":false,"unprotected":false,"username":"xxxx","password":"xxxx"},
+	"pin_code":"aXJ9eE",
+	"coiot_execute_enable":true,"name":"",
+	"fw":"20190711-084016/v1.5.0-hotfix4@3b4f7414",
+	"build_info":{"build_id":"20190711-084016/v1.5.0-hotfix4@3b4f7414","build_timestamp":"2019-07-11T08:40:16Z","build_version":"1.0"},
+	"cloud":{"enabled":true,"connected":true},
+	"timezone":"Europe/Berlin",
+	"lat":51.394344,
+	"lng":8.571319,
+	"tzautodetect":false,
+	"time":"20:04",
+	"hwinfo": {"hw_revision":"prod-1.3","batch_id":1},
+	"mode":"color",
+	"lights":[
+		{"ison":false,
+		"red":255,"green":167,"blue":16,"white":0,
+		"gain":100,"temp":3243,"brightness":50,
+		"effect":0,
+		"default_state":"on",
+		"auto_on":0.00,"auto_off":0.00,
+		"power":0.00,
+		"schedule":false,
+		"schedule_rules":[
+		]}
+	]
+}
+
+--- Shelly bulb: /status
+{
+	"wifi_sta":{
+		"connected":true,
+		"ssid":"Ankh-Morpork",
+		"ip":"192.168.2.71",
+		"rssi":-70
+	},
+	"cloud":{
+		"enabled":true,
+		"connected":true
+	},
+	"mqtt":{"connected":false},
+	"time":"20:04",
+	"serial":109,
+	"has_update":false,
+	"mac":"68C63ABC84D1",
+	"lights":[
+		{
+			"ison":false,
+			"mode":"color",
+			"red":255,
+			"green":167,
+			"blue":16,
+			"white":0,
+			"gain":100,
+			"temp":3243,
+			"brightness":50,"
+			effect":0
+		}
+	],
+	"meters":[
+		{
+			"power":0.00,
+			"is_valid":"true"
+		}
+	],
+	"update":{
+		"status":"idle",
+		"has_update":false,
+		"new_version":"20190711-084016/v1.5.0-hotfix4@3b4f7414",
+		"old_version":"20190711-084016/v1.5.0-hotfix4@3b4f7414"
+	},
+	"ram_total":51040,
+	"ram_free":37688,
+	"fs_size":233681,
+	"fs_free":171182,
+	"uptime":941150
+}
+
+// Shelly 1PM - /settings
+{
+	"device":{"type":"SHSW-PM","mac":"84F3EBE5B9A7","hostname":"shelly1pm-E5B9A7",
+	"num_outputs":1,
+	"num_meters":1},
+	"wifi_ap":{"enabled":false,"ssid":"shelly1pm-E5B9A7","key":""},
+	"wifi_sta":{"enabled":true,"ssid":"IGI","ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"wifi_sta1":{"enabled":false,"ssid":null,"ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"mqtt": {"enable":false,"server":"192.168.33.3:1883","user":"","reconnect_timeout_max":60.000000,"reconnect_timeout_min":2.000000,"clean_session":true,"keep_alive":60,"will_topic":"shellies/shelly1pm-E5B9A7/online","will_message":"false","max_qos":0,"retain":false,"update_period":30},
+	"sntp": {"server":"time.google.com"},
+	"login":{"enabled":false,"unprotected":false,"username":"admin","password":"admin"},
+	"pin_code":"mwiBS)",
+	"coiot_execute_enable":false,"name":"",
+	"fw":"20190711-084513/v1.5.0-hotfix4@3b4f7414",
+	"build_info":{"build_id":"20190711-084513/v1.5.0-hotfix4@3b4f7414","build_timestamp":"2019-07-11T08:45:13Z","build_version":"1.0"},
+	"cloud":{"enabled":true,"connected":true},
+	"timezone":"Europe/Berlin","lat":51.252491,"lng":6.779092,"tzautodetect":false,
+	"time":"10:22",
+	"hwinfo":{"hw_revision":"prod-190329", "batch_id":1},
+	"max_power":3500,
+	"mode" :"relay",
+	"relays":[{"name":null,"ison":false,"has_timer":false,"default_state":"off","btn_type":"edge","btn_reverse":0,"auto_on":0.00,"auto_off":0.00,"btn_on_url":null,"btn_off_url":null,"out_on_url":null,"out_off_url":null,"schedule":false,"schedule_rules":[],"max_power":3500}],
+	"meters":[{"power":0.00,"is_valid":true,"timestamp":1563877368,"counters":[0.000, 0.000, 0.000],"total":2246}]}
+
+// Shelly RGW2 settiings in color mode
+{
+	"device":{
+		"type":"SHRGBW2",
+		"mac":"XXXXXXXXXXXX",
+		"hostname":"shellyrgbw2-XXXXXX",
+		"num_outputs":4
+	},
+	"wifi_ap":{"enabled":false, "ssid":"shellyrgbw2-XXXXXX", "key":""},
+	"wifi_sta":{"enabled":true,"ssid":"markus7017","ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"wifi_sta1":{"enabled":false,"ssid":null,"ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"mqtt": {"enable":false,"server":"192.168.33.3:1883","user":"","reconnect_timeout_max":60.000000,"reconnect_timeout_min":2.000000,"clean_session":true,"keep_alive":60,"will_topic":"","will_message":"","max_qos":0,"retain":false,"update_period":30},
+	"sntp": {"server":"time.google.com"},"
+	login":{"enabled":false,"unprotected":false,"username":"admin","password":"admin"},
+	"pin_code":"PIpf!A",
+	"coiot_execute_enable":false,"name":"",
+	"fw":"20190711-084448/v1.5.0-hotfix4@3b4f7414",
+	"build_info":{"build_id":"20190711-084448/v1.5.0-hotfix4@3b4f7414","build_timestamp":"2019-07-11T08:44:48Z","build_version":"1.0"},
+	"cloud":{"enabled":true,"connected":true},
+	"timezone":"Europe/Berlin","lat":51.252491,"lng":6.779092,"tzautodetect":false,"time":"07:13",
+	"hwinfo": {"hw_revision":"prod-190410b","batch_id":1},
+	"mode":"color","
+	dcpower":1,
+	lights":[
+		{
+		"ison":false,
+		"red":255,"green":0,"blue":0,"white":255,
+		"gain":29,
+		"effect":0,
+		"default_state":"off",
+		"auto_on":0.00,"auto_off":0.00,
+		"schedule":false,
+		"btn_type":"detached",
+		"btn_reverse":0,"schedule_rules":[]
+		}
+	]
+}
+
+
+// RGW2 status color mode
+{
+	"wifi_sta":{"connected":true,"ssid":"markus7017","ip":"192.168.x.x","rssi":-69},
+	"cloud":{"enabled":true,"connected":true},
+	"mqtt":{"connected":false},"time":"07:12",
+	"serial":112,
+	"has_update":false,"mac":"XXXXXXXXXXXX",
+	"mode":"color",
+	"input":0,
+	"lights":[
+		{"ison":false,"mode":"color", "red":255,"green":0,"blue":0,"white":255, "gain":29,"effect":0, "power":0.00,"overpower":false}
+	],
+	"meters":[
+		{"power":0.00,"is_valid":true}
+	],
+	"update":{"status":"idle","has_update":false,"new_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414","old_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414"},
+	"ram_total":50448,"ram_free":35824,"fs_size":233681,"fs_free":162648,"uptime":30380
+}
+
+// RGBW2 settings in white mode
+{
+	"device":{"type":"SHRGBW2","mac":"XXXXXXXXXXXX","hostname":"shellyrgbw2-XXXXXX","num_outputs":4},
+	"wifi_ap":{"enabled":false,"ssid":"shellyrgbw2-XXXXXX","key":""},
+	"wifi_sta":{"enabled":true,"ssid":"markus7017","ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"wifi_sta1":{"enabled":false,"ssid":null,"ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+	"mqtt": {"enable":false,"server":"192.168.x.x:1883","user":"","reconnect_timeout_max":60.000000,"reconnect_timeout_min":2.000000,"clean_session":true,"keep_alive":60,"will_topic":"","will_message":"","max_qos":0,"retain":false,"update_period":30},
+	"sntp": {"server":"time.google.com"},"
+	login":{"enabled":false,"unprotected":false,"username":"admin","password":"admin"},
+	"pin_code":"PIpf!A",
+	"coiot_execute_enable":false,
+	"name":"",
+	"fw":"20190711-084448/v1.5.0-hotfix4@3b4f7414",
+	"build_info":{"build_id":"20190711-084448/v1.5.0-hotfix4@3b4f7414","build_timestamp":"2019-07-11T08:44:48Z","build_version":"1.0"},
+	"cloud":{"enabled":true,"connected":true},
+	"timezone":"Europe/Berlin","lat":51.252491,"lng":6.779092,"tzautodetect":false,"time":"20:33",
+	"hwinfo": {"hw_revision":"prod-190410b","batch_id":1},
+	"mode":"white",
+	"dcpower":1,
+	"lights":[
+		{"ison":true,"brightness":50,"default_state":"on","auto_on":0.00,"auto_off":0.00,"schedule":false,"btn_type":"detached","btn_reverse":0,"schedule_rules":[]},
+		{"ison":false,"brightness":50,"default_state":"on","auto_on":0.00,"auto_off":0.00,"schedule":false,"schedule_rules":[]},
+		{"ison":false,"brightness":50,"default_state":"on","auto_on":0.00,"auto_off":0.00,"schedule":false,"schedule_rules":[]},
+		{"ison":false,"brightness":50,"default_state":"on","auto_on":0.00,"auto_off":0.00,"schedule":false,"schedule_rules":[]}
+	]
+}
+
+// RGBW2 settings in white mode
+{
+	"wifi_sta":{"connected":true,"ssid":"markus7017","ip":"192.168.x.x","rssi":-36},
+	"cloud":{"enabled":true,"connected":true},
+	"mqtt":{"connected":false},"time":"20:33","serial":42,"has_update":false,"mac":"XXXXXXXXXXXX","mode":"white","input":0,
+	"lights":[
+		{"ison":true,"mode":"white","brightness":50,"power":1.20,"overpower":false},
+		{"ison":false,"mode":"white","brightness":50,"power":0.00,"overpower":false},
+		{"ison":false,"mode":"white","brightness":50,"power":0.00,"overpower":false},
+		{"ison":false,"mode":"white","brightness":50,"power":0.00,"overpower":false}
+	],
+	"meters":[
+		{"power":1.20,"is_valid":true},
+		{"power":0.00,"is_valid":true},
+		{"power":0.00,"is_valid":true},
+		{"power":0.00,"is_valid":true}
+	],
+	"update":{"status":"idle","has_update":false,"new_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414","old_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414"},
+	"ram_total":50448,"ram_free":35360,"fs_size":233681,"fs_free":162648,
+	"uptime":7201
+}
