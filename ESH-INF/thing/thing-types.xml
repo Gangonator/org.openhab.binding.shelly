@@ -202,7 +202,7 @@
             <channel-group id="control" typeId="lightControl">
                 <label>Light Control</label>
             </channel-group>
-            <channel-group id="color" typeId="colorSettings">
+            <channel-group id="light" typeId="colorSettings">
                 <label>Color settings</label>
             </channel-group>
             <channel-group id="meter" typeId="basicMeter">
@@ -346,7 +346,7 @@
        <description>Control your light</description>
         <channels>
             <channel id="power" typeId="lightPower" />
-            <channel id="colorMode" typeId="colorMode" />
+            <channel id="mode" typeId="colorMode" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />

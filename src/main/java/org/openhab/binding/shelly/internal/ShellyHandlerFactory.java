@@ -7,7 +7,7 @@
 
 package org.openhab.binding.shelly.internal;
 
-import static org.openhab.binding.shelly.internal.ShellyBindingConstants.THING_TYPE_SHELLYBULB;
+import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +52,8 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB)) {
+        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB) ||
+                thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR) || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE)) {
             return new ShellyHandlerLight(thing, this, networkAddressService);
         }
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {

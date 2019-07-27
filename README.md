@@ -160,13 +160,18 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 
 ### Shelly Bulb (thing-type: shellybulb)
 
+### Shelly RGBW2 in Color Mode
+|Group     |Channel      |Type     |read-only|Desciption                                                                       |
+|----------|-------------|---------|---------|---------------------------------------------------------------------------------|
+|roller1   |turn         |Switch   |r/w      |ON: Turn roller into open mode, OFF:  Turn roller into close mode                |
+
+
 ### Other devices
 
 The thing definiton fo the following devices is primarily. If you have one of those devices send a PM to marks7017 and we could work on the implementation/testing.
 - thing-type: shellysmoke
 - thing-type: shellysense
 - thing-type: shellyplug
-- thing-type: shellyrgbw2
 - thing-type: shelly4pro
 
 
@@ -183,5 +188,23 @@ Note: PaperUI is recommended, if you want to use text files make sure to replace
 
 * .rules
 
+* reading colors from color picker:
+import org.openhab.core.library.types.*
+ 
+var HSBType hsbValue
+var int redValue
+var int greenValue
+var int blueValue
+var String RGBvalues
+
+rule "color" // The unique name for the rule
+when
+    Item ShellyColor changed
+then
+    var HSBType hsbValue = ShellyColor.state as HSBType
+    var int redValue = hsbValue.red.intValue
+    var int greenValue = hsbValue.green.intValue
+    var int blueValue = hsbValue.blue.intValue
+end
 
 
