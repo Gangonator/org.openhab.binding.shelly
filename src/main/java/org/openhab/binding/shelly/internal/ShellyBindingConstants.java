@@ -107,10 +107,11 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_BAT_LOW       = "lowBattery";
     public static final String            CHANNEL_SENSOR_BAT_VOLT      = "voltage";
 
-    public static final String            CHANNEL_GROUP_BULB_CONTROL   = "bulb";
-    public static final String            CHANNEL_BULB_COLOR_MODE      = "colorMode";
-    public static final String            CHANNEL_BULB_POWER           = "power";
-    public static final String            CHANNEL_BULB_DEFSTATE        = "defaultState";
+    public static final String            CHANNEL_GROUP_LIGHT_CONTROL  = "bulb";
+    public static final String            CHANNEL_LIGHT_COLOR_MODE     = "colorMode";
+    public static final String            CHANNEL_LIGHT_POWER          = "power";
+    public static final String            CHANNEL_LIGHT_DEFSTATE       = "defaultState";
+    public static final String            CHANNEL_GROUP_LIGHT_CHANNEL  = "channel";
 
     public static final String            CHANNEL_GROUP_COLOR_CONTROL  = "color";
     public static final String            CHANNEL_COLOR_PICKER         = "color";

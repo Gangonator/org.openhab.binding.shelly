@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.shelly.internal.handler.ShellyDeviceListener;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
-import org.openhab.binding.shelly.internal.handler.ShellyHandlerBulb;
+import org.openhab.binding.shelly.internal.handler.ShellyHandlerLight;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB)) {
-            return new ShellyHandlerBulb(thing, this, networkAddressService);
+            return new ShellyHandlerLight(thing, this, networkAddressService);
         }
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             return new ShellyHandler(thing, this, networkAddressService);

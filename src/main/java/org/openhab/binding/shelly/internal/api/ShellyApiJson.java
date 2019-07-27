@@ -110,7 +110,7 @@ public class ShellyApiJson {
         public String build_version;
     }
 
-    public class ShellySettingsCloud {
+    public class ShellyStatusCloud {
         public Boolean enabled;
         public Boolean connected;
     }
@@ -206,7 +206,7 @@ public class ShellyApiJson {
         public String                         name;
         public String                         fw;
         ShellySettingsBuildInfo               build_info;
-        ShellySettingsCloud                   cloud;
+        ShellyStatusCloud                     cloud;
         public String                         timezone;
         public Double                         lat;
         public Double                         lng;
@@ -224,8 +224,8 @@ public class ShellyApiJson {
 
     public static final String SHELLY_MODE_RELAY         = "relay";  // Relay: relay mode
     public static final String SHELLY_MODE_ROLLER        = "roller"; // Relay: roller mode
-    public static final String SHELLY_MODE_COLOR         = "color";  // Bulb: color mode
-    public static final String SHELLY_MODE_WHITE         = "white";  // Bulb: white mode
+    public static final String SHELLY_MODE_COLOR         = "color";  // Bulb/RGBW2: color mode
+    public static final String SHELLY_MODE_WHITE         = "white";  // Bulb/RGBW2: white mode
 
     public static final String SHELLY_LED_STATUS_DISABLE = "led_status_disable";
     public static final String SHELLY_LED_POWER_DISABLE  = "led_power_disable";
@@ -251,7 +251,9 @@ public class ShellyApiJson {
         public String                          mac;
         public ArrayList<ShellySettingsRelay>  relays;
         public ArrayList<ShellySettingsRoller> rollers;
+        public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
+
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
         public Long                            ram_free;
@@ -281,7 +283,7 @@ public class ShellyApiJson {
 
     public class ShellyStatusRelay {
         public ShellySettingsWiFiNetwork         wifi_sta; // WiFi status
-        public ShellySettingsCloud               cloud; // Cloud status
+        public ShellyStatusCloud                 cloud; // Cloud status
         public ShellyStatusMqtt                  mqtt; // mqtt status
         public String                            time; // current time
         public Integer                           serial;
@@ -361,8 +363,7 @@ public class ShellyApiJson {
     public static final String SHELLY_TEMP_CELSIUS    = "C";
     public static final String SHELLY_TEMP_FAHRENHEIT = "F";
 
-    public class ShellySettingsBulb {
-        public Boolean ison; // Whether the bulb is on or off
+    public class ShellySettingsLight {
         public Integer red; // red brightness, 0..255, applies in mode="color"
         public Integer green; // green brightness, 0..255, applies in mode="color"
         public Integer blue; // blue brightness, 0..255, applies in mode="color"
@@ -377,6 +378,36 @@ public class ShellyApiJson {
         public Double  auto_off; // see above
 
         public Integer dcpower; // RGW2:Set to true for 24 V power supply, false for 12 V
+    }
+
+    public class ShellyStatusLightChannel {
+        public Boolean ison;
+        public Double  power;
+        public Boolean overpower;
+        public Double  auto_on; // see above
+        public Double  auto_off; // see above
+
+        public Integer red; // red brightness, 0..255, applies in mode="color"
+        public Integer green; // green brightness, 0..255, applies in mode="color"
+        public Integer blue; // blue brightness, 0..255, applies in mode="color"
+        public Integer white; // white brightness, 0..255, applies in mode="color"
+        public Integer gain; // gain for all channels, 0..100, applies in mode="color"
+        public Integer temp; // color temperature in K, 3000..6500, applies in mode="white"
+        public Integer brightness; // brightness, 0..100, applies in mode="white"
+        public Integer effect; // Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath,
+    }
+
+    public class ShellyStatusLight {
+        public Boolean                             ison; // Whether output channel is on or off
+        public String                              wifi_sta; // WiFi client configuration. See /settings/sta for details
+        public ShellyStatusCloud                   cloud;
+        public ShellyStatusMqtt                    mqtt;
+        public Boolean                             has_update;
+        public String                              mode;  // COLOR or WHITE
+        public Integer                             input;
+        public ArrayList<ShellyStatusLightChannel> lights;
+        public ArrayList<ShellySettingsMeter>      meters;
+
     }
 
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";

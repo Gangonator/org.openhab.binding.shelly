@@ -24,11 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsBulb;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
@@ -63,8 +64,8 @@ public class ShellyHttpApi {
     public static final String SHELLY_URL_CONTROL_ROLLER        = "/roller";
 
     public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{0}={1}";
-    public static final String SHELLY_URL_SETTINGS_BULB         = "/settings/light";
-    public static final String SHELLY_URL_CONTROL_BULB          = "/light";
+    public static final String SHELLY_URL_SETTINGS_LIGHT        = "/settings/light";
+    public static final String SHELLY_URL_CONTROL_LIGHT         = "/light";
 
     public static final String SHELLY_BTNT_MOMENTARY            = "momentary";
     public static final String SHELLY_BTNT_TOGGLE               = "toggle";
@@ -121,6 +122,7 @@ public class ShellyHttpApi {
         public Boolean              isRoller;  // true for Shelly2 in roller mode
         public Boolean              isPlugS;  // true if it is a Shelly Plug S
         public Boolean              isLight; // true if it is a Shelly Bulb/RGBW2
+        public Boolean              isBulb; // true pnly if it is a Bulb
         public Boolean              inColor; // true if bulb/rgbw2 is in color mode
         public Boolean              isSensor; // true for HT & Smoke
         public Boolean              isSmoke; // true for Smoke
@@ -181,8 +183,9 @@ public class ShellyHttpApi {
         profile.isRoller = profile.mode.equalsIgnoreCase(SHELLY_MODE_ROLLER);
         profile.isPlugS = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
         profile.hasLed = profile.isPlugS;
-        profile.isLight = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId())
-                || thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_COLOR.getId()) ||
+        profile.isBulb = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId());
+        profile.isLight = profile.isBulb ||
+                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_COLOR.getId()) ||
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_WHITE.getId());
         profile.inColor = profile.isLight && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
         profile.isSmoke = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
@@ -298,17 +301,22 @@ public class ShellyHttpApi {
         request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_ON : SHELLY_API_OFF), null);
     }
 
-    public ShellySettingsBulb getBulbSettings() throws IOException {
-        String result = request(SHELLY_URL_SETTINGS_BULB, null);
-        return gson.fromJson(result, ShellySettingsBulb.class);
+    public ShellySettingsLight getLightSettings() throws IOException {
+        String result = request(SHELLY_URL_SETTINGS_LIGHT, null);
+        return gson.fromJson(result, ShellySettingsLight.class);
     }
 
-    public void setBulbSettings(Integer bulbIndex, String parm, String value) throws IOException {
-        request(SHELLY_URL_SETTINGS_BULB + "/" + bulbIndex.toString() + "?" + parm + "=" + value, null);
+    public ShellyStatusLight getLightStatus() throws IOException {
+        String result = request(SHELLY_URL_STATUS, null);
+        return gson.fromJson(result, ShellyStatusLight.class);
     }
 
-    public void setBulbParm(Integer bulbIndex, String parm, String value) throws IOException {
-        request(SHELLY_URL_CONTROL_BULB + "/" + bulbIndex.toString() + "?" + parm + "=" + value, null);
+    public void setLightSetting(Integer lightIndex, String parm, String value) throws IOException {
+        request(SHELLY_URL_SETTINGS_LIGHT + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
+    }
+
+    public void setLightParm(Integer lightIndex, String parm, String value) throws IOException {
+        request(SHELLY_URL_SETTINGS_LIGHT + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
     }
 
     /**

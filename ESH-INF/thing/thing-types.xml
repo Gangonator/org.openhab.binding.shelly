@@ -251,7 +251,7 @@
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
         <channels>
-            <channel id="output" typeId="system.power" />
+            <channel id="output" typeId="output" />
             <channel id="overpower" typeId="overpower" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
@@ -334,8 +334,8 @@
        <label>Battery Status</label>
        <description>Status of the device's battery</description>
         <channels>
-            <channel id="batteryLevel" typeId="system.battery-level" />
-            <channel id="lowBattery" typeId="system.low-battery" />
+            <channel id="batteryLevel" typeId="batLevel" />
+            <channel id="lowBattery" typeId="batAlert" />
             <channel id="voltage" typeId="batVoltage" />
         </channels>
     </channel-group-type>
@@ -366,14 +366,14 @@
        <label>Colors</label>
        <description>Light colors</description>
         <channels>
-            <channel id="color" typeId="system.color" />
+            <channel id="color" typeId="colorPicker" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
             <channel id="white" typeId="colorWhite" />
             <channel id="gain" typeId="colorGain" />
             <channel id="effect" typeId="colorEffect" />
-            <channel id="temperature" typeId="system.color-temperature" />
+            <channel id="temperature" typeId="colorTemp" />
         </channels>
     </channel-group-type>
     <channel-group-type id="whiteSettings">
@@ -515,6 +515,11 @@
         <label>Turn on/off</label>
         <description>Turn ON/OFF</description>
     </channel-type>
+    <channel-type id="colorPicker">
+        <item-type>Color</item-type>
+        <label>Color settings</label>
+        <description>Use the color picker change all settings at once</description>
+    </channel-type>
     <channel-type id="colorRed">
         <item-type>Number</item-type>
         <label>Red</label>
@@ -525,21 +530,31 @@
         <item-type>Number</item-type>
         <label>Green</label>
         <description>green brightness, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorBlue">
         <item-type>Number</item-type>
         <label>Blue</label>
         <description>blue brightness, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorWhite">
         <item-type>Number</item-type>
         <label>White</label>
         <description>wrhite brightness, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGain">
         <item-type>Number</item-type>
         <label>Gain</label>
         <description>gain for all channels, 0..100, applies in mode=color</description>
+        <state min="0" max="100" step="1" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorTemp">
+        <item-type>Number</item-type>
+        <label>Color Temperature</label>
+        <description>Color Temperature 3000..6500K</description>
+        <state min="3000" max="6500" step="10" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorEffect">
         <item-type>Number</item-type>
@@ -607,6 +622,20 @@
         </state>
     </channel-type>
 
+    <channel-type id="batLevel">
+        <item-type>Number</item-type>
+        <label>Battery level</label>
+        <description>Battery level in %</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="batAlaert">
+        <item-type>Number</item-type>
+        <label>Low Battery</label>
+        <description>ON: Battery level is less than 20%</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
     <channel-type id="batVoltage">
         <item-type>Number</item-type>
         <label>Battery voltage</label>

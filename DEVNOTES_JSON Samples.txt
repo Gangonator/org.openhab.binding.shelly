@@ -610,7 +610,7 @@
 	"relays":[{"name":null,"ison":false,"has_timer":false,"default_state":"off","btn_type":"edge","btn_reverse":0,"auto_on":0.00,"auto_off":0.00,"btn_on_url":null,"btn_off_url":null,"out_on_url":null,"out_off_url":null,"schedule":false,"schedule_rules":[],"max_power":3500}],
 	"meters":[{"power":0.00,"is_valid":true,"timestamp":1563877368,"counters":[0.000, 0.000, 0.000],"total":2246}]}
 
-// Shelly RGW2 /settiings
+// Shelly RGW2 settiings in color mode
 {
 	"device":{
 		"type":"SHRGBW2",
@@ -649,7 +649,7 @@
 }
 
 
-// RGW2 &/status
+// RGW2 status color mode
 {
 	"wifi_sta":{"connected":true,"ssid":"markus7017","ip":"192.168.x.x","rssi":-69},
 	"cloud":{"enabled":true,"connected":true},
@@ -659,17 +659,10 @@
 	"mode":"color",
 	"input":0,
 	"lights":[
-		{
-			"ison":false,"mode":"color",
-			"red":255,"green":0,"blue":0,"white":255,
-			"gain":29,"effect":0,
-			"power":0.00,
-			"overpower":false}
-		],
+		{"ison":false,"mode":"color", "red":255,"green":0,"blue":0,"white":255, "gain":29,"effect":0, "power":0.00,"overpower":false}
+	],
 	"meters":[
-			{
-				"power":0.00,"is_valid":true
-			}
+		{"power":0.00,"is_valid":true}
 	],
 	"update":{"status":"idle","has_update":false,"new_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414","old_version":"20190711-084448/v1.5.0-hotfix4@3b4f7414"},
 	"ram_total":50448,"ram_free":35824,"fs_size":233681,"fs_free":162648,"uptime":30380
