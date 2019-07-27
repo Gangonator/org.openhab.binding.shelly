@@ -171,19 +171,19 @@
  
 
      <thing-type id="shellybulb">
-        <label>Shelly Bulb - Color</label>
+        <label>Shelly Bulb (SHBULB)</label>
         <description>Shelly Bulb</description>
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb Control</label>
+            <channel-group id="control" typeId="lightControl">
+                <label>Light Control</label>
             </channel-group>
             <channel-group id="color" typeId="colorControl">
-                <label>Color control</label>
+                <label>Color settings</label>
             </channel-group>
             <channel-group id="white" typeId="whiteControl">
-                <label>White control</label>
+                <label>White settings</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">
                 <label>Meter</label>
@@ -194,13 +194,13 @@
     </thing-type>
  
     <thing-type id="shellyrgbw2-color">
-        <label>Shelly RGBW2 Color Mode</label>
+        <label>Shelly RGBW2 Color Mode (SHRGBW2-color)</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb Control</label>
+            <channel-group id="control" typeId="lightControl">
+                <label>Light Control</label>
             </channel-group>
             <channel-group id="color" typeId="colorControl">
                 <label>Color control</label>
@@ -216,25 +216,25 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
     <thing-type id="shellyrgbw2-color">
-        <label>Shelly RGBW2 Color Mode</label>
+        <label>Shelly RGBW2 White Mode (SHRGBW2-white)</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="bulb" typeId="bulbControl">
-                <label>Bulb Control</label>
+            <channel-group id="control" typeId="lightControl">
+                <label>Light Control</label>
             </channel-group>
             <channel-group id="white1" typeId="whiteControl">
-                <label>White control</label>
+                <label>Channel 1</label>
             </channel-group>
             <channel-group id="white2" typeId="whiteControl">
-                <label>White control</label>
+                <label>Channel 2</label>
             </channel-group>
             <channel-group id="white3" typeId="whiteControl">
-                <label>White control</label>
+                <label>Channel 3</label>
             </channel-group>
             <channel-group id="white4" typeId="whiteControl">
-                <label>White control</label>
+                <label>Channel 4</label>
             </channel-group>
             <channel-group id="meter" typeId="v1Meter">
                 <label>Meter</label>
@@ -337,14 +337,13 @@
         </channels>
     </channel-group-type>
 
-   <channel-group-type id="bulbControl">
-       <label>Control</label>
-       <description>Bulb control</description>
+   <channel-group-type id="lightControl">
+       <label>Light Control</label>
+       <description>Control your light</description>
         <channels>
-            <channel id="power" typeId="bulbPower" />
+            <channel id="power" typeId="system.power" />
             <channel id="colorMode" typeId="colorMode" />
             <channel id="defaultState" typeId="defaultState" />
-            <channel id="flipbackTimer" typeId="bulbTimer" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
@@ -365,7 +364,7 @@
     </channel-group-type>
     <channel-group-type id="whiteControl">
        <label>White settings</label>
-       <description>Adjust colors when bulb is in white mode</description>
+       <description>Adjust colors when device is in white mode</description>
         <channels>
             <channel id="brightness" typeId="system.brightness" />
             <channel id="colorTemperature" typeId="system.color-temperature" />
@@ -533,15 +532,10 @@
         </state>
     </channel-type>
 
-    <channel-type id="bulbPower">
-        <item-type>Switch</item-type>
-        <label>Power</label>
-        <description>Power ON/OFF</description>
-    </channel-type>
     <channel-type id="colorMode">
         <item-type>Switch</item-type>
         <label>Color/White Mode</label>
-        <description>ON: Bulb is in color mode, OFF: Bulb ist in White Mode</description>
+        <description>ON: Device is in color mode, OFF: Device is in White Mode</description>
     </channel-type>
     <channel-type id="defaultState">
         <item-type>Switch</item-type>
@@ -555,7 +549,7 @@
             </options>
         </state>
      </channel-type>
-    <channel-type id="bulbTimer">
+    <channel-type id="lightTimer">
         <item-type>Number</item-type>
         <label>Flip-back Timer</label>
         <description>Automatic flip-back timer in seconds, used in combination with turn</description>
@@ -565,12 +559,12 @@
     <channel-type id="autoOn">
         <item-type>Number</item-type>
         <label>Auto-ON timer</label>
-        <description>Sets a default timer to turn the bulb ON after every OFF command in seconds</description>
+        <description>Sets a default timer to turn the device ON after every OFF command in seconds</description>
     </channel-type>
     <channel-type id="autoOff">
         <item-type>Number</item-type>
         <label>Auto-ON timer</label>
-        <description>Sets a default timer to turn the bulb OFF after every ON command in seconds</description>
+        <description>Sets a default timer to turn the device OFF after every ON command in seconds</description>
     </channel-type>
 
     <channel-type id="sensorTemp">
