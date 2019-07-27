@@ -58,7 +58,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
             return;
         }
         try {
-            if (profile.isBulbColor) {
+            if (profile.inColor) {
                 String groupName = channelUID.getGroupId();
                 switch (channelUID.getIdWithoutGroup()) {
                     default: // non-bulb commands will be handled by the generic handler
@@ -80,7 +80,7 @@ public class ShellyHandlerBulb extends ShellyHandler {
                                 logger.info("Requested brightness = 0 -> switch off the bulb");
                                 api.setBulbParm(0, SHELLY_BULB_TURN, SHELLY_API_OFF);  // switch the bulb off
                             } else {
-                                if (profile.isBulbColor) {
+                                if (profile.inColor) {
                                     logger.info("Setting RGB colors to {}/{}/{} (sRGB={})}",
                                             hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
                                     setBulbColor(SHELLY_COLOR_RED, hsb.getRed().intValue());
@@ -147,30 +147,27 @@ public class ShellyHandlerBulb extends ShellyHandler {
 
     @Override
     public void updateThingStatus() throws IOException {
-        if (profile.isBulb) {
+        if (profile.isLight) {
             logger.trace("Updating bulb/rgw2 status");
             ShellySettingsBulb settings = api.getBulbSettings();
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_COLOR_MODE, profile.mode.equals(SHELLY_MODE_COLOR));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_POWER, ShellyHttpApi.getBool(settings.ison));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_BULB_DEFSTATE, getString(settings.default_state));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(settings.effect));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(settings.auto_on));
             updateChannel(CHANNEL_GROUP_BULB_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(settings.auto_off));
-            if (profile.isBulbColor) {
+            if (profile.inColor) {
                 logger.trace("Updating bulb/rgw2 color");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(settings.red));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(settings.blue));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(settings.green));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(settings.white));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(settings.gain));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(settings.temp));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(settings.effect));
             } else {
                 logger.trace("Updating bulb/rgw2 white");
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, getInteger(settings.brightness));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(settings.temp));
             }
-            // if (settings.dcpower != null) {
-            // updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_RGW2_DCPOWER, getInteger(settings.dcpower));
-            // }
         }
 
     }

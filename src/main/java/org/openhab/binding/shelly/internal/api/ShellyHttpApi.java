@@ -120,8 +120,8 @@ public class ShellyHttpApi {
         public Boolean              hasLed; // true if battery device
         public Boolean              isRoller;  // true for Shelly2 in roller mode
         public Boolean              isPlugS;  // true if it is a Shelly Plug S
-        public Boolean              isBulb; // true if it is a Shelly Bulb
-        public Boolean              isBulbColor; // true if bulb is in color mode
+        public Boolean              isLight; // true if it is a Shelly Bulb/RGBW2
+        public Boolean              inColor; // true if bulb/rgbw2 is in color mode
         public Boolean              isSensor; // true for HT & Smoke
         public Boolean              isSmoke; // true for Smoke
 
@@ -181,10 +181,10 @@ public class ShellyHttpApi {
         profile.isRoller = profile.mode.equalsIgnoreCase(SHELLY_MODE_ROLLER);
         profile.isPlugS = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYPLUGS.getId());
         profile.hasLed = profile.isPlugS;
-        profile.isBulb = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId())
+        profile.isLight = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYBULB.getId())
                 || thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_COLOR.getId()) ||
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_WHITE.getId());
-        profile.isBulbColor = profile.isBulb && profile.isBulb && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
+        profile.inColor = profile.isLight && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
         profile.isSmoke = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
         profile.isSensor = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
@@ -193,7 +193,7 @@ public class ShellyHttpApi {
         profile.maxPower = profile.settings.max_power != null ? profile.settings.max_power : 0;
 
         profile.numRollers = getInteger(profile.settings.device.num_rollers);
-        profile.numRelays = !profile.isBulb ? getInteger(profile.settings.device.num_outputs) : 0;
+        profile.numRelays = !profile.isLight ? getInteger(profile.settings.device.num_outputs) : 0;
         profile.numMeters = getInteger(profile.settings.device.num_meters);
         if ((profile.numMeters == 0) && (profile.numRelays > 0)) {
             profile.numMeters = 1; // Shelly 1 reports no meters, but has one
@@ -287,7 +287,7 @@ public class ShellyHttpApi {
         String type = SHELLY_CLASS_RELAY;
         if (profile.isRoller) {
             type = SHELLY_CLASS_ROLLER;
-        } else if (profile.isBulb) {
+        } else if (profile.isLight) {
             type = SHELLY_CLASS_LIGHT;
         }
         String uri = SHELLY_URL_SETTINGS + "/" + type + "/" + index + "?" + timerName + "=" + ((Integer) value.intValue()).toString();

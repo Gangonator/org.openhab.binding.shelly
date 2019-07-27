@@ -11,7 +11,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter1" typeId="v1Meter">
+            <channel-group id="meter1" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -106,7 +106,7 @@
  
     <thing-type id="shellyplug">
         <label>Shelly Plug</label>
-        <description>Shelly Plug device</description>
+        <description>Shelly Plug device with relay and power meter</description>
         <channel-groups>
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
@@ -120,14 +120,14 @@
     </thing-type>
     <thing-type id="shellyplugs">
         <label>Shelly Plug-S (SHPLG-S)</label>
-        <description>Shelly Plug-S</description>
+        <description>Shelly Plug-S with relay, meter and LED control</description>
 
         <channel-groups>
             <channel-group id="relay1" typeId="relayChannel">
-                <label>Relay 1</label>
+                <label>Plug</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter Channel 1</label>
+                <label>Power Meter</label>
             </channel-group>
             <channel-group id="led" typeId="ledControl">
                 <label>LED Control</label>
@@ -139,7 +139,7 @@
  
     <thing-type id="shellyht">
         <label>Shelly HT</label>
-        <description>Shelly HT sensor device</description>
+        <description>Shelly HT sensor device (battery powered)</description>
 
         <channel-groups>
             <channel-group id="sensor" typeId="htSensor">
@@ -155,7 +155,7 @@
  
     <thing-type id="shellysmoke">
         <label>Shelly Smoke</label>
-        <description>Shelly Smoke sensor device</description>
+        <description>Shelly Smoke sensor device (battery powered)</description>
 
         <channel-groups>
             <channel-group id="sensor" typeId="smokeSensor">
@@ -176,16 +176,16 @@
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="control" typeId="lightControl">
+            <channel-group id="control" typeId="bulbControl">
                 <label>Light Control</label>
             </channel-group>
-            <channel-group id="color" typeId="colorControl">
+            <channel-group id="color" typeId="colorSettings">
                 <label>Color settings</label>
             </channel-group>
-            <channel-group id="white" typeId="whiteControl">
+            <channel-group id="white" typeId="whiteSettings">
                 <label>White settings</label>
             </channel-group>
-            <channel-group id="meter" typeId="v1Meter">
+            <channel-group id="meter1" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -194,7 +194,7 @@
     </thing-type>
  
     <thing-type id="shellyrgbw2-color">
-        <label>Shelly RGBW2 Color Mode (SHRGBW2-color)</label>
+        <label>Shelly RGBW2 Color Mode (SHRGBW2)</label>
         <description>Shelly RGBW2 Controller - Color Mode</description>
         <category>Lightbulb</category>
 
@@ -202,41 +202,41 @@
             <channel-group id="control" typeId="lightControl">
                 <label>Light Control</label>
             </channel-group>
-            <channel-group id="color" typeId="colorControl">
-                <label>Color control</label>
+            <channel-group id="color" typeId="colorSettings">
+                <label>Color settings</label>
             </channel-group>
-            <channel-group id="white" typeId="whiteControl">
-                <label>White control</label>
+            <channel-group id="white" typeId="whiteSettings">
+                <label>White settings</label>
             </channel-group>
-            <channel-group id="meter" typeId="v1Meter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
-    <thing-type id="shellyrgbw2-color">
-        <label>Shelly RGBW2 White Mode (SHRGBW2-white)</label>
-        <description>Shelly RGBW2 Controller - Color Mode</description>
+    <thing-type id="shellyrgbw2-white">
+        <label>Shelly RGBW2 White Mode (SHRGBW2)</label>
+        <description>Shelly RGBW2 Controller - White Mode</description>
         <category>Lightbulb</category>
 
         <channel-groups>
             <channel-group id="control" typeId="lightControl">
                 <label>Light Control</label>
             </channel-group>
-            <channel-group id="white1" typeId="whiteControl">
-                <label>Channel 1</label>
+            <channel-group id="white1" typeId="whiteSettings">
+                <label>Channel 1 settings</label>
             </channel-group>
-            <channel-group id="white2" typeId="whiteControl">
-                <label>Channel 2</label>
+            <channel-group id="white2" typeId="whiteSettings">
+                <label>Channel 2 settings</label>
             </channel-group>
-            <channel-group id="white3" typeId="whiteControl">
-                <label>Channel 3</label>
+            <channel-group id="white3" typeId="whiteSettings">
+                <label>Channel 3 settings</label>
             </channel-group>
-            <channel-group id="white4" typeId="whiteControl">
-                <label>Channel 4</label>
+            <channel-group id="white4" typeId="whiteSettings">
+                <label>Channel 4 settings</label>
             </channel-group>
-            <channel-group id="meter" typeId="v1Meter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -286,6 +286,13 @@
             <channel id="timestamp" typeId="meterTimestamp" />
         </channels>
     </channel-group-type>
+   <channel-group-type id="basicMeter">
+       <label>Power Meter</label>
+       <description>Power consumption</description>
+        <channels>
+            <channel id="currentWatts" typeId="meterWatts" />
+        </channels>
+   </channel-group-type>
    <channel-group-type id="simpleMeter">
        <label>Power Meter</label>
        <description>Power consumption</description>
@@ -294,13 +301,6 @@
             <channel id="totalWatts" typeId="meterTotal" />
         </channels>
     </channel-group-type>
-   <channel-group-type id="v1Meter">
-       <label>Power Meter</label>
-       <description>Power consumption</description>
-        <channels>
-            <channel id="currentWatts" typeId="meterWatts" />
-        </channels>
-   </channel-group-type>
    <channel-group-type id="ledControl">
        <label>LED control</label>
        <description>Control the LEDs</description>
@@ -329,7 +329,7 @@
     </channel-group-type>
    <channel-group-type id="batteryStatus">
        <label>Battery Status</label>
-       <description>Stratus of the device's battery</description>
+       <description>Status of the device's battery</description>
         <channels>
             <channel id="batteryLevel" typeId="system.battery-level" />
             <channel id="lowBattery" typeId="system.low-battery" />
@@ -337,19 +337,29 @@
         </channels>
     </channel-group-type>
 
-   <channel-group-type id="lightControl">
-       <label>Light Control</label>
+
+   <channel-group-type id="bulbControl">
+       <label>Bulb Control</label>
        <description>Control your light</description>
         <channels>
-            <channel id="power" typeId="system.power" />
+            <channel id="power" typeId="lightPower" />
             <channel id="colorMode" typeId="colorMode" />
-            <channel id="defaultState" typeId="defaultState" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
         </channels>
     </channel-group-type>
-    <channel-group-type id="colorControl">
+   <channel-group-type id="lightControl">
+       <label>Light Control</label>
+       <description>Control your light channels</description>
+        <channels>
+            <channel id="power" typeId="lightPower" />
+            <channel id="autoOn" typeId="timerAutoOn" />
+            <channel id="autoOff" typeId="timerAutoOff" />
+            <channel id="timerActive" typeId="timerActive" />
+        </channels>
+    </channel-group-type>
+    <channel-group-type id="colorSettings">
        <label>Colors</label>
        <description>Light colors</description>
         <channels>
@@ -360,15 +370,14 @@
             <channel id="white" typeId="colorWhite" />
             <channel id="gain" typeId="colorGain" />
             <channel id="effect" typeId="colorEffect" />
+            <channel id="temperature" typeId="system.color-temperature" />
         </channels>
     </channel-group-type>
-    <channel-group-type id="whiteControl">
+    <channel-group-type id="whiteSettings">
        <label>White settings</label>
        <description>Adjust colors when device is in white mode</description>
         <channels>
             <channel id="brightness" typeId="system.brightness" />
-            <channel id="colorTemperature" typeId="system.color-temperature" />
-            <channel id="effect" typeId="colorEffect" />
         </channels>
     </channel-group-type>
 
@@ -490,10 +499,16 @@
         <description>Disable LED indication for output status</description>
     </channel-type>
 
+    <channel-type id="lightPower">
+        <item-type>Switch</item-type>
+        <label>Turn on/off</label>
+        <description>Turn ON/OFF</description>
+    </channel-type>
     <channel-type id="colorRed">
         <item-type>Number</item-type>
         <label>Red</label>
-        <description>red brightness, 0..255, applies in mode=color</description>
+        <description>red brightness, 0..100, only in White Mode</description>
+        <state min="0" max="100" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGreen">
         <item-type>Number</item-type>
@@ -534,22 +549,10 @@
 
     <channel-type id="colorMode">
         <item-type>Switch</item-type>
-        <label>Color/White Mode</label>
+        <label>Mode (ON=color, OFF=white)</label>
         <description>ON: Device is in color mode, OFF: Device is in White Mode</description>
     </channel-type>
-    <channel-type id="defaultState">
-        <item-type>Switch</item-type>
-        <label>Default State</label>
-        <description>one of on, off or last</description>
-        <state>
-            <options>
-                <option value="on">ON</option>
-                <option value="off">OFF</option>
-                <option value="last">Last</option>
-            </options>
-        </state>
-     </channel-type>
-    <channel-type id="lightTimer">
+    <channel-type id="flipBackTimer">
         <item-type>Number</item-type>
         <label>Flip-back Timer</label>
         <description>Automatic flip-back timer in seconds, used in combination with turn</description>

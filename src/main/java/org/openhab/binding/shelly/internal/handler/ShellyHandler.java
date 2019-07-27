@@ -122,8 +122,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb: {}, is HT/Smoke Sensor: {}, has Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
-                p.hasRelays, p.isRoller, p.isPlugS, p.isBulb, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers, p.numMeters);
+                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
+                p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
+                p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
         // update thing properties
@@ -304,7 +305,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         for (ShellySettingsMeter meter : status.meters) {
                             Integer meterIndex = m + 1;
                             if (meter.is_valid) {
-                                String groupName = !profile.isBulb ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
+                                String groupName = !profile.isLight ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
                                 updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
                                 if (meter.total != null) {
                                     Double kwh = getDouble(meter.total);
@@ -432,7 +433,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @throws IOException Communication problem on the API call
      */
     public void updateThingStatus() throws IOException {
-
+        logger.trace("No secondary updates");
     }
 
     /**
@@ -548,6 +549,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             Double maxPower = getDouble(profile.settings.max_power);
             properties.put("maxPower", maxPower.toString());
         }
+        /*
+         * if (profile.settings.dcpower != null) { Double maxPower = getDouble(profile.settings.dcpower); properties.put("dcPower",
+         * maxPower.toString()); }
+         */
+
         updateProperties(properties);
     }
 
