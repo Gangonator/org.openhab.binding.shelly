@@ -380,7 +380,7 @@
        <label>White settings</label>
        <description>Adjust colors when device is in white mode</description>
         <channels>
-            <channel id="brightness" typeId="system.brightness" />
+            <channel id="brightness" typeId="whiteBrightness" />
         </channels>
     </channel-group-type>
     <channel-group-type id="rgbw2Control">
@@ -388,7 +388,7 @@
        <description>Switch channel and adjust settings</description>
         <channels>
             <channel id="power" typeId="lightPower" />
-            <channel id="brightness" typeId="system.brightness" />
+            <channel id="brightness" typeId="whiteBrightness" />
         </channels>
     </channel-group-type>
 
@@ -523,25 +523,25 @@
     <channel-type id="colorRed">
         <item-type>Number</item-type>
         <label>Red</label>
-        <description>red brightness, 0..100, only in White Mode</description>
+        <description>red, 0..255, only in White Mode</description>
         <state min="0" max="100" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGreen">
         <item-type>Number</item-type>
         <label>Green</label>
-        <description>green brightness, 0..255, applies in mode=color</description>
+        <description>green, 0..255, applies in mode=color</description>
         <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorBlue">
         <item-type>Number</item-type>
         <label>Blue</label>
-        <description>blue brightness, 0..255, applies in mode=color</description>
+        <description>blue, 0..255, applies in mode=color</description>
         <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorWhite">
         <item-type>Number</item-type>
         <label>White</label>
-        <description>wrhite brightness, 0..255, applies in mode=color</description>
+        <description>white, 0..255, applies in mode=color</description>
         <state min="0" max="255" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGain">
@@ -555,6 +555,12 @@
         <label>Color Temperature</label>
         <description>Color Temperature 3000..6500K</description>
         <state min="3000" max="6500" step="10" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorBrightness">
+        <item-type>Number</item-type>
+        <label>Brightness</label>
+        <description>Brightness: 0..100%</description>
+        <state min="0" max="100" step="1" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorEffect">
         <item-type>Number</item-type>
