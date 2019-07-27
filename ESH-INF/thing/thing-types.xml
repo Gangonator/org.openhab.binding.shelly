@@ -366,13 +366,13 @@
        <label>Colors</label>
        <description>Light colors</description>
         <channels>
+            <channel id="effect" typeId="colorEffect" />
             <channel id="color" typeId="colorPicker" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
             <channel id="white" typeId="colorWhite" />
             <channel id="gain" typeId="colorGain" />
-            <channel id="effect" typeId="colorEffect" />
             <channel id="temperature" typeId="colorTemp" />
         </channels>
     </channel-group-type>

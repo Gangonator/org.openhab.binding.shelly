@@ -119,10 +119,15 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
 |relay1    |output       |Switch   |r/w      |Relay #1: Controls the relay's output channel (on/off)                           |
 |          |overpower    |Switch   |yes      |Relay #1: ON: The relay detected an overpower condition, output was turned OFF   |
-|          |trigger      |Trigger  |yes      |Relay #1: An OH trigger channel, see description below                           |
+|          |autoOn       |Number   |r/w      |Relay #1: Sets a  timer to turn the device ON after every OFF command; in seconds|
+|          |autoOff      |Number   |r/w      |Relay #1: Sets a  timer to turn the device OFF after every ON command; in seconds|
+|          |timerActive  |Switch   |yes      |Relay #1: ON: An auto-on/off timer is active                                     |
 |relay2    |output       |Switch   |r/w      |Relay #2: Controls the relay's output channel (on/off)                           |
 |          |overpower    |Switch   |yes      |Relay #2: ON: The relay detected an overpower condition, output was turned OFF   |
 |          |trigger      |Trigger  |yes      |Relay #2: An OH trigger channel, see description below                           |
+|          |autoOn       |Number   |r/w      |Relay #2: Sets a  timer to turn the device ON after every OFF command; in seconds|
+|          |autoOff      |Number   |r/w      |Relay #2: Sets a  timer to turn the device OFF after every ON command; in seconds|
+|          |timerActive  |Switch   |yes      |Relay #2: ON: An auto-on/off timer is active                                     |
 |meter1    |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 |          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
@@ -161,9 +166,37 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 ### Shelly Bulb (thing-type: shellybulb)
 
 ### Shelly RGBW2 in Color Mode
-|Group     |Channel      |Type     |read-only|Desciption                                                                       |
-|----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|roller1   |turn         |Switch   |r/w      |ON: Turn roller into open mode, OFF:  Turn roller into close mode                |
+|Group     |Channel      |Type     |read-only|Desciption                                                             |
+|----------|-------------|---------|---------|-----------------------------------------------------------------------|
+|control   |power        |Switch   |r/w      |Switch light ON/OFF                                                    |
+|          |autoOn       |Number   |r/w      |Sets a  timer to turn the device ON after every OFF command; in seconds|
+|          |autoOff      |Number   |r/w      |Sets a  timer to turn the device OFF after every ON command; in seconds|
+|          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
+|light     |color        |Color    |r/w      |Color picker (HSBType)                                                 |
+|          |effect       |Number   |r/w      |Select a special effect                                                | 
+|          |red          |Number   |r/w      |red brightness 0..255, use this only when not using the color picker   |
+|          |green        |Number   |r/w      |green brightness 0..255, use this only when not using the color picker |
+|          |blue         |Number   |r/w      |blue brightness 0..255, use this only when not using the color picker  |
+|          |white        |Number   |r/w      |white brightness 0..255, use this only when not using the color picker |
+|          |gain         |Number   |r/w      |gain 0..255, use this only when not using the color picker             |
+|          |temperature  |Number   |r/w      |color temperature (K): 3000..6500                                      |
+
+### Shelly RGBW2 in White Mode
+|control   |autoOn       |Number   |r/w      |Sets a  timer to turn the device ON after every OFF command; in seconds|
+|          |autoOff      |Number   |r/w      |Sets a  timer to turn the device OFF after every ON command; in seconds|
+|          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
+|channel1  |power        |Switch   |r/w      |Channel 1: Turn channel on/off                                         |
+|          |brightness   |Number   |r/w      |Channel 1: Brightness: 0..100                                          |
+|channel2  |power        |Switch   |r/w      |Channel 2: Turn channel on/off                                         |
+|          |brightness   |Number   |r/w      |Channel 2: Brightness: 0..100                                          |
+|channel3  |power        |Switch   |r/w      |Channel 3: Turn channel on/off                                         |
+|          |brightness   |Number   |r/w      |Channel 3: Brightness: 0..100                                          |
+|channel4  |power        |Switch   |r/w      |Channel 4: Turn channel on/off                                         |
+|          |brightness   |Number   |r/w      |Channel 4: Brightness: 0..100                                          |
+|meter1    |currentWatts |Number   |yes      |Channel 1: Current power consumption in Watts                          |
+|meter2    |currentWatts |Number   |yes      |Channel 2: Current power consumption in Watts                          |
+|meter3    |currentWatts |Number   |yes      |Channel 3: Current power consumption in Watts                          |
+|meter4    |currentWatts |Number   |yes      |Channel 4: Current power consumption in Watts                          |
 
 
 ### Other devices
@@ -188,7 +221,7 @@ Note: PaperUI is recommended, if you want to use text files make sure to replace
 
 * .rules
 
-* reading colors from color picker:
+reading colors from color picker:
 import org.openhab.core.library.types.*
  
 var HSBType hsbValue
