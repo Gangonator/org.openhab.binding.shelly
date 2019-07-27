@@ -205,9 +205,6 @@
             <channel-group id="color" typeId="colorSettings">
                 <label>Color settings</label>
             </channel-group>
-            <channel-group id="white" typeId="whiteSettings">
-                <label>White settings</label>
-            </channel-group>
             <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
@@ -221,20 +218,17 @@
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="control" typeId="lightControl">
-                <label>Light Control</label>
+            <channel-group id="channel1" typeId="rgbw2Control">
+                <label>Channel 1</label>
             </channel-group>
-            <channel-group id="white1" typeId="whiteSettings">
-                <label>Channel 1 settings</label>
+            <channel-group id="channel2" typeId="rgbw2Control">
+                <label>Channel 2</label>
             </channel-group>
-            <channel-group id="white2" typeId="whiteSettings">
-                <label>Channel 2 settings</label>
+            <channel-group id="channel3" typeId="rgbw2Control">
+                <label>Channel 3</label>
             </channel-group>
-            <channel-group id="white3" typeId="whiteSettings">
-                <label>Channel 3 settings</label>
-            </channel-group>
-            <channel-group id="white4" typeId="whiteSettings">
-                <label>Channel 4 settings</label>
+            <channel-group id="channel4" typeId="rgbw2Control">
+                <label>Channel 4</label>
             </channel-group>
             <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
@@ -377,6 +371,14 @@
        <label>White settings</label>
        <description>Adjust colors when device is in white mode</description>
         <channels>
+            <channel id="brightness" typeId="system.brightness" />
+        </channels>
+    </channel-group-type>
+    <channel-group-type id="rgbw2Control">
+       <label>Control</label>
+       <description>Switch channel and adjust settings</description>
+        <channels>
+            <channel id="power" typeId="lightPower" />
             <channel id="brightness" typeId="system.brightness" />
         </channels>
     </channel-group-type>
