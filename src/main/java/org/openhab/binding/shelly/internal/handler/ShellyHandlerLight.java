@@ -90,22 +90,22 @@ public class ShellyHandlerLight extends ShellyHandler {
                 case CHANNEL_COLOR_PICKER:
                     if (command instanceof HSBType) {
                         HSBType hsb = (HSBType) command;
-                        if (hsb.getBrightness().intValue() == 0) {
-                            logger.info("Requested brightness = 0 -> switch off the bulb");
-                            api.setLightParm(lightId, SHELLY_LIGHT_TURN, SHELLY_API_OFF);  // switch the bulb off
+                        if (profile.inColor) {
+                            logger.info("Setting RGB colors to {}/{}/{} (sRGB={})",
+                                    hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
+                            Map<String, String> parms = new HashMap<String, String>();
+                            parms.put(SHELLY_COLOR_RED, new Integer(hsb.getRed().intValue()).toString());
+                            parms.put(SHELLY_COLOR_GREEN, new Integer(hsb.getGreen().intValue()).toString());
+                            parms.put(SHELLY_COLOR_BLUE, new Integer(hsb.getBlue().intValue()).toString());
+                            logger.debug("Color parameters: {}", parms.toString());
+                            api.setLightParms(lightId, parms);
                         } else {
-                            if (profile.inColor) {
-                                logger.info("Setting RGB colors to {}/{}/{} (sRGB={})",
-                                        hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
-                                Map<String, String> parms = new HashMap<String, String>();
-                                parms.put(SHELLY_COLOR_RED, new Integer(hsb.getRed().intValue()).toString());
-                                parms.put(SHELLY_COLOR_GREEN, new Integer(hsb.getGreen().intValue()).toString());
-                                parms.put(SHELLY_COLOR_BLUE, new Integer(hsb.getBlue().intValue()).toString());
-                                logger.debug("Color parameters: {}", parms.toString());
-                                api.setLightParms(lightId, parms);
-                            } else {
-                                setColor(lightId, SHELLY_COLOR_BRIGHTNESS, hsb.getBrightness().intValue());
+                            if (hsb.getBrightness().intValue() == 0) {
+                                logger.info("Requested brightness = 0 -> switch off the bulb");
+                                api.setLightParm(lightId, SHELLY_LIGHT_TURN, SHELLY_API_OFF); // switch the bulb off
+                                break;
                             }
+                            setColor(lightId, SHELLY_COLOR_BRIGHTNESS, hsb.getBrightness().intValue());
                         }
                     } else if (command instanceof PercentType) {
                         PercentType percent = (PercentType) command;
@@ -232,8 +232,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             return;
         }
 
-        DecimalType currentValue = (DecimalType) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
-        if ((currentValue != null) && (currentValue.intValue() == value)) {
+        Integer col = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
+        if ((col != null) && (col == value)) {
             logger.trace("Color {} was not changed (value={}), skip API call to update", colorName, value.toString());
             return;
         }
@@ -247,7 +247,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
             value = new DecimalType(maxValue * percent.intValue());
-        } else {
+        } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
         }
         if (value.intValue() > maxValue) {
