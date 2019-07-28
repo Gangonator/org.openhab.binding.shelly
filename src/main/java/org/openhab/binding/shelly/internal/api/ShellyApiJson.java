@@ -399,15 +399,16 @@ public class ShellyApiJson {
 
     public class ShellyStatusLight {
         public Boolean                             ison; // Whether output channel is on or off
-        public String                              wifi_sta; // WiFi client configuration. See /settings/sta for details
-        public ShellyStatusCloud                   cloud;
-        public ShellyStatusMqtt                    mqtt;
-        public Boolean                             has_update;
-        public String                              mode;  // COLOR or WHITE
-        public Integer                             input;
         public ArrayList<ShellyStatusLightChannel> lights;
         public ArrayList<ShellySettingsMeter>      meters;
 
+        // public String mode; // COLOR or WHITE
+        // public Integer input;
+        // public Boolean has_update;
+        // public ShellySettingsUpdate update;
+        // public ShellySettingsWiFiNetwork wifi_sta; // WiFi client configuration. See /settings/sta for details
+        // public ShellyStatusCloud cloud;
+        // public ShellyStatusMqtt mqtt;
     }
 
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";

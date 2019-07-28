@@ -174,7 +174,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
             // In color mode we have 1 light
             ShellyStatusLightChannel light = status.lights.get(0);
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, getString(status.mode).equals(SHELLY_MODE_COLOR));
+            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_POWER, getBool(light.ison));
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
