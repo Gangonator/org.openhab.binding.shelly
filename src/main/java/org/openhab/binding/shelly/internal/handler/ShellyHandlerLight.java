@@ -90,6 +90,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 case CHANNEL_COLOR_PICKER:
                     if (command instanceof HSBType) {
                         HSBType hsb = (HSBType) command;
+                        logger.debug("HSB-Info={} / {}", hsb.toString(), hsb.toFullString());
                         if (profile.inColor) {
                             logger.info("Setting RGB colors to {}/{}/{} (sRGB={})",
                                     hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
