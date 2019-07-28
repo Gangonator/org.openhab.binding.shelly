@@ -5,6 +5,7 @@ import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -170,37 +171,46 @@ public class ShellyHandlerLight extends ShellyHandler {
         logger.debug("Refreshing light status for {}", profile.hostname);
         ShellyStatusLight status = api.getLightStatus();
 
-        if (profile.inColor || profile.isBulb) {
-            logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
-            // In color mode we have 1 light
-            ShellyStatusLightChannel light = status.lights.get(0);
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_POWER, getBool(light.ison));
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
+        // In white mode we have multiple channels
+        logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
+        int i = 0;
+        for (ShellyStatusLightChannel channel : status.lights) {
+            Integer channelId = i + 1;
+            String groupName = CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
+            logger.debug("Updating light channel {}.{}", profile.hostname, groupName);
 
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(light.red));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(light.blue));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(light.green));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(light.white));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(light.gain));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(light.temp));
-            updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
-        } else {
-            logger.debug("Updating bulb/rgw2 {} in white mode ({} channel)", profile.hostname, status.lights.size());
+            if (profile.inColor || profile.isBulb) {
+                // In color mode we have 1 light
+                ShellyStatusLightChannel light = status.lights.get(0);
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_POWER, getBool(light.ison));
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
-            // In white mode we have multiple channels
-            int i = 0;
-            for (ShellyStatusLightChannel channel : status.lights) {
-                Integer channelId = i + 1;
-                logger.debug("Updating light channel {}.{}", profile.hostname, channelId);
-                String groupName = CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, mkPercent(light.red, 0, 255));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(light.blue));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(light.green));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(light.white));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(light.gain));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(light.temp));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
+            }
+            if (!profile.inColor || profile.isBulb) {
                 updateChannel(groupName, CHANNEL_LIGHT_POWER, getBool(channel.ison));
                 updateChannel(groupName, CHANNEL_COLOR_BRIGHTNESS, getInteger(channel.brightness));
-                i++;
             }
         }
+        i++;
+    }
+
+    private PercentType mkPercent(Integer _value, Integer min, Integer max) {
+        Integer value = _value != null ? _value : 0;
+        value = value < min ? min : value;
+        value = value > max ? max : value;
+        Double percent = new Double(value) * 100.0 / new Double(max);
+        logger.trace("Value converted from {} into {}%", value.toString(), percent.toString());
+        return new PercentType(new BigDecimal(percent));
     }
 
     private void setColor(Integer lightId, String colorName, Integer value) throws IOException {

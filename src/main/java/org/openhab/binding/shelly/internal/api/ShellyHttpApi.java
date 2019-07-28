@@ -332,6 +332,7 @@ public class ShellyHttpApi {
                 httpResponse = HttpUtil.executeUrl(HTTP_POST, url, httpHeader, content,
                         "application/x-www-form-urlencoded", SHELLY_API_TIMEOUT);
             } else {
+                logger.trace("HTTP GET {}", url);
                 httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             }
             // all api responses are returning the result in Json format. If we are getting something else it must
@@ -340,6 +341,7 @@ public class ShellyHttpApi {
                 throw new IOException("ERROR: Unexpected http resonse: " + httpResponse + ", url=" + url);
             }
 
+            logger.trace("HTTP response: {}", httpResponse);
             return httpResponse;
         } catch (IOException e) {
             throw new IOException(
