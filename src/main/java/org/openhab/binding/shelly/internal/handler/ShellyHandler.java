@@ -604,6 +604,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return sdf.format(date);
     }
 
+    protected ShellyDeviceProfile getProfile() {
+        return profile;
+    }
+
     @Override
     public void dispose() {
         logger.debug("Shutdown thing {}", thingName);

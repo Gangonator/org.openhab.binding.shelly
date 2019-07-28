@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 public class ShellyHandlerLight extends ShellyHandler {
     private final Logger  logger = LoggerFactory.getLogger(ShellyHandler.class);
     private ShellyHttpApi api;
-    ShellyDeviceProfile   profile;
 
     /**
      * @param thing                 The thing passed by the HandlerFactory
@@ -56,7 +55,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             return;
         }
 
-        profile = super.getDeviceProfile();
+        ShellyDeviceProfile profile = super.getProfile();
         if (profile == null) {
             logger.debug("Light not yet initialized!");
             return;
@@ -156,18 +155,23 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     @Override
     public void updateThingStatus() throws IOException {
-        if (!profile.isLight) {
+        logger.trace("Updating bulb/rgw2 status");
+
+        ShellyDeviceProfile profile = super.getProfile();
+        if (profile == null) {
+            logger.debug("ERROR: Light not yet initialized, but updating thing status!");
             return;
         }
-        logger.trace("Updating bulb/rgw2 status");
-        ShellyStatusLight status = api.getLightStatus();
-        if (status == null) {
-            logger.debug("Unable to get light status");
+        if (!profile.isLight) {
+            logger.debug("ERROR: Device {} is not a light. but class ShellyHandlerLight is called!", profile.hostname);
             return;
         }
 
+        logger.debug("Refreshing light status for {}", profile.hostname);
+        ShellyStatusLight status = api.getLightStatus();
+
         if (profile.inColor || profile.isBulb) {
-            logger.trace("Updating bulb/rgw2 color (1 channel)");
+            logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
             // In color mode we have 1 light
             ShellyStatusLightChannel light = status.lights.get(0);
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, status.mode.equals(SHELLY_MODE_COLOR));
@@ -184,7 +188,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(light.temp));
             updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
         } else {
-            logger.trace("Updating bulb/rgw2 white");
+            logger.debug("Updating bulb/rgw2 {} in white mode ({} channel)", profile.hostname, status.lights.size());
+
             // In white mode we have multiple channels
             int i = 0;
             for (ShellyStatusLightChannel channel : status.lights) {
@@ -198,6 +203,7 @@ public class ShellyHandlerLight extends ShellyHandler {
     }
 
     private void setColor(Integer lightId, String colorName, Integer value) throws IOException {
+        ShellyDeviceProfile profile = super.getProfile();
         if (profile.mode.equals(SHELLY_MODE_COLOR) && colorName.equals(SHELLY_COLOR_BRIGHTNESS)) {
             logger.info("Light is in Color Mode, command ignored!");
             return;
@@ -208,7 +214,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         }
 
         DecimalType currentValue = (DecimalType) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
-        if ((currentValue != null) && new DecimalType(value).equals(currentValue.intValue())) {
+        if ((currentValue != null) && (currentValue.intValue() == value)) {
             logger.trace("Color {} was not changed (value={}), skip API call to update", colorName, value.toString());
             return;
         }
@@ -221,7 +227,6 @@ public class ShellyHandlerLight extends ShellyHandler {
         DecimalType value = new DecimalType();
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
-            Integer p = percent.intValue();
             value = new DecimalType(maxValue * percent.intValue());
         } else {
             value = (DecimalType) command;
