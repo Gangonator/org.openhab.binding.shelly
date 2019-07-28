@@ -539,6 +539,12 @@
         <description>green, 0..255, applies in mode=color</description>
         <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
+    <channel-type id="colorBlue">
+        <item-type>Dimmer</item-type>
+        <label>Blue</label>
+        <description>blue, 0..255, only in Color Mode</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
     <channel-type id="Dimmer">
         <item-type>Number</item-type>
         <label>Blue</label>
