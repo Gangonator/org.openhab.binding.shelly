@@ -54,9 +54,11 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
 
         if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB) ||
                 thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR) || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE)) {
+            logger.debug("Create new thing using ShellyHandlerLight");
             return new ShellyHandlerLight(thing, this, networkAddressService);
         }
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
+            logger.debug("Create new thing using ShellyHandlerGeneric");
             return new ShellyHandler(thing, this, networkAddressService);
         }
 
