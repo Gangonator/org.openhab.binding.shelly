@@ -543,7 +543,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (value instanceof PercentType) {
                     PercentType v = (PercentType) value;
-                    updateState(channelId, new DecimalType(v.doubleValue()));
+                    updateState(channelId, new DecimalType(v.intValue()));
                 }
                 if (current == null) {
                     channelData.put(channelId, value);

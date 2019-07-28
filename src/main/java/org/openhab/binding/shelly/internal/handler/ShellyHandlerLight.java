@@ -95,13 +95,13 @@ public class ShellyHandlerLight extends ShellyHandler {
                             api.setLightParm(lightId, SHELLY_LIGHT_TURN, SHELLY_API_OFF);  // switch the bulb off
                         } else {
                             if (profile.inColor) {
-                                logger.info("Setting RGB colors to {}/{}/{} (sRGB={})}",
+                                logger.info("Setting RGB colors to {}/{}/{} (sRGB={})",
                                         hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
                                 Map<String, String> parms = new HashMap<String, String>();
                                 parms.put(SHELLY_COLOR_RED, new Integer(hsb.getRed().intValue()).toString());
                                 parms.put(SHELLY_COLOR_GREEN, new Integer(hsb.getGreen().intValue()).toString());
                                 parms.put(SHELLY_COLOR_BLUE, new Integer(hsb.getBlue().intValue()).toString());
-                                parms.put(SHELLY_COLOR_GAIN, new Integer(hsb.getSaturation().intValue()).toString());
+                                logger.debug("Color parameters: {}", parms.toString());
                                 api.setLightParms(lightId, parms);
                             } else {
                                 setColor(lightId, SHELLY_COLOR_BRIGHTNESS, hsb.getBrightness().intValue());
