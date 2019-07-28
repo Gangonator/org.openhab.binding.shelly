@@ -12,7 +12,6 @@ import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -543,8 +542,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     updateState(channelId, v);
                 }
                 if (value instanceof PercentType) {
-                    BigDecimal v = (BigDecimal) value;
-                    updateState(channelId, new DecimalType(v));
+                    PercentType v = (PercentType) value;
+                    updateState(channelId, new DecimalType(v.doubleValue()));
                 }
                 if (current == null) {
                     channelData.put(channelId, value);

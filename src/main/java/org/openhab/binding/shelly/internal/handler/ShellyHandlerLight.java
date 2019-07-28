@@ -6,6 +6,8 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -73,28 +75,34 @@ public class ShellyHandlerLight extends ShellyHandler {
                     super.handleCommand(channelUID, command);
                     break;
 
+                case CHANNEL_LIGHT_COLOR_MODE:
+                    logger.info("Select color mode {}", command.toString());
+                    api.setLightSetting(SHELLY_API_MODE, (OnOffType) command == OnOffType.ON ? SHELLY_MODE_COLOR : SHELLY_MODE_WHITE);
+                    break;
                 case CHANNEL_LIGHT_POWER:
-                    logger.info("Switch bulb {}", command.toString());
-                    api.setLightParm(lightId, SHELLY_BULB_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    logger.info("Switch light {}", command.toString());
+                    api.setLightParm(lightId, SHELLY_LIGHT_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     break;
                 case CHANNEL_LIGHT_DEFSTATE:
                     logger.info("Default state for the bulb is {}", command.toString());
-                    api.setLightParm(lightId, SHELLY_BULB_DEFSTATE, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    api.setLightParm(lightId, SHELLY_LIGHT_DEFSTATE, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     break;
                 case CHANNEL_COLOR_PICKER:
                     if (command instanceof HSBType) {
                         HSBType hsb = (HSBType) command;
                         if (hsb.getBrightness().intValue() == 0) {
                             logger.info("Requested brightness = 0 -> switch off the bulb");
-                            api.setLightParm(lightId, SHELLY_BULB_TURN, SHELLY_API_OFF);  // switch the bulb off
+                            api.setLightParm(lightId, SHELLY_LIGHT_TURN, SHELLY_API_OFF);  // switch the bulb off
                         } else {
                             if (profile.inColor) {
                                 logger.info("Setting RGB colors to {}/{}/{} (sRGB={})}",
                                         hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(), hsb.getRGB());
-                                setColor(lightId, SHELLY_COLOR_RED, hsb.getRed().intValue());
-                                setColor(lightId, SHELLY_COLOR_GREEN, hsb.getGreen().intValue());
-                                setColor(lightId, SHELLY_COLOR_BLUE, hsb.getBlue().intValue());
-                                setColor(lightId, SHELLY_COLOR_GAIN, hsb.getSaturation().intValue());
+                                Map<String, String> parms = new HashMap<String, String>();
+                                parms.put(SHELLY_COLOR_RED, new Integer(hsb.getRed().intValue()).toString());
+                                parms.put(SHELLY_COLOR_GREEN, new Integer(hsb.getGreen().intValue()).toString());
+                                parms.put(SHELLY_COLOR_BLUE, new Integer(hsb.getBlue().intValue()).toString());
+                                parms.put(SHELLY_COLOR_GAIN, new Integer(hsb.getSaturation().intValue()).toString());
+                                api.setLightParms(lightId, parms);
                             } else {
                                 setColor(lightId, SHELLY_COLOR_BRIGHTNESS, hsb.getBrightness().intValue());
                             }
@@ -104,7 +112,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                         Integer brightness = SHELLY_MAX_BRIGHTNESS * percent.intValue();
                         api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, brightness.toString());
                     } else if (command instanceof OnOffType) {
-                        api.setLightParm(lightId, SHELLY_BULB_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                        api.setLightParm(lightId, SHELLY_LIGHT_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     } else if (command instanceof IncreaseDecreaseType) {
                         Integer currentBrightness = (Integer) getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS);
                         Integer newBrightness;

@@ -222,6 +222,7 @@ public class ShellyApiJson {
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
 
+    public static final String SHELLY_API_MODE           = "mode";
     public static final String SHELLY_MODE_RELAY         = "relay";  // Relay: relay mode
     public static final String SHELLY_MODE_ROLLER        = "roller"; // Relay: roller mode
     public static final String SHELLY_MODE_COLOR         = "color";  // Bulb/RGBW2: color mode
@@ -415,9 +416,9 @@ public class ShellyApiJson {
     public static final String  SHELLY_TIMER_AUTOOFF    = "aut_off";
     public static final String  SHELLY_TIMER_ACTIVE     = "has_timer";
 
-    public static final String  SHELLY_BULB_TURN        = "turn";
-    public static final String  SHELLY_BULB_DEFSTATE    = "def_state";
-    public static final String  SHELLY_BULB_TIMER       = "timer";
+    public static final String  SHELLY_LIGHT_TURN       = "turn";
+    public static final String  SHELLY_LIGHT_DEFSTATE   = "def_state";
+    public static final String  SHELLY_LIGHTTIMER       = "timer";
 
     public static final String  SHELLY_COLOR_RED        = "red";
     public static final String  SHELLY_COLOR_BLUE       = "blue";

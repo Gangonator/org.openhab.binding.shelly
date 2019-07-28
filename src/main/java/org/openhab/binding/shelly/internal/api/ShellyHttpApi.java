@@ -311,12 +311,25 @@ public class ShellyHttpApi {
         return gson.fromJson(result, ShellyStatusLight.class);
     }
 
-    public void setLightSetting(Integer lightIndex, String parm, String value) throws IOException {
-        request(SHELLY_URL_SETTINGS_LIGHT + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
+    public void setLightSetting(String parm, String value) throws IOException {
+        request(SHELLY_URL_SETTINGS + "?" + parm + "=" + value, null);
     }
 
     public void setLightParm(Integer lightIndex, String parm, String value) throws IOException {
-        request(SHELLY_URL_SETTINGS_LIGHT + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
+        request("/" + profile.mode + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
+    }
+
+    public void setLightParms(Integer lightIndex, Map<String, String> parameters) throws IOException {
+        String url = "/" + profile.mode + "/" + lightIndex.toString() + "?";
+        int i = 0;
+        for (String key : parameters.keySet()) {
+            if (i > 0) {
+                url = url + "&";
+            }
+            url = url + key + "=" + parameters.get(key);
+            i++;
+        }
+        request(url, null);
     }
 
     /**
