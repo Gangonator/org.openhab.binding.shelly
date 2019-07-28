@@ -52,8 +52,9 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB) ||
-                thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR) || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE)) {
+        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB.getId()) ||
+                thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR.getId())
+                || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE.getId())) {
             logger.debug("Create new thing using ShellyHandlerLight");
             return new ShellyHandlerLight(thing, this, networkAddressService);
         }
