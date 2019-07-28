@@ -249,6 +249,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             value = new DecimalType(maxValue * percent.intValue());
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
+        } else {
+            logger.debug("Invalid value: {} / type {}", value.toString(), value.getClass());
         }
         if (value.intValue() > maxValue) {
             logger.debug("Value for color {} is out of range: {}/{}, set to {}", colorName, value.intValue(), maxValue, maxValue);

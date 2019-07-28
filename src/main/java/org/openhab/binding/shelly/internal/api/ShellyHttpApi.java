@@ -201,6 +201,11 @@ public class ShellyHttpApi {
         if ((profile.numMeters == 0) && (profile.numRelays > 0)) {
             profile.numMeters = 1; // Shelly 1 reports no meters, but has one
         }
+        if (profile.isLight && (profile.numMeters == 0)) {
+            logger.debug("Get number of meters from light status");
+            ShellyStatusLight status = getLightStatus();
+            profile.numMeters = status.meters != null ? status.meters.size() : 0;
+        }
         profile.hasMeter = (profile.numMeters > 0);
         if ((profile.numRelays > 0) && (profile.settings.relays == null)) {
             profile.numRelays = 0;
