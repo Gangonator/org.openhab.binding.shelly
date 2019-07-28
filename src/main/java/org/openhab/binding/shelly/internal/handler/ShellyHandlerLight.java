@@ -174,11 +174,11 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
             // In color mode we have 1 light
             ShellyStatusLightChannel light = status.lights.get(0);
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, status.mode.equals(SHELLY_MODE_COLOR));
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_POWER, ShellyHttpApi.getBool(light.ison));
+            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, getString(status.mode).equals(SHELLY_MODE_COLOR));
+            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_POWER, getBool(light.ison));
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
             updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
-            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getDouble(light.overpower));
+            updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
             updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, getInteger(light.red));
             updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(light.blue));
@@ -194,8 +194,9 @@ public class ShellyHandlerLight extends ShellyHandler {
             int i = 0;
             for (ShellyStatusLightChannel channel : status.lights) {
                 Integer channelId = i + 1;
+                logger.debug("Updating light channel {}.{}", profile.hostname, channelId);
                 String groupName = CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
-                updateChannel(groupName, CHANNEL_LIGHT_POWER, ShellyHttpApi.getBool(channel.ison));
+                updateChannel(groupName, CHANNEL_LIGHT_POWER, getBool(channel.ison));
                 updateChannel(groupName, CHANNEL_COLOR_BRIGHTNESS, getInteger(channel.brightness));
                 i++;
             }
