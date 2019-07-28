@@ -22,7 +22,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -213,8 +216,36 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     api.setRollerTurn(rIndex, turn);
                     break;
                 case CHANNEL_ROL_CONTROL_POS:
-                    logger.info("Setting roller to position {}%", command.toString());
-                    api.setRollerPos(rIndex, Integer.parseInt(command.toString()));
+                    logger.info("Setting roller to position {}", command.toString());
+                    if (command == StopMoveType.STOP) {
+                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
+                        break;
+                    }
+                    if (command instanceof UpDownType) {
+                        if (UpDownType.UP.equals(command)) {
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
+                            break;
+                        }
+                        if (UpDownType.DOWN.equals(command)) {
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
+                            break;
+                        }
+                    }
+
+                    Integer position = -1;
+                    if (command instanceof PercentType) {
+                        PercentType p = (PercentType) command;
+                        position = p.intValue() * 100;
+
+                    } else if (command instanceof DecimalType) {
+                        DecimalType d = (DecimalType) command;
+                        position = d.intValue();
+                    }
+                    if (position == -1) {
+                        logger.info("Invalid position requested!");
+                        break;
+                    }
+                    api.setRollerPos(rIndex, position);
                     break;
                 case CHANNEL_TIMER_AUTOON:
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());

@@ -264,7 +264,7 @@
        <description>Controlling teh Shelly2 in roller mode</description>
         <channels>
             <channel id="turn" typeId="rollerTurn" />
-            <channel id="position" typeId="rollerPosition" />
+            <channel id="position" typeId="rollerShutter" />
             <channel id="direction" typeId="rollerDirection" />
             <channel id="stopReason" typeId="rollerStop" />
             <channel id="calibrating" typeId="rollerCalibrating" />
@@ -453,6 +453,12 @@
         <event/>
     </channel-type>
 
+    <channel-type id="rollerShutter">
+        <item-type>Rollershutter</item-type>
+        <label>Roller position</label>
+        <description>Controls the roller</description>
+        <category>Blinds</category>
+    </channel-type>
     <channel-type id="rollerTurn">
         <item-type>String</item-type>
         <label>Roller Control</label>
@@ -466,9 +472,10 @@
         </state>
     </channel-type>
     <channel-type id="rollerPosition">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Roller Position</label>
         <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
+        <state min="0" max="100" step="1" readOnly="false"  pattern="%d"></state>
     </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>
@@ -521,46 +528,46 @@
         <description>Use the color picker change all settings at once</description>
     </channel-type>
     <channel-type id="colorRed">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Red</label>
-        <description>red, 0..255, only in White Mode</description>
-        <state min="0" max="100" step="1" readOnly="false"></state>
+        <description>red, 0..255, only in Color Mode</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGreen">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Green</label>
         <description>green, 0..255, applies in mode=color</description>
-        <state min="0" max="255" step="1" readOnly="false"></state>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
-    <channel-type id="colorBlue">
+    <channel-type id="Dimmer">
         <item-type>Number</item-type>
         <label>Blue</label>
         <description>blue, 0..255, applies in mode=color</description>
-        <state min="0" max="255" step="1" readOnly="false"></state>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorWhite">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>White</label>
         <description>white, 0..255, applies in mode=color</description>
-        <state min="0" max="255" step="1" readOnly="false"></state>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorGain">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Gain</label>
         <description>gain for all channels, 0..100, applies in mode=color</description>
-        <state min="0" max="100" step="1" readOnly="false"></state>
+        <state min="0" max="100" step="1" pattern="%d %%" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorTemp">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
         <description>Color Temperature 3000..6500K</description>
-        <state min="3000" max="6500" step="10" readOnly="false"></state>
+        <state min="3000" max="6500" step="10" pattern="%dK" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorBrightness">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Brightness</label>
         <description>Brightness: 0..100%</description>
-        <state min="0" max="100" step="1" readOnly="false"></state>
+        <state min="0" max="100" step="1" pattern="%d %%" readOnly="false"></state>
     </channel-type>
     <channel-type id="colorEffect">
         <item-type>Number</item-type>
