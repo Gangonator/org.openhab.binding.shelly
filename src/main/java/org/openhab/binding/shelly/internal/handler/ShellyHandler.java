@@ -125,8 +125,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
-                p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
+                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
+                p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
                 p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
@@ -311,7 +311,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
                 if (profile.hasRelays && profile.isRoller && (status.rollers != null)) {
-                    logger.trace("{}: Updating roller", thingName);
+                    logger.trace("{}: Updating {} rollers", thingName, profile.numRollers);
                     int i = 0;
                     for (ShellySettingsRoller roller : status.rollers) {
                         if (roller.is_valid) {
@@ -329,7 +329,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.hasMeter && (status.meters != null)) {
-                    logger.trace("{}: Updating standard meter", thingName);
+                    logger.trace("{}: Updating {} standard meters", thingName, profile.numMeters);
                     if (!profile.isRoller) {
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;
@@ -393,7 +393,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
-                if (profile.isSensor || profile.hasBattery) {
+                if (profile.isSensor || profile.isSense || profile.hasBattery) {
                     logger.trace("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (sdata != null) {

@@ -109,14 +109,20 @@ public class ShellyHandlerLight extends ShellyHandler {
                             parms.put(SHELLY_COLOR_RED, red.toString());
                             parms.put(SHELLY_COLOR_GREEN, blue.toString());
                             parms.put(SHELLY_COLOR_BLUE, green.toString());
-                            Integer v = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_WHITE);
-                            if (v != null) {
-                                Integer white = 0;
-                                logger.trace("White = ", white);
-                                // parms.put(SHELLY_COLOR_WHITE, white.toString());
-                            }
+                            Integer white = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_WHITE);
+                            logger.trace("White = (from channel)", white);
+                            Integer gain = hsb.getSaturation().intValue();
+                            logger.trace("saturation/gain = ", gain);
+                            // parms.put(SHELLY_COLOR_GAIN, gain.toString());
+                            // super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, gain);
                             logger.debug("Color parameters: {}", parms.toString());
                             api.setLightParms(lightId, parms);
+
+                            // logger.debug(");update channels with new settings", parms);
+                            // super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_REDN, red);
+                            // super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BLUE, blue);
+                            // super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GREEN, green);
+                            // super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, gain);
                         } else {
                             setColor(lightId, SHELLY_COLOR_BRIGHTNESS, brightness);
                         }

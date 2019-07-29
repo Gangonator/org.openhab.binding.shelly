@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
@@ -93,7 +94,7 @@ public class ShellyHttpApi {
     public static final String HTTP_PUT                         = "PUT";
     public static final String HTTP_POST                        = "POST";
     public static final String HTTP_DELETE                      = "DELETE";
-    public static int          SHELLY_API_TIMEOUT               = 5000;
+    public static int          SHELLY_API_TIMEOUT               = 2500;
 
     public class ShellyDeviceProfile {
         public String               thingType;
@@ -123,6 +124,7 @@ public class ShellyHttpApi {
         public Boolean              isPlugS;  // true if it is a Shelly Plug S
         public Boolean              isLight; // true if it is a Shelly Bulb/RGBW2
         public Boolean              isBulb; // true pnly if it is a Bulb
+        public Boolean              isSense; // true if thing is a Shelly Sense
         public Boolean              inColor; // true if bulb/rgbw2 is in color mode
         public Boolean              isSensor; // true for HT & Smoke
         public Boolean              isSmoke; // true for Smoke
@@ -139,6 +141,7 @@ public class ShellyHttpApi {
 
     private ShellyDeviceProfile profile;
     private Gson                gson      = new Gson();
+    private ShellyApiJson       jsonClass = new ShellyApiJson();
 
     public ShellyHttpApi(ShellyConfiguration config) {
         this.deviceIp = config.deviceIp;
@@ -188,11 +191,14 @@ public class ShellyHttpApi {
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_COLOR.getId()) ||
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYRGBW2_WHITE.getId());
         profile.inColor = profile.isLight && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
+        profile.isBulb = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSENSE.getId());
         profile.isSmoke = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
         profile.isSensor = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
                 thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+        profile.isSense = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSENSE.getId());
         profile.hasBattery = thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYHT.getId()) ||
-                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId());
+                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSMOKE.getId()) ||
+                thingType.equalsIgnoreCase(ShellyBindingConstants.THING_TYPE_SHELLYSENSE.getId());
         profile.maxPower = profile.settings.max_power != null ? profile.settings.max_power : 0;
 
         profile.numRollers = getInteger(profile.settings.device.num_rollers);
@@ -277,7 +283,20 @@ public class ShellyHttpApi {
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
         String result = request(SHELLY_URL_STATUS, null);
-        return gson.fromJson(result, ShellyStatusSensor.class);
+        if (!profile.isSense) {
+            return gson.fromJson(result, ShellyStatusSensor.class);
+        } else {
+            // complete reported data
+            ShellySenseStatus statusSense = gson.fromJson(result, ShellySenseStatus.class);
+            ShellyStatusSensor statusSensor = new ShellyStatusSensor();
+            statusSensor.tmp.is_valid = true;
+            statusSensor.tmp.value = statusSense.tmp;
+            statusSensor.tmp.tC = statusSense.temperature_units.equals(SHELLY_TEMP_CELSIUS) ? statusSense.tmp : 0;
+            statusSensor.tmp.tF = statusSense.temperature_units.equals(SHELLY_TEMP_FAHRENHEIT) ? statusSense.tmp : 0;
+            statusSensor.bat.value = statusSense.bat;
+            statusSensor.bat.voltage = 3.0; // simulate 3V
+            return statusSensor;
+        }
     }
 
     public void setSensorEventUrls(String deviceName) throws IOException {

@@ -330,9 +330,9 @@ public class ShellyApiJson {
         public String  report_url; // URL gets posted on updates with sensor data
     }
 
-    public class ShellyStatusSensor {
+    public static class ShellyStatusSensor {
         // https://shelly-api-docs.shelly.cloud/#h-amp-t-settings
-        public class _tmp {
+        public static class _tmp {
             public Double  value; // Temperature in configured unites
             public String  units; // 'C' or 'F'
             public Double  tC; // temperature in deg C
@@ -340,11 +340,11 @@ public class ShellyApiJson {
             public Boolean is_valid; // whether the internal sensor is operating properly
         }
 
-        public class _hum {
+        public static class _hum {
             public Double value; // relative humidity in %
         }
 
-        public class _bat {
+        public static class _bat {
             public Double value; // estimated remaining battery capacity in %
             public Double voltage; // battery voltage
         };
@@ -433,4 +433,23 @@ public class ShellyApiJson {
     public static final Integer SHELLY_MAX_GAIN         = 100;
     public static final Integer SHELLY_MAX_COLOR        = 255;
     public static final int     SHELLY_DIM_STEPSIZE     = 10;
+
+    public class ShellySenseSettings {
+        // see https://shelly-api-docs.shelly.cloud/#shelly-sense-settings
+        public Double  pir_motion_duration_time; // Set duration time in seconds for motion flag after motion detection.
+        public Integer motion_led; // Whether LED light should indicate motion detected 1 or 0.
+        public String  temperature_units; // Temperature units C for Celsius and F for Fahrenheit
+        public Boolean schedule; // Whether schedule settings are active/inactive. Value is 1 or 0.
+        // ArrayList<ShellySettingsScheduleRules> schedule_rules;
+    }
+
+    public static class ShellySenseStatus {
+        public Boolean otion;   // Value for motion detection
+        public Boolean charger; // Value for charging status
+        public String  temperature_units; // Either 'C' or 'F'
+        public Double  tmp; // Temperature
+        public Double  hum; // Humidity
+        public Double  lux; // Brightness
+        public Double  bat; // Battery level
+    }
 }

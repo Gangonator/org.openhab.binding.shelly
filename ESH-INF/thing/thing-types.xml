@@ -247,6 +247,24 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
+     <thing-type id="shellysense">
+        <label>Shelly Sense</label>
+        <description>Shelly Sense Remote IR controller</description>
+
+        <channel-groups>
+            <channel-group id="sensor" typeId="smokeSensor">
+                <label>Sensor</label>
+            </channel-group>
+            <channel-group id="battery" typeId="batteryStatus">
+                <label>Battery Status</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:battery" />
+    </thing-type>
+ 
+ 
+ 
    <channel-group-type id="relayChannel">
        <label>Relay channel</label>
        <description>A Shelly relay channel</description>
