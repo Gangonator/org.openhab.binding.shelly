@@ -137,11 +137,15 @@ public class ShellyHandlerLight extends ShellyHandler {
             Integer green = getRGBColor(hsb.getGreen());
             Integer brightness = getRGBColor(hsb.getBrightness());
             Integer saturation = getRGBColor(hsb.getSaturation());
+            Double r = hsb.getRed().doubleValue() / 100;
+            Double g = hsb.getGreen().doubleValue() / 100;
+            Double b = hsb.getBlue().doubleValue() / 100;
             logger.trace(
-                    "Scheinbar bin ich zu blöd das zu verstehen :-) hier die Einzelwerte mit .doubleValue(): {}/{}/{}, mit .intValiue() {}/{}/{} und dann als Integer: {}/{}/{}",
+                    "Einzelwerte mit .doubleValue(): {}/{}/{},  .intValiue() {}/{}/{} toRGV[] {}/{}/{}, double/100: {}/{}/{}, und dann als Integer: {}/{}/{}",
                     hsb.getRed().doubleValue(), hsb.getGreen().doubleValue(), hsb.getBlue().doubleValue(),
                     hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(),
                     hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2],
+                    r, g, b,
                     red, green, blue);
             logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, brightsness={}", red, green, blue, saturation, brightness);
             if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
