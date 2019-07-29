@@ -132,18 +132,19 @@ public class ShellyHandlerLight extends ShellyHandler {
     private void handleColorPicker(ShellyDeviceProfile profile, Integer lightId, Command command) throws IOException {
         if (command instanceof HSBType) {
             HSBType hsb = (HSBType) command;
-            logger.debug("HSB-Info={} / {}, Hue=RGB={}", hsb.toString(), hsb.toFullString(), String.format("0x%08X", hsb.getRGB()));
-            Integer red = new Double((hsb.getRed().doubleValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getRed());
-            Integer blue = new Double((hsb.getBlue().doubleValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getBlue());
-            Integer green = new Double((hsb.getGreen().doubleValue() * SHELLY_MAX_COLOR / 100)).intValue(); // green = getRGBColor(hsb.getGreen());
-            Integer brightness = new Double((hsb.getBrightness().doubleValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getBrightness());
-            Integer saturation = new Double((hsb.getSaturation().doubleValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getSaturation());
-            Double r = hsb.getRed().doubleValue() / 100;
-            Double g = hsb.getGreen().doubleValue() / 100;
-            Double b = hsb.getBlue().doubleValue() / 100;
+            logger.debug("HSB-Info={}, Hue={}, getRGB={}, toRGB={}/{}/{}", hsb.toString(), hsb.getHue(), String.format("0x%08X", hsb.getRGB()),
+                    hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2]);
+            Integer red = new Double((hsb.getRed().floatValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getRed());
+            Integer blue = new Double((hsb.getBlue().floatValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getBlue());
+            Integer green = new Double((hsb.getGreen().floatValue() * SHELLY_MAX_COLOR / 100)).intValue(); // green = getRGBColor(hsb.getGreen());
+            Integer brightness = new Double((hsb.getBrightness().floatValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getBrightness());
+            Integer saturation = new Double((hsb.getSaturation().floatValue() * SHELLY_MAX_COLOR / 100)).intValue(); // getRGBColor(hsb.getSaturation());
+            Float r = hsb.getRed().floatValue() * SHELLY_MAX_COLOR;
+            Float g = hsb.getGreen().floatValue() * SHELLY_MAX_COLOR;
+            Float b = hsb.getBlue().floatValue() * SHELLY_MAX_COLOR;
             logger.trace(
                     "Einzelwerte mit .doubleValue(): {}/{}/{},  .intValiue() {}/{}/{} toRGB[] {}/{}/{}, r/b/g: {}/{}/{}, Integer: {}/{}/{}",
-                    hsb.getRed().doubleValue(), hsb.getGreen().doubleValue(), hsb.getBlue().doubleValue(),
+                    hsb.getRed(), hsb.getGreen().doubleValue(), hsb.getBlue().doubleValue(),
                     hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(),
                     hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2],
                     r, g, b,
