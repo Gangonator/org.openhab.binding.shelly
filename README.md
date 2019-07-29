@@ -203,7 +203,7 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|roller1   |turn         |Switch   |r/w      |ON: Turn roller into open mode, OFF:  Turn roller into close mode                |
+|roller1   |turn         |String   |r/w      |can be open/stop/close; on will be mapped to open, off to close                  |
 |          |position     |Number   |r/w      |Position of the roller, 0=open...100=closed; gets updated when the roller stopped|
 |          |direction    |String   |yes      |Last direction: open or close                                                    |
 |          |stopReason   |String   |yes      |Last stop reasons: normal, safety_switch or obstacle                             |

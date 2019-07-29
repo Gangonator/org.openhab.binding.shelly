@@ -4,6 +4,7 @@ import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -131,7 +132,7 @@ public class ShellyHandlerLight extends ShellyHandler {
     private void handleColorPicker(ShellyDeviceProfile profile, Integer lightId, Command command) throws IOException {
         if (command instanceof HSBType) {
             HSBType hsb = (HSBType) command;
-            logger.debug("HSB-Info={} / {}, RGB={}", hsb.toString(), hsb.toFullString(), String.format("0x%08X", hsb.getRGB()));
+            logger.debug("HSB-Info={} / {}, Hue=RGB={}", hsb.toString(), hsb.toFullString(), String.format("0x%08X", hsb.getRGB()));
             Integer red = getRGBColor(hsb.getRed());
             Integer blue = getRGBColor(hsb.getBlue());
             Integer green = getRGBColor(hsb.getGreen());
@@ -147,6 +148,13 @@ public class ShellyHandlerLight extends ShellyHandler {
                     hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2],
                     r, g, b,
                     red, green, blue);
+            Color color = Color.getHSBColor(hsb.getHue().floatValue() / 360, hsb.getSaturation().floatValue() / 100,
+                    hsb.getBrightness().floatValue() / 100);
+            red = color.getRed();
+            green = color.getGreen();
+            blue = color.getBlue();
+            logger.debug("colors from Color: {}/{}/{}", red, green, blue);
+
             logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, brightsness={}", red, green, blue, saturation, brightness);
             if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
                     (!profile.inColor && (brightness == 0))) {
@@ -242,8 +250,8 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, mkPercent(light.blue));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, mkPercent(light.green));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, mkPercent(light.white));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, mkPercent(light.gain));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, mkPercent(light.temp));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, new DecimalType(light.gain));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, new DecimalType(light.temp));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
             }
             if (!profile.inColor || profile.isBulb) {
@@ -264,7 +272,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         value = value > max ? max : value;
         Double percent = new Double(value) / new Double(max) * 100;
         logger.trace("Value converted from {} into {}%", value.toString(), percent.toString());
-        return new PercentType(new BigDecimal(percent));
+        return new PercentType(new BigDecimal(Math.round(percent)));
     }
 
     private void setColor(Integer lightId, String colorName, Integer value) throws IOException {
