@@ -393,7 +393,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
-                if (profile.isSensor || profile.isSense || profile.hasBattery) {
+                if (profile.isSensor || profile.hasBattery) {
                     logger.trace("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (sdata != null) {
