@@ -1,4 +1,4 @@
-alpha6 is available
+beta1-pre is available
 
 - new: support for Shelly1-PM (verified)
 - new: Bulb+RGBW2 gets discovered and initialized, still working on control and status updates
