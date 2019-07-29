@@ -205,7 +205,7 @@
             <channel-group id="light" typeId="colorSettings">
                 <label>Color settings</label>
             </channel-group>
-            <channel-group id="meter" typeId="basicMeter">
+            <channel-group id="meter1" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
