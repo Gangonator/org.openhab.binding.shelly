@@ -151,22 +151,9 @@ public class ShellyHandlerLight extends ShellyHandler {
                     red, green, blue);
             // Color color = Color.getHSBColor(hsb.getHue().floatValue() / 360, hsb.getSaturation().floatValue() / 100,
             // hsb.getBrightness().floatValue() / 100);
-            logger.trace("Convert HUE string");
+            logger.trace("Convert Hue");
             Integer hue = Integer.parseInt(StringUtils.substringBefore(hsb.toFullString(), ","));
-            logger.trace("converted hue value = {}", hue);
-            Color color = toColor(new BigDecimal(hue), hsb.getSaturation().toBigDecimal(), hsb.getBrightness().toBigDecimal());
-            red = color.getRed();
-            green = color.getGreen();
-            blue = color.getBlue();
-            logger.debug("colors from toColor: {}/{}/{}", red, green, blue);
 
-            logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, brightsness={}", red, green, blue, saturation, brightness);
-            if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
-                    (!profile.inColor && (brightness == 0))) {
-                logger.info("Requested red/blue/green=0 or brightness = 0 -> switch off the light");
-                api.setLightParm(lightId, SHELLY_LIGHT_TURN, SHELLY_API_OFF); // switch the bulb off
-                return;
-            }
             if (profile.inColor) {
                 logger.info("Setting RGB colors to {}/{}/{} (sRGB={}), brightness={}, saturation={}{",
                         red, blue, green, brightness, saturation);
@@ -183,13 +170,12 @@ public class ShellyHandlerLight extends ShellyHandler {
                 logger.debug("Color parameters: {}", parms.toString());
                 api.setLightParms(lightId, parms);
 
-                /*
-                 * logger.debug(");update channels with new settings", parms);
-                 * super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_RED, mkPercent(red));
-                 * super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BLUE, mkPercent(blue));
-                 * super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GREEN, mkPercent(green));
-                 * super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, mkPercent(gain));
-                 */
+                logger.debug("update channels with new settings", parms);
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_RED, mkPercent(red));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BLUE, mkPercent(blue));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GREEN, mkPercent(green));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, mkPercent(gain));
+
             } else {
                 setColor(lightId, SHELLY_COLOR_BRIGHTNESS, brightness);
             }
@@ -257,13 +243,27 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
                 updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
-                /*
-                 * updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, mkPercent(light.red)); updateChannel(CHANNEL_GROUP_COLOR_CONTROL,
-                 * CHANNEL_COLOR_BLUE, mkPercent(light.blue)); updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN,mkPercent(light.green));
-                 * updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, mkPercent(light.white)); updateChannel(CHANNEL_GROUP_COLOR_CONTROL,
-                 * CHANNEL_COLOR_GAIN, new DecimalType(light.gain)); updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, new
-                 * DecimalType(light.temp)); updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
-                 */
+                PercentType percentGain = mkPercent(light.gain, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
+                PercentType percentBright = mkPercent(profile.inColor ? SHELLY_MAX_BRIGHTNESS : light.brightness, SHELLY_MIN_BRIGHTNESS,
+                        SHELLY_MAX_BRIGHTNESS);
+                PercentType percentTemp = mkPercent(light.temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+                logger.trace("Update channels: RGBW={}/{}/{}/{}, gain={}%, brightness={}%, color-temp={}%",
+                        light.red, light.green, light.blue, light.white,
+                        percentGain, percentBright, percentTemp);
+
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, mkPercent(light.red));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, mkPercent(light.blue));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, mkPercent(light.green));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, mkPercent(light.white));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, percentGain);
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BRIGHTNESS, percentBright);
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, percentTemp);
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, new DecimalType(light.effect));
+
+                logger.trace("update color picker");
+                HSBType hsb = HSBType.fromRGB(light.red, light.green, light.blue);
+                // updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_PICKER, hsb);
+                updateState(mkChannelName(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_PICKER), new HSBType(hsb.getHue(), percentGain, percentBright));
             }
             if (!profile.inColor || profile.isBulb) {
                 updateChannel(groupName, CHANNEL_LIGHT_POWER, getBool(channel.ison));
@@ -278,12 +278,16 @@ public class ShellyHandlerLight extends ShellyHandler {
     }
 
     private PercentType mkPercent(Integer _value, Integer min, Integer max) {
-        Integer value = _value != null ? _value : 0;
+        int range = max - min;
+        int value = _value != null ? _value.intValue() : 0;
         value = value < min ? min : value;
         value = value > max ? max : value;
-        Double percent = new Double(value) / new Double(max) * 100;
-        logger.trace("Value converted from {} into {}%", value.toString(), percent.toString());
-        return new PercentType(new BigDecimal(Math.round(percent)));
+        int percent = 0;
+        if (range > 0) {
+            percent = (value * 100) / range;
+        }
+        logger.trace("Value converted from {} into {}%", value, percent);
+        return new PercentType(new BigDecimal(percent));
     }
 
     private void setColor(Integer lightId, String colorName, Integer value) throws IOException {

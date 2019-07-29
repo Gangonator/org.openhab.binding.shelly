@@ -126,11 +126,4 @@ public class ShellyBindingConstants {
 
     // Bulb/RGBW2 in White Mode
     public static final String            CHANNEL_COLOR_BRIGHTNESS     = "brightness";
-
-    // color temperature: 3000 = warm, 4750 = white, 6565 = cold
-    public static final int               MIN_COLOR_TEMPERATURE        = 3000;
-    public static final int               MAX_COLOR_TEMPERATURE        = 6565;
-    public static final int               COLOR_TEMPERATURE_RANGE      = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
-    public static final double            SATURATION_FACTOR            = 2.54;
-
 }

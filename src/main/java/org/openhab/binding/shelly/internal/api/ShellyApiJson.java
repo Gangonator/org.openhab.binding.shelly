@@ -429,10 +429,18 @@ public class ShellyApiJson {
     public static final String  SHELLY_COLOR_TEMP       = "temp";
     public static final String  SHELLY_COLOR_EFFECT     = "effect";
 
+    public static final Integer SHELLY_MIN_BRIGHTNESS   = 0;
     public static final Integer SHELLY_MAX_BRIGHTNESS   = 100;
+    public static final int     SHELLY_MIN_GAIN         = 0;
     public static final Integer SHELLY_MAX_GAIN         = 100;
     public static final Integer SHELLY_MAX_COLOR        = 255;
     public static final int     SHELLY_DIM_STEPSIZE     = 10;
+
+    // color temperature: 3000 = warm, 4750 = white, 6565 = cold; gain: 0..100
+    public static final int     MIN_COLOR_TEMPERATURE   = 3000;
+    public static final int     MAX_COLOR_TEMPERATURE   = 6565;
+    public static final int     COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
+    public static final double  SATURATION_FACTOR       = 2.54;
 
     public class ShellySenseSettings {
         // see https://shelly-api-docs.shelly.cloud/#shelly-sense-settings
