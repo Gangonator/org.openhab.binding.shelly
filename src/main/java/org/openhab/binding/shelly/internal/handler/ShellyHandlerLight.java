@@ -137,6 +137,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             Integer green = getRGBColor(hsb.getGreen());
             Integer brightness = getRGBColor(hsb.getBrightness());
             Integer saturation = getRGBColor(hsb.getSaturation());
+            logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, gain= {}, brightsness={}", red, green, blue, saturation, brightness);
             if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
                     (!profile.inColor && (brightness == 0))) {
                 logger.info("Requested red/blue/green=0 or brightness = 0 -> switch off the light");
@@ -160,10 +161,10 @@ public class ShellyHandlerLight extends ShellyHandler {
                 api.setLightParms(lightId, parms);
 
                 logger.debug(");update channels with new settings", parms);
-                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_RED, red);
-                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BLUE, blue);
-                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GREEN, green);
-                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, gain);
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_RED, mkPercent(red));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BLUE, mkPercent(blue));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GREEN, mkPercent(green));
+                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_GAIN, mkPercent(gain));
             } else {
                 setColor(lightId, SHELLY_COLOR_BRIGHTNESS, brightness);
             }
@@ -229,12 +230,12 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
                 updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, mkPercent(light.red, 0, 255));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, getInteger(light.blue));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, getInteger(light.green));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, getInteger(light.white));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, getInteger(light.gain));
-                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, getInteger(light.temp));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_RED, mkPercent(light.red));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_BLUE, mkPercent(light.blue));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GREEN, mkPercent(light.green));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_WHITE, mkPercent(light.white));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_GAIN, mkPercent(light.gain));
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_TEMP, mkPercent(light.temp));
                 updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
             }
             if (!profile.inColor || profile.isBulb) {
@@ -243,6 +244,10 @@ public class ShellyHandlerLight extends ShellyHandler {
             }
         }
         i++;
+    }
+
+    private PercentType mkPercent(Integer value) {
+        return mkPercent(value, 0, SHELLY_MAX_COLOR);
     }
 
     private PercentType mkPercent(Integer _value, Integer min, Integer max) {
