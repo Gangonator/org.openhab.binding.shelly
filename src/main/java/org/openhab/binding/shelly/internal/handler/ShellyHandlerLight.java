@@ -131,13 +131,19 @@ public class ShellyHandlerLight extends ShellyHandler {
     private void handleColorPicker(ShellyDeviceProfile profile, Integer lightId, Command command) throws IOException {
         if (command instanceof HSBType) {
             HSBType hsb = (HSBType) command;
-            logger.debug("HSB-Info={} / {}", hsb.toString(), hsb.toFullString());
+            logger.debug("HSB-Info={} / {}, RGB={}", hsb.toString(), hsb.toFullString(), String.format("0x%08X", hsb.getRGB()));
             Integer red = getRGBColor(hsb.getRed());
             Integer blue = getRGBColor(hsb.getBlue());
             Integer green = getRGBColor(hsb.getGreen());
             Integer brightness = getRGBColor(hsb.getBrightness());
             Integer saturation = getRGBColor(hsb.getSaturation());
-            logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, gain= {}, brightsness={}", red, green, blue, saturation, brightness);
+            logger.trace(
+                    "Scheinbar bin ich zu blöd das zu verstehen :-) hier die Einzelwerte mit .doubleValue(): {}/{}/{}, mit .intValiue() {}/{}/{} und dann als Integer: {}/{}/{}",
+                    hsb.getRed().doubleValue(), hsb.getGreen().doubleValue(), hsb.getBlue().doubleValue(),
+                    hsb.getRed().intValue(), hsb.getGreen().intValue(), hsb.getBlue().intValue(),
+                    hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2],
+                    red, green, blue);
+            logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, brightsness={}", red, green, blue, saturation, brightness);
             if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
                     (!profile.inColor && (brightness == 0))) {
                 logger.info("Requested red/blue/green=0 or brightness = 0 -> switch off the light");
@@ -198,7 +204,6 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     @Override
     public void updateThingStatus() throws IOException {
-        logger.trace("Updating bulb/rgw2 status");
 
         ShellyDeviceProfile profile = super.getProfile();
         if (profile == null) {
@@ -210,11 +215,10 @@ public class ShellyHandlerLight extends ShellyHandler {
             return;
         }
 
-        logger.debug("Refreshing light status for {}", profile.hostname);
         ShellyStatusLight status = api.getLightStatus();
+        logger.debug("Updating bulb/rgw2 status for {}, in {} mode, {} channels", profile.hostname, profile.mode, status.lights.size());
 
         // In white mode we have multiple channels
-        logger.debug("Updating bulb/rgw2 {} in color mode (1 channel)", profile.hostname);
         int i = 0;
         for (ShellyStatusLightChannel channel : status.lights) {
             Integer channelId = i + 1;
@@ -254,7 +258,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         Integer value = _value != null ? _value : 0;
         value = value < min ? min : value;
         value = value > max ? max : value;
-        Double percent = new Double(value) / new Double(max);
+        Double percent = new Double(value) / new Double(max) * 100;
         logger.trace("Value converted from {} into {}%", value.toString(), percent.toString());
         return new PercentType(new BigDecimal(percent));
     }
