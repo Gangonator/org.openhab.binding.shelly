@@ -151,15 +151,14 @@ public class ShellyHandlerLight extends ShellyHandler {
                     red, green, blue);
             // Color color = Color.getHSBColor(hsb.getHue().floatValue() / 360, hsb.getSaturation().floatValue() / 100,
             // hsb.getBrightness().floatValue() / 100);
-            Color color = toColor(hsb.getHue().toBigDecimal(), hsb.getSaturation().toBigDecimal(), hsb.getBrightness().toBigDecimal());
-            if (color == null) {
-                logger.debug("toColor(); failed!");
-            } else {
-                red = color.getRed();
-                green = color.getGreen();
-                blue = color.getBlue();
-                logger.debug("colors from toColor: {}/{}/{}", red, green, blue);
-            }
+            logger.trace("Convert HUE string");
+            Integer hue = Integer.parseInt(StringUtils.substringBefore(hsb.toFullString(), ","));
+            logger.trace("converted hue value = {}", hue);
+            Color color = toColor(new BigDecimal(hue), hsb.getSaturation().toBigDecimal(), hsb.getBrightness().toBigDecimal());
+            red = color.getRed();
+            green = color.getGreen();
+            blue = color.getBlue();
+            logger.debug("colors from toColor: {}/{}/{}", red, green, blue);
 
             logger.debug("Converted RGB={}/{}/{}, saturation/gain={}, brightsness={}", red, green, blue, saturation, brightness);
             if ((profile.inColor && (red == 0) && (blue == 0) && (green == 0)) ||
