@@ -205,7 +205,7 @@
             <channel-group id="color" typeId="colorSettings">
                 <label>Color settings</label>
             </channel-group>
-            <channel-group id="meter1" typeId="basicMeter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -235,7 +235,7 @@
                 <label>Channel 4</label>
             </channel-group>
             
-            <channel-group id="meter1" typeId="basicMeter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Power Meter Channel 1</label>
             </channel-group>
             <channel-group id="meter2" typeId="basicMeter">
