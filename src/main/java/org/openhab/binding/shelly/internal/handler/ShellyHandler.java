@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
@@ -543,7 +544,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (value instanceof PercentType) {
                     PercentType v = (PercentType) value;
-                    updateState(channelId, new DecimalType(v.intValue()));
+                    updateState(channelId, new PercentType(v.intValue()));
+                }
+                if (value instanceof HSBType) {
+                    HSBType v = (HSBType) value;
+                    updateState(channelId, new DecimalType(v.toBigDecimal()));
                 }
                 if (current == null) {
                     channelData.put(channelId, value);

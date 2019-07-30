@@ -114,16 +114,17 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_GROUP_LIGHT_CHANNEL  = "channel";
 
     // Bulb/RGBW2 in color mode
-    public static final String            CHANNEL_GROUP_COLOR_CONTROL  = "light";
-    public static final String            CHANNEL_COLOR_PICKER         = "color";
+    public static final String            CHANNEL_GROUP_COLOR_CONTROL  = "color";
+    public static final String            CHANNEL_COLOR_PICKER         = "hsb";
     public static final String            CHANNEL_COLOR_RED            = "red";
     public static final String            CHANNEL_COLOR_GREEN          = "green";
     public static final String            CHANNEL_COLOR_BLUE           = "blue";
     public static final String            CHANNEL_COLOR_WHITE          = "white";
     public static final String            CHANNEL_COLOR_GAIN           = "gain";
-    public static final String            CHANNEL_COLOR_TEMP           = "colorTemperature";
     public static final String            CHANNEL_COLOR_EFFECT         = "effect";
 
     // Bulb/RGBW2 in White Mode
+    public static final String            CHANNEL_GROUP_WHITE_CONTROL  = "white";
     public static final String            CHANNEL_COLOR_BRIGHTNESS     = "brightness";
+    public static final String            CHANNEL_COLOR_TEMP           = "temperature";
 }

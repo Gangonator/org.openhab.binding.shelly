@@ -438,7 +438,7 @@ public class ShellyApiJson {
 
     // color temperature: 3000 = warm, 4750 = white, 6565 = cold; gain: 0..100
     public static final int     MIN_COLOR_TEMPERATURE   = 3000;
-    public static final int     MAX_COLOR_TEMPERATURE   = 6565;
+    public static final int     MAX_COLOR_TEMPERATURE   = 6500;
     public static final int     COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
     public static final double  SATURATION_FACTOR       = 2.54;
 
