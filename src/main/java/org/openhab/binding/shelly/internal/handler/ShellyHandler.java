@@ -236,7 +236,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     Integer position = -1;
                     if (command instanceof PercentType) {
                         PercentType p = (PercentType) command;
-                        position = p.intValue() * 100;
+                        position = p.intValue();
 
                     } else if (command instanceof DecimalType) {
                         DecimalType d = (DecimalType) command;

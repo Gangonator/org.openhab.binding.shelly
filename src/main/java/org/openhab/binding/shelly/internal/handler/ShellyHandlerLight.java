@@ -137,8 +137,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             Integer red = new Double((hsb.getRed().floatValue() * SATURATION_FACTOR)).intValue();
             Integer blue = new Double((hsb.getBlue().floatValue() * SATURATION_FACTOR)).intValue();
             Integer green = new Double((hsb.getGreen().floatValue() * SATURATION_FACTOR)).intValue();
-            Integer brightness = new Double((hsb.getBrightness().floatValue() * SHELLY_MAX_BRIGHTNESS / 100)).intValue();
             Integer gain = new Double((hsb.getSaturation().floatValue() * SHELLY_MAX_GAIN / 100)).intValue();
+            Integer brightness = new Double((hsb.getBrightness().floatValue() * SHELLY_MAX_BRIGHTNESS / 100)).intValue();
             logger.trace("Color settings converted to RGB:{}/{}/{}, saturantion/gain={}, brightness={}",
                     red, green, blue, gain, brightness);
             Float percent = ((PercentType) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_WHITE)).floatValue();
@@ -161,21 +161,26 @@ public class ShellyHandlerLight extends ShellyHandler {
             // hsb.getBrightness().floatValue() / 100);
             // logger.trace("Convert Hue");
             // Integer hue = Integer.parseInt(StringUtils.substringBefore(hsb.toFullString(), ","));
-
+            Map<String, String> parms = new HashMap<String, String>();
+            parms.put(SHELLY_LIGHT_TURN, SHELLY_API_ON);
             if (profile.inColor) {
-                Map<String, String> parms = new HashMap<String, String>();
                 parms.put(SHELLY_COLOR_RED, red.toString());
                 parms.put(SHELLY_COLOR_GREEN, blue.toString());
                 parms.put(SHELLY_COLOR_BLUE, green.toString());
-                parms.put(SHELLY_COLOR_BLUE, green.toString());
+                parms.put(SHELLY_COLOR_WHITE, white.toString());
                 parms.put(SHELLY_COLOR_GAIN, gain.toString());
-                logger.debug("Set new color parameters: {}", parms.toString());
-                api.setLightParms(lightId, parms);
             }
-            if (!profile.inColor || profile.isBulb) {
-                super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BRIGHTNESS,
-                        mkPercent(brightness, SHELLY_MIN_BRIGHTNESS, SHELLY_MAX_BRIGHTNESS));
-            }
+            parms.put(SHELLY_COLOR_BRIGHTNESS, brightness.toString());
+            logger.debug("Set new color parameters: {}", parms.toString());
+            api.setLightParms(lightId, parms);
+
+            /*
+             * if (!profile.inColor || profile.isBulb) {
+             * logger.debug("Update channels: {}", parms.toString());
+             * super.updateChannel(CHANNEL_GROUP_COLOR_CONTROL, SHELLY_COLOR_BRIGHTNESS,
+             * mkPercent(brightness, SHELLY_MIN_BRIGHTNESS, SHELLY_MAX_BRIGHTNESS));
+             * }
+             */
         } else if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
             if (!profile.inColor) {
@@ -261,12 +266,13 @@ public class ShellyHandlerLight extends ShellyHandler {
                 PercentType percentWhite = mkPercent(light.white);
                 PercentType percentGain = mkPercent(light.gain, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
 
-                logger.trace("Update channels for {}: RGBW={}/{}/{}/{}={}/{}/{}, white={}/{}%, gain={}/{}%",
-                        controlGroup, light.red, light.green, light.blue, percentRed, percentGreen, percentBlue, light.white, percentWhite,
-                        light.gain, percentGain);
+                logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}% (brightness={})",
+                        colorGroup,
+                        light.red, light.green, light.blue, percentRed, percentGreen, percentBlue,
+                        light.white, percentWhite, light.gain, percentGain, light.brightness);
                 updateChannel(colorGroup, CHANNEL_COLOR_RED, percentRed);
-                updateChannel(colorGroup, CHANNEL_COLOR_BLUE, percentGreen);
-                updateChannel(colorGroup, CHANNEL_COLOR_GREEN, percentWhite);
+                updateChannel(colorGroup, CHANNEL_COLOR_GREEN, percentGreen);
+                updateChannel(colorGroup, CHANNEL_COLOR_BLUE, percentBlue);
                 updateChannel(colorGroup, CHANNEL_COLOR_WHITE, percentWhite);
                 updateChannel(colorGroup, CHANNEL_COLOR_GAIN, percentGain);
 
@@ -286,7 +292,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 logger.debug("Updating light channels {}.{}: brightness={}/{}%, color-temp={}/{}%", profile.hostname, colorGroup,
                         light.brightness, percentBright, light.temp, percentTemp);
                 updateChannel(controlGroup, CHANNEL_COLOR_BRIGHTNESS, percentBright);
-                updateChannel(controlGroup, CHANNEL_COLOR_TEMP, percentBright);
+                updateChannel(controlGroup, CHANNEL_COLOR_TEMP, percentTemp);
             }
             i++;
         }
