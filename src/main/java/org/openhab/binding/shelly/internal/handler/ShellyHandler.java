@@ -548,7 +548,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (value instanceof HSBType) {
                     HSBType v = (HSBType) value;
-                    updateState(channelId, new DecimalType(v.toBigDecimal()));
+                    updateState(channelId, v);
                 }
                 if (current == null) {
                     channelData.put(channelId, value);

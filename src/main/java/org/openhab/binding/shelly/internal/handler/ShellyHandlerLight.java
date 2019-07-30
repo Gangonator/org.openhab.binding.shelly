@@ -271,7 +271,7 @@ public class ShellyHandlerLight extends ShellyHandler {
 
                 logger.trace("update {}.color picker", colorGroup);
                 HSBType hsb = HSBType.fromRGB(light.red, light.green, light.blue);
-                // updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_PICKER, hsb);
+                updateChannel(CHANNEL_GROUP_COLOR_CONTROL, CHANNEL_COLOR_PICKER, hsb);
             }
             if (!profile.inColor || profile.isBulb) {
                 String colorGroup = CHANNEL_GROUP_WHITE_CONTROL;
