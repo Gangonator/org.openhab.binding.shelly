@@ -245,7 +245,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             }
 
             // Channel control/timer
-            ShellyStatusLightChannel light = status.lights.get(channelId);
+            ShellyStatusLightChannel light = status.lights.get(i);
             updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
             updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
             updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
