@@ -381,6 +381,9 @@ public class ShellyApiJson {
         public Integer dcpower; // RGW2:Set to true for 24 V power supply, false for 12 V
     }
 
+    public static final int SHELLY_MIN_EFFECT = 0;
+    public static final int SHELLY_MAX_EFFECT = 6;
+
     public class ShellyStatusLightChannel {
         public Boolean ison;
         public Double  power;
@@ -433,6 +436,7 @@ public class ShellyApiJson {
     public static final Integer SHELLY_MAX_BRIGHTNESS   = 100;
     public static final int     SHELLY_MIN_GAIN         = 0;
     public static final Integer SHELLY_MAX_GAIN         = 100;
+    public static final Integer SHELLY_MIN_COLOR        = 0;
     public static final Integer SHELLY_MAX_COLOR        = 255;
     public static final int     SHELLY_DIM_STEPSIZE     = 10;
 
