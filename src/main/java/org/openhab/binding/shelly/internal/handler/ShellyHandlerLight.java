@@ -149,6 +149,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         try {
             String groupName = channelUID.getGroupId();
             Integer lightId = getLightIdFromGroup(groupName);
+            CurrentColors col = getCurrentColors(lightId);
 
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
             switch (channelUID.getIdWithoutGroup()) {
@@ -168,33 +169,33 @@ public class ShellyHandlerLight extends ShellyHandler {
                     logger.info("Default state for the bulb is {}", command.toString());
                     api.setLightParm(lightId, SHELLY_LIGHT_DEFSTATE, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     break;
-                case CHANNEL_COLOR_PICKER:
-                    handleColorPicker(profile, groupName, command);
-                    break;
 
+                case CHANNEL_COLOR_PICKER:
+                    handleColorPicker(profile, lightId, col, command);
+                    break;
                 case CHANNEL_COLOR_RED:
-                    setColor(lightId, SHELLY_COLOR_RED, command, SHELLY_MAX_COLOR);
+                    col.setRed(setColor(lightId, SHELLY_COLOR_RED, command, SHELLY_MAX_COLOR));
                     break;
                 case CHANNEL_COLOR_GREEN:
-                    setColor(lightId, SHELLY_COLOR_GREEN, command, SHELLY_MAX_COLOR);
+                    col.setGreen(setColor(lightId, SHELLY_COLOR_GREEN, command, SHELLY_MAX_COLOR));
                     break;
                 case CHANNEL_COLOR_BLUE:
-                    setColor(lightId, SHELLY_COLOR_BLUE, command, SHELLY_MAX_COLOR);
+                    col.setBlue(setColor(lightId, SHELLY_COLOR_BLUE, command, SHELLY_MAX_COLOR));
                     break;
 
                 case CHANNEL_COLOR_WHITE:
-                    setColor(lightId, SHELLY_COLOR_WHITE, command, SHELLY_MAX_COLOR);
+                    col.setWhite(setColor(lightId, SHELLY_COLOR_WHITE, command, SHELLY_MAX_COLOR));
                     break;
                 case CHANNEL_COLOR_GAIN:
-                    setColor(lightId, SHELLY_COLOR_GAIN, command, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
+                    col.setGain(setColor(lightId, SHELLY_COLOR_GAIN, command, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN));
                     break;
                 case CHANNEL_COLOR_TEMP:
-                    setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+                    col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
                     break;
 
                 // only in white mode
                 case CHANNEL_COLOR_BRIGHTNESS:
-                    setColor(lightId, SHELLY_COLOR_BRIGHTNESS, command, SHELLY_MAX_BRIGHTNESS);
+                    col.setBrightness(setColor(lightId, SHELLY_COLOR_BRIGHTNESS, command, SHELLY_MAX_BRIGHTNESS));
                     break;
 
                 case CHANNEL_COLOR_EFFECT:
@@ -215,22 +216,19 @@ public class ShellyHandlerLight extends ShellyHandler {
         }
     }
 
-    private void handleColorPicker(ShellyDeviceProfile profile, String groupName, Command command) throws IOException {
-        Integer lightId = getLightIdFromGroup(groupName);
-        CurrentColors col = getCurrentColors(lightId);
-
+    private void handleColorPicker(ShellyDeviceProfile profile, Integer lightId, CurrentColors col, Command command) throws IOException {
         if (command instanceof HSBType) {
             HSBType hsb = (HSBType) command;
             logger.debug("HSB-Info={}, Hue={}, getRGB={}, toRGB={}/{}/{}", hsb.toString(), hsb.getHue(), String.format("0x%08X", hsb.getRGB()),
                     hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2]);
-            col.red = getColorFromHSB(hsb.getRed()); // new Double((hsb.getRed().floatValue() * SATURATION_FACTOR)).intValue();
-            col.blue = getColorFromHSB(hsb.getBlue()); // new Double((hsb.getBlue().floatValue() * SATURATION_FACTOR)).intValue();
-            col.green = getColorFromHSB(hsb.getGreen()); // new Double((hsb.getGreen().floatValue() * SATURATION_FACTOR)).intValue();
-            col.gain = getColorFromHSB(hsb.getSaturation(), GAIN_FACTOR); // new Double((hsb.getSaturation().floatValue() * SHELLY_MAX_GAIN /
-                                                                          // 100)).intValue();
-            col.brightness = getColorFromHSB(hsb.getBrightness(), BRIGHTNESS_FACTOR);  // new Double((hsb.getBrightness().floatValue() *
-            // SHELLY_MAX_BRIGHTNESS / 100)).intValue();
-            // channel
+            col.setRed(getColorFromHSB(hsb.getRed())); // new Double((hsb.getRed().floatValue() * SATURATION_FACTOR)).intValue();
+            col.setBlue(getColorFromHSB(hsb.getBlue())); // new Double((hsb.getBlue().floatValue() * SATURATION_FACTOR)).intValue();
+            col.setGreen(getColorFromHSB(hsb.getGreen())); // new Double((hsb.getGreen().floatValue() * SATURATION_FACTOR)).intValue();
+            col.setGain(getColorFromHSB(hsb.getSaturation(), GAIN_FACTOR)); // new Double((hsb.getSaturation().floatValue() * SHELLY_MAX_GAIN /
+                                                                            // 100)).intValue();
+            col.setBrightness(getColorFromHSB(hsb.getBrightness(), BRIGHTNESS_FACTOR));  // new Double((hsb.getBrightness().floatValue() *
+            // white and temp are not part of the HSB color scheme
+
             logger.trace("Color settings converted to RGB:{}/{}/{}, white={}, saturantion/gain={}, brightness={}",
                     col.red, col.green, col.blue, col.white, col.gain, col.brightness);
 
@@ -241,10 +239,12 @@ public class ShellyHandlerLight extends ShellyHandler {
                 parms.put(SHELLY_COLOR_RED, col.red.toString());
                 parms.put(SHELLY_COLOR_GREEN, col.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, col.blue.toString());
-                parms.put(SHELLY_COLOR_WHITE, col.white.toString());
+                // parms.put(SHELLY_COLOR_WHITE, col.white.toString());
                 parms.put(SHELLY_COLOR_GAIN, col.gain.toString());
             }
-            parms.put(SHELLY_COLOR_BRIGHTNESS, col.brightness.toString());
+            // parms.put(SHELLY_COLOR_BRIGHTNESS, col.brightness.toString());
+            // parms.put(SHELLY_COLOR_TEMP, col.temp.toString());
+
             logger.debug("Set new color parameters: {}", parms.toString());
             api.setLightParms(lightId, parms);
         } else if (command instanceof PercentType) {
@@ -317,6 +317,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         int lightId = 0;
         for (ShellyStatusLightChannel light : status.lights) {
             Integer channelId = lightId + 1;
+            logger.trace("Updating lightId {}/{}", lightId, channelId.toString());
             String controlGroup = buildControlGroupName(profile, channelId);
 
             logger.debug("Updating light channels {}.{}", profile.hostname, controlGroup);
@@ -335,6 +336,9 @@ public class ShellyHandlerLight extends ShellyHandler {
             updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
             CurrentColors col = getCurrentColors(lightId);
+            if (col == null) {
+                logger.warn("Unable to load last colors for lightId {}", lightId);
+            }
             if (profile.inColor || profile.isBulb) {
                 String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
                 logger.debug("Updating light channels {}.{}", profile.hostname, colorGroup);
@@ -386,21 +390,18 @@ public class ShellyHandlerLight extends ShellyHandler {
         return new Double(colorPercent.doubleValue() * factor).intValue();
     }
 
-    private Integer setColor(Integer lightId, String colorName, Integer value) throws IOException {
+    private Integer setColor(Integer lightId, String colorName, Integer value) throws IOException, IllegalArgumentException {
         ShellyDeviceProfile profile = super.getProfile();
         if (profile.mode.equals(SHELLY_MODE_COLOR) && colorName.equals(SHELLY_COLOR_BRIGHTNESS)) {
-            logger.info("Light is in Color Mode, command ignored!");
-            return 0;
+            throw new IllegalArgumentException("Light is in Color Mode, command ignored!");
         }
         if (profile.mode.equals(SHELLY_MODE_WHITE) && !colorName.equals(SHELLY_COLOR_BRIGHTNESS)) {
-            logger.info("Light is in White Mode, command ignored!");
-            return 0;
+            throw new IllegalArgumentException("Light is in White Mode, command ignored!");
         }
 
         Integer col = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
         if ((col != null) && (col == value)) {
-            logger.trace("Color {} was not changed (value={}), skip API call to update", colorName, value.toString());
-            return 0;
+            throw new IllegalArgumentException("Color " + colorName + " was not changed (value=" + value.toString() + "), skip API call to update");
         }
 
         logger.info("Set color {} for channel {}, to {}", colorName, lightId, value.toString());
@@ -408,7 +409,8 @@ public class ShellyHandlerLight extends ShellyHandler {
         return value.intValue();
     }
 
-    private void setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue) throws IOException {
+    private Integer setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue)
+            throws IOException, IllegalArgumentException {
         DecimalType value = new DecimalType();
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
@@ -416,23 +418,21 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.trace("Value for {} is in %: {}%={}", colorName, percent, value);
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
-            logger.trace("Value for {} is a number: {}%={}", colorName, value);
+            logger.trace("Value for {} is a number: {}", colorName, value);
         } else {
-            logger.debug("Invalid value for {}: {} / type {}", colorName, value.toString(), value.getClass());
+            throw new IllegalArgumentException("Invalid value for " + colorName + ": " + value.toString() + " / type " + value.getClass());
         }
         if (value.intValue() < minValue) {
-            logger.debug("Value {} for color {} is out of range: < {}/, set to {}", value.intValue(), colorName, minValue, minValue);
-            value = new DecimalType(minValue);
+            throw new IllegalArgumentException("Value " + value.intValue() + " for color " + colorName + " is out of range (< min)");
         }
         if (value.intValue() > maxValue) {
-            logger.debug("Value {} for color {} is out of range: > {}/, set to {}", value.intValue(), colorName, maxValue, maxValue);
-            value = new DecimalType(maxValue);
+            throw new IllegalArgumentException("Value " + value.intValue() + " for color " + colorName + " is out of range (> max)");
         }
-        setColor(lightId, colorName, value.intValue());
+        return setColor(lightId, colorName, value.intValue());
     }
 
-    private void setColor(Integer lightId, String colorName, Command command, Integer maxValue) throws IOException {
-        setColor(lightId, colorName, command, 0, maxValue);
+    private Integer setColor(Integer lightId, String colorName, Command command, Integer maxValue) throws IOException, IllegalArgumentException {
+        return setColor(lightId, colorName, command, 0, maxValue);
     }
 
     private static String buildControlGroupName(ShellyDeviceProfile profile, Integer channelId) {
