@@ -241,10 +241,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             col.setRed(getColorFromHSB(hsb.getRed())); // new Double((hsb.getRed().floatValue() * SATURATION_FACTOR)).intValue();
             col.setBlue(getColorFromHSB(hsb.getBlue())); // new Double((hsb.getBlue().floatValue() * SATURATION_FACTOR)).intValue();
             col.setGreen(getColorFromHSB(hsb.getGreen())); // new Double((hsb.getGreen().floatValue() * SATURATION_FACTOR)).intValue();
-            col.setGain(getColorFromHSB(hsb.getSaturation(), GAIN_FACTOR)); // new Double((hsb.getSaturation().floatValue() * SHELLY_MAX_GAIN /
-                                                                            // 100)).intValue();
             col.setBrightness(getColorFromHSB(hsb.getBrightness(), BRIGHTNESS_FACTOR));  // new Double((hsb.getBrightness().floatValue() *
-            // white and temp are not part of the HSB color scheme
+            // white, gain and temp are not part of the HSB color scheme
 
             logger.trace("Color settings converted to RGB:{}/{}/{}, white={}, saturantion/gain={}, brightness={}",
                     col.red, col.green, col.blue, col.white, col.gain, col.brightness);
@@ -425,7 +423,8 @@ public class ShellyHandlerLight extends ShellyHandler {
         DecimalType value = new DecimalType();
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
-            value = new DecimalType(maxValue * percent.intValue() / 100);
+            Double v = new Double(maxValue) * percent.doubleValue() / 100.0;
+            value = new DecimalType(v);
             logger.trace("Value for {} is in %: {}%={}", colorName, percent, value);
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
