@@ -101,6 +101,13 @@ public class ShellyHandlerLight extends ShellyHandler {
             percentTemp = toPercent(temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
         }
 
+        Integer effect = 0;
+
+        void setEffect(int value) {
+            logger.trace("   setting effect={}", value);
+            effect = value;
+        }
+
         public HSBType toHSB() {
             logger.trace("toHSB(): create HSB from {}/{}/{}", red, green, blue);
             return HSBType.fromRGB(red, green, blue);
@@ -143,7 +150,6 @@ public class ShellyHandlerLight extends ShellyHandler {
         api = super.getShellyApi();
     }
 
-    @SuppressWarnings("null")
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
@@ -352,47 +358,55 @@ public class ShellyHandlerLight extends ShellyHandler {
                 continue;
             }
             if (profile.inColor || profile.isBulb) {
-                String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
-                logger.debug("Updating light channels {}.{}: red={}, green={}, blue={}, white={}, gain={}", profile.hostname, colorGroup, light.red,
-                        light.green,
-                        light.blue, light.white, light.gain);
-                col.setRGBW(light.red, light.green, light.blue, light.white);
-                col.setGain(light.gain);
-                // col.setTemp(light.temp);
-
-                logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}% (brightness={}/{}%)", colorGroup,
-                        col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue,
-                        col.white, col.percentWhite, col.gain, col.percentGain, col.brightness, col.percentBrightness);
-                updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
-                updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
-                updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
-                updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
-                updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-
-                updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
-
-                logger.trace("update {}.color picker", colorGroup);
-                updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+                col.setRGBW(getInteger(light.red), getInteger(light.green), getInteger(light.blue), getInteger(light.white));
+                col.setGain(getInteger(light.gain));
+                col.setEffect(getInteger(light.effect));
+                updateColorChannels(profile, channelId, col);
             }
             if (!profile.inColor || profile.isBulb) {
-                String colorGroup = CHANNEL_GROUP_WHITE_CONTROL;
                 col.setBrightness(light.brightness);
                 col.setTemp(light.temp);
-
-                logger.debug("Updating light channels {}.{}: brightness={}/{}%, color-temp={}/{}%", profile.hostname, colorGroup,
-                        light.brightness, col.percentBrightness, light.temp, col.percentTemp);
-                updateChannel(controlGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-                updateChannel(controlGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+                updateWhiteChannels(profile, channelId, col);
             }
 
             lightId++;
         }
     }
 
-    private Integer getColorfromChannel(String group, String channel) {
-        Double percent = ((PercentType) super.getChannelValue(group, channel)).doubleValue();
-        return ((Double) (percent.doubleValue() * SHELLY_MAX_COLOR)).intValue();
+    private void updateColorChannels(ShellyDeviceProfile profile, Integer channelId, CurrentColors col) {
+        String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
+        logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}%", colorGroup,
+                col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue,
+                col.white, col.percentWhite, col.gain, col.percentGain);
+        updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
+        updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
+        updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
+        updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
+        updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
+        updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
+
+        logger.trace("update {}.color picker", colorGroup);
+        updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
     }
+
+    private void updateWhiteChannels(ShellyDeviceProfile profile, Integer channelId, CurrentColors col) {
+        String whiteGroup = buildWhiteGroupName(profile, channelId);
+        logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
+        updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+        updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+
+        if (profile.isBulb) {
+            logger.trace("update {}.color picker", whiteGroup);
+            updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+        }
+    }
+
+    /*
+     * private Integer getColorfromChannel(String group, String channel) {
+     * Double percent = ((PercentType) super.getChannelValue(group, channel)).doubleValue();
+     * return ((Double) (percent.doubleValue() * SHELLY_MAX_COLOR)).intValue();
+     * }
+     */
 
     private Integer getColorFromHSB(PercentType colorPercent) {
         return getColorFromHSB(colorPercent, new Double(SATURATION_FACTOR));
@@ -449,6 +463,11 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private static String buildControlGroupName(ShellyDeviceProfile profile, Integer channelId) {
         return profile.isBulb || profile.inColor ? CHANNEL_GROUP_LIGHT_CONTROL
+                : CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
+    }
+
+    private static String buildWhiteGroupName(ShellyDeviceProfile profile, Integer channelId) {
+        return profile.isBulb && !profile.inColor ? CHANNEL_GROUP_WHITE_CONTROL
                 : CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
     }
 

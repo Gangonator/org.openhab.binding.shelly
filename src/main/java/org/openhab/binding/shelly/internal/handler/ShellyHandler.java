@@ -435,7 +435,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (!channelCache && (scheduledUpdates == 0)) {
                     logger.debug("Enabling channel cache for device {}", thingName);
-                    channelCache = true;
+                    // channelCache = true;
                 }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
