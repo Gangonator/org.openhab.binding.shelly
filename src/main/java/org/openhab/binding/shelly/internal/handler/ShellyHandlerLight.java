@@ -358,7 +358,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                         light.blue, light.white, light.gain);
                 col.setRGBW(light.red, light.green, light.blue, light.white);
                 col.setGain(light.gain);
-                col.setTemp(light.temp);
+                // col.setTemp(light.temp);
 
                 logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}% (brightness={}/{}%)", colorGroup,
                         col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue,
@@ -368,7 +368,6 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
                 updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
                 updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-                updateChannel(colorGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
 
                 updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, getInteger(light.effect));
 
