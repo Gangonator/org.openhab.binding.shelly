@@ -391,14 +391,18 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private void updateWhiteChannels(ShellyDeviceProfile profile, Integer channelId, CurrentColors col) {
         String whiteGroup = buildWhiteGroupName(profile, channelId);
-        logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
-        updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-        updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
 
         if (profile.isBulb) {
-            logger.trace("update {}.color picker", whiteGroup);
-            updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+            logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
+            updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+            updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+        } else {
+            logger.trace("Update {} channels: brightness={}", whiteGroup, col.percentBrightness);
+            updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+
         }
+        logger.trace("update {}.color picker", whiteGroup);
+        updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
     }
 
     /*
