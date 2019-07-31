@@ -419,31 +419,12 @@ public class ShellyHandlerLight extends ShellyHandler {
         return new Double(colorPercent.doubleValue() * factor).intValue();
     }
 
-    private Integer setColor(Integer lightId, String colorName, Integer value) throws IOException, IllegalArgumentException {
-        ShellyDeviceProfile profile = super.getProfile();
-        if (profile.mode.equals(SHELLY_MODE_COLOR) && colorName.equals(SHELLY_COLOR_BRIGHTNESS)) {
-            throw new IllegalArgumentException("Light is in Color Mode, command ignored!");
-        }
-        if (profile.mode.equals(SHELLY_MODE_WHITE) && !colorName.equals(SHELLY_COLOR_BRIGHTNESS)) {
-            throw new IllegalArgumentException("Light is in White Mode, command ignored!");
-        }
-
-        Integer col = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
-        if ((col != null) && (col == value)) {
-            throw new IllegalArgumentException("Color " + colorName + " was not changed (value=" + value.toString() + "), skip API call to update");
-        }
-
-        logger.info("Set color {} for channel {}, to {}", colorName, lightId, value.toString());
-        api.setLightParm(lightId, colorName, value.toString());
-        return value.intValue();
-    }
-
     private Integer setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue)
             throws IOException, IllegalArgumentException {
         DecimalType value = new DecimalType();
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
-            value = new DecimalType(maxValue * percent.intValue());
+            value = new DecimalType(maxValue * percent.intValue() / 100);
             logger.trace("Value for {} is in %: {}%={}", colorName, percent, value);
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
@@ -458,6 +439,18 @@ public class ShellyHandlerLight extends ShellyHandler {
             throw new IllegalArgumentException("Value " + value.intValue() + " for color " + colorName + " is out of range (> max)");
         }
         return setColor(lightId, colorName, value.intValue());
+    }
+
+    private Integer setColor(Integer lightId, String colorName, Integer value) throws IOException, IllegalArgumentException {
+        ShellyDeviceProfile profile = super.getProfile();
+        Integer col = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
+        if ((col != null) && (col == value)) {
+            logger.debug("Color {} was not changed (value={}), skip API call to update", colorName, value.toString());
+        }
+
+        logger.info("Set color {} for channel {}, to {}", colorName, lightId, value.toString());
+        api.setLightParm(lightId, colorName, value.toString());
+        return value;
     }
 
     private Integer setColor(Integer lightId, String colorName, Command command, Integer maxValue) throws IOException, IllegalArgumentException {

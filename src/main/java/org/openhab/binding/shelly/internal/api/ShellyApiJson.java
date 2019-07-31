@@ -444,7 +444,7 @@ public class ShellyApiJson {
     public static final int     MIN_COLOR_TEMPERATURE   = 3000;
     public static final int     MAX_COLOR_TEMPERATURE   = 6500;
     public static final int     COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
-    public static final double  SATURATION_FACTOR       = 2.54;
+    public static final double  SATURATION_FACTOR       = 2.55;
     public static final double  GAIN_FACTOR             = SHELLY_MAX_GAIN / 100;
     public static final double  BRIGHTNESS_FACTOR       = SHELLY_MAX_BRIGHTNESS / 100;
 

@@ -513,6 +513,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected boolean updateChannel(String group, String channel, Object value) {
         if (value == null) {
+            logger.trace("Update channel: value is null!");
             return false;
         }
         try {
