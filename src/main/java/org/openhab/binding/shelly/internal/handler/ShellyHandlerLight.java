@@ -342,15 +342,15 @@ public class ShellyHandlerLight extends ShellyHandler {
             // The bulb has a combined channel set for color or white mode
             // The RGBW2 uses 2 different thing types: color=1 channel, white=4 channel
             if (profile.isBulb) {
-                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
+                super.updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
             }
 
             // Channel control/timer
             // ShellyStatusLightChannel light = status.lights.get(i);
-            updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
-            updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
-            updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
-            updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
+            super.updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
+            super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
+            super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
+            super.updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
             CurrentColors col = getCurrentColors(lightId);
             if (col == null) {
@@ -369,6 +369,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateWhiteChannels(profile, channelId, col);
             }
 
+            // continue with next light
             lightId++;
         }
     }
@@ -377,15 +378,15 @@ public class ShellyHandlerLight extends ShellyHandler {
         String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
         logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}%, gain={}%", colorGroup,
                 col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue, col.percentWhite, col.percentGain);
-        updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
-        updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
-        updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
-        updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
-        updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-        updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
+        super.updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
 
         logger.trace("update {}.color picker", colorGroup);
-        updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+        super.updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
     }
 
     private void updateWhiteChannels(ShellyDeviceProfile profile, Integer channelId, CurrentColors col) {
@@ -393,15 +394,15 @@ public class ShellyHandlerLight extends ShellyHandler {
 
         if (profile.isBulb) {
             logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
-            updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
-            updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+            super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+            super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
         } else {
             logger.trace("Update {} channels: brightness={}", whiteGroup, col.percentBrightness);
-            updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+            super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
 
         }
         logger.trace("update {}.color picker", whiteGroup);
-        updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+        super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
     }
 
     /*
