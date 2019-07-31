@@ -435,7 +435,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (!channelCache && (scheduledUpdates == 0)) {
                     logger.debug("Enabling channel cache for device {}", thingName);
-                    // channelCache = true;
+                    channelCache = true;
                 }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
@@ -520,7 +520,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             String channelId = mkChannelName(group, channel);
             Object current = channelData.get(channelId);
             logger.trace("Predict channel {}.{} to become {} (type {}).", group, channel, value, value.getClass());
-            if (channelCache && ((current == null) || !current.equals(value))) {
+            if (!channelCache || (current == null) || !current.equals(value)) {
                 if (value instanceof String) {
                     updateState(channelId, new StringType((String) value));
                 }
