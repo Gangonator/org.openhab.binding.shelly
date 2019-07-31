@@ -33,16 +33,19 @@ public class ShellyHandlerLight extends ShellyHandler {
     private ShellyHttpApi api;
 
     private static class CurrentColors {
-        Integer     red          = 0;
-        Integer     green        = 0;
-        Integer     blue         = 0;
-        Integer     white        = 0;
-        PercentType percentRed   = new PercentType(0);
-        PercentType percentGreen = new PercentType(0);
-        PercentType percentBlue  = new PercentType(0);
-        PercentType percentWhite = new PercentType(0);
+        private final Logger logger       = LoggerFactory.getLogger(CurrentColors.class);
+
+        Integer              red          = 0;
+        Integer              green        = 0;
+        Integer              blue         = 0;
+        Integer              white        = 0;
+        PercentType          percentRed   = new PercentType(0);
+        PercentType          percentGreen = new PercentType(0);
+        PercentType          percentBlue  = new PercentType(0);
+        PercentType          percentWhite = new PercentType(0);
 
         void setRGBW(int red, int green, int blue, int white) {
+            logger.trace("setRGBW(): setting rgb+white to {}/{}/{}/{}", red, green, blue, white);
             setRed(red);
             setGreen(green);
             setBlue(blue);
@@ -50,21 +53,25 @@ public class ShellyHandlerLight extends ShellyHandler {
         }
 
         void setRed(int value) {
+            logger.trace("   setting red={}", value);
             red = value;
             percentRed = toPercent(red);
         }
 
         void setGreen(int value) {
+            logger.trace("   setting green={}", value);
             green = value;
             percentGreen = toPercent(green);
         }
 
         void setBlue(int value) {
+            logger.trace("   setting blue={}", value);
             blue = value;
             percentBlue = toPercent(blue);
         }
 
         void setWhite(int value) {
+            logger.trace("   setting white={}", value);
             white = value;
             percentWhite = toPercent(white);
         }
@@ -76,22 +83,26 @@ public class ShellyHandlerLight extends ShellyHandler {
         PercentType percentBrightness = new PercentType(0);
         PercentType percentTemp       = new PercentType(0);
 
-        void setBrightness(int brightness) {
-            this.brightness = brightness;
+        void setBrightness(int value) {
+            logger.trace("   setting brightness={}", value);
+            brightness = value;
             percentBrightness = toPercent(brightness, SHELLY_MIN_BRIGHTNESS, SHELLY_MAX_BRIGHTNESS);
         }
 
-        void setGain(int gain) {
-            this.gain = gain;
+        void setGain(int value) {
+            logger.trace("   setting gain={}", value);
+            gain = value;
             percentGain = toPercent(gain, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
         }
 
-        void setTemp(int temp) {
-            this.temp = temp;
+        void setTemp(int value) {
+            logger.trace("   setting temp={}", value);
+            temp = value;
             percentTemp = toPercent(temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
         }
 
         public HSBType toHSB() {
+            logger.trace("toHSB(): create HSB from {}/{}/{}", red, green, blue);
             return HSBType.fromRGB(red, green, blue);
         }
 
@@ -338,13 +349,15 @@ public class ShellyHandlerLight extends ShellyHandler {
             CurrentColors col = getCurrentColors(lightId);
             if (col == null) {
                 logger.warn("Unable to load last colors for lightId {}", lightId);
+                continue;
             }
             if (profile.inColor || profile.isBulb) {
                 String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
-                logger.debug("Updating light channels {}.{}", profile.hostname, colorGroup);
+                logger.debug("Updating light channels {}.{}: red={}, green={}, blue={}, white={}, gain={}", profile.hostname, colorGroup, light.red,
+                        light.green,
+                        light.blue, light.white, light.gain);
                 col.setRGBW(light.red, light.green, light.blue, light.white);
                 col.setGain(light.gain);
-                col.setBrightness(light.brightness);
                 col.setTemp(light.temp);
 
                 logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}% (brightness={}/{}%)", colorGroup,
