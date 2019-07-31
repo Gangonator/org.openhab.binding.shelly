@@ -217,12 +217,12 @@ public class ShellyHandlerLight extends ShellyHandler {
 
                 case CHANNEL_COLOR_EFFECT:
                     logger.info("Set color effect {}", command.toString());
-                    Integer effect = ((DecimalType) command).intValue();
-                    if ((effect < SHELLY_MIN_EFFECT) || (effect > SHELLY_MAX_EFFECT)) {
-                        logger.info("Invalid value for effect: {}", effect);
+                    col.setEffect(((DecimalType) command).intValue());
+                    if ((col.effect < SHELLY_MIN_EFFECT) || (col.effect > SHELLY_MAX_EFFECT)) {
+                        logger.info("Invalid value for effect: {}", col.effect);
                     } else {
-                        logger.info("Selecting effect #{}", effect);
-                        api.setLightParm(lightId, SHELLY_COLOR_EFFECT, effect.toString());
+                        logger.info("Selecting effect #{}", col.effect);
+                        api.setLightParm(lightId, SHELLY_COLOR_EFFECT, col.effect.toString());
                     }
                     break;
             }
@@ -375,9 +375,8 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private void updateColorChannels(ShellyDeviceProfile profile, Integer channelId, CurrentColors col) {
         String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
-        logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}/{}%, gain={}/{}%", colorGroup,
-                col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue,
-                col.white, col.percentWhite, col.gain, col.percentGain);
+        logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}%, gain={}%", colorGroup,
+                col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue, col.percentWhite, col.percentGain);
         updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
         updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
         updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);

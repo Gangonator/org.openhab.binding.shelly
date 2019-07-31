@@ -518,6 +518,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             String channelId = mkChannelName(group, channel);
             Object current = channelData.get(channelId);
+            logger.trace("Predict channel {}.{} to become {} (type {}).", group, channel, value, value.getClass());
             if (channelCache && ((current == null) || !current.equals(value))) {
                 if (value instanceof String) {
                     updateState(channelId, new StringType((String) value));
