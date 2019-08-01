@@ -236,8 +236,15 @@ public class ShellyHandlerLight extends ShellyHandler {
     private void handleColorPicker(ShellyDeviceProfile profile, Integer lightId, CurrentColors col, Command command) throws IOException {
         if (command instanceof HSBType) {
             HSBType hsb = (HSBType) command;
+
             logger.debug("HSB-Info={}, Hue={}, getRGB={}, toRGB={}/{}/{}", hsb.toString(), hsb.getHue(), String.format("0x%08X", hsb.getRGB()),
                     hsb.toRGB()[0], hsb.toRGB()[1], hsb.toRGB()[2]);
+            if (hsb.getHue() == new DecimalType(360)) {
+                logger.debug("need to fix the Hue value (360->0)");
+                HSBType fixHue = new HSBType(new DecimalType(0), hsb.getSaturation(), hsb.getBrightness());
+                hsb = fixHue;
+            }
+
             col.setRed(getColorFromHSB(hsb.getRed())); // new Double((hsb.getRed().floatValue() * SATURATION_FACTOR)).intValue();
             col.setBlue(getColorFromHSB(hsb.getBlue())); // new Double((hsb.getBlue().floatValue() * SATURATION_FACTOR)).intValue();
             col.setGreen(getColorFromHSB(hsb.getGreen())); // new Double((hsb.getGreen().floatValue() * SATURATION_FACTOR)).intValue();
@@ -255,7 +262,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 parms.put(SHELLY_COLOR_GREEN, col.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, col.blue.toString());
                 // parms.put(SHELLY_COLOR_WHITE, col.white.toString());
-                parms.put(SHELLY_COLOR_GAIN, col.gain.toString());
+                // parms.put(SHELLY_COLOR_GAIN, col.gain.toString());
             }
             // parms.put(SHELLY_COLOR_BRIGHTNESS, col.brightness.toString());
             // parms.put(SHELLY_COLOR_TEMP, col.temp.toString());
