@@ -113,11 +113,11 @@ public class ShellyHandlerLight extends ShellyHandler {
             return HSBType.fromRGB(red, green, blue);
         }
 
-        private static PercentType toPercent(Integer value) {
+        private PercentType toPercent(Integer value) {
             return toPercent(value, 0, SHELLY_MAX_COLOR);
         }
 
-        private static PercentType toPercent(Integer _value, Integer min, Integer max) {
+        private PercentType toPercent(Integer _value, Integer min, Integer max) {
             int range = max - min;
             int value = _value != null ? _value.intValue() : 0;
             value = value < min ? min : value;
@@ -126,7 +126,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             if (range > 0) {
                 percent = (value * 100) / range;
             }
-            // logger.trace("Value converted from {} into {}%", value, percent);
+            logger.trace("Value converted from {} into {}%", value, percent);
             return new PercentType(new BigDecimal(percent));
         }
     }
@@ -422,7 +422,9 @@ public class ShellyHandlerLight extends ShellyHandler {
     }
 
     private Integer getColorFromHSB(PercentType colorPercent, Double factor) {
-        return new Double(colorPercent.doubleValue() * factor).intValue();
+        Double value = colorPercent.doubleValue() * factor;
+        logger.trace("convert {}% into {}/{} (factor={})", colorPercent.toString(), value.toString(), value.intValue(), factor.toString());
+        return value.intValue();
     }
 
     private Integer setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue)
