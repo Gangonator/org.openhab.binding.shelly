@@ -12,6 +12,7 @@ import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -340,7 +341,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 String groupName = !profile.isLight ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
                                 updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
                                 if (meter.total != null) {
-                                    Double kwh = getDouble(meter.total);
+                                    Double kwh = getDouble(meter.total); // Watt/Min
+                                    kwh = kwh / (60.0 * 1000.0);  // convert Watt/Min to kw/h
                                     updateChannel(groupName, CHANNEL_METER_TOTALWATTS, kwh);
                                 }
                                 if (meter.counters != null) {
@@ -376,6 +378,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 }
                             }
                         }
+                        // conver totalWatts into kw/h
+                        totalWatts = totalWatts / (60.0 * 10000.0);
 
                         updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
                         updateChannel(groupName, CHANNEL_METER_LASTMIN1, lastMin1);
@@ -546,7 +550,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
                 if (value instanceof PercentType) {
                     PercentType v = (PercentType) value;
-                    updateState(channelId, new PercentType(v.intValue()));
+                    updateState(channelId, new PercentType(new BigDecimal(v.doubleValue())));
                 }
                 if (value instanceof HSBType) {
                     HSBType v = (HSBType) value;
@@ -561,7 +565,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 return true;
             }
         } catch (RuntimeException e) {
-            logger.debug("Unable to update channel {}.{}#{} with {} (type {}): {} ({})", thingName, group, channel, value, value.getClass(),
+            logger.warn("Unable to update channel {}.{}#{} with {} (type {}): {} ({})", thingName, group, channel, value, value.getClass(),
                     e.getMessage());
         }
         return false;
