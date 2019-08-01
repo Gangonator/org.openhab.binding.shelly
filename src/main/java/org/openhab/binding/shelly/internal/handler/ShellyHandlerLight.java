@@ -118,13 +118,13 @@ public class ShellyHandlerLight extends ShellyHandler {
         }
 
         private PercentType toPercent(Integer _value, Integer min, Integer max) {
-            int range = max - min;
-            int value = _value != null ? _value.intValue() : 0;
-            value = value < min ? min : value;
-            value = value > max ? max : value;
-            int percent = 0;
+            Double range = max.doubleValue() - min.doubleValue();
+            Double value = _value != null ? _value.doubleValue() : 0;
+            value = value < min ? min.doubleValue() : value;
+            value = value > max ? max.doubleValue() : value;
+            Double percent = 0.0;
             if (range > 0) {
-                percent = (value * 100) / range;
+                percent = new Double(Math.round(value * 100.0 / range));
             }
             logger.trace("Value converted from {} into {}%", value, percent);
             return new PercentType(new BigDecimal(percent));
@@ -422,7 +422,7 @@ public class ShellyHandlerLight extends ShellyHandler {
     }
 
     private Integer getColorFromHSB(PercentType colorPercent, Double factor) {
-        Double value = colorPercent.doubleValue() * factor;
+        Double value = new Double(Math.round(colorPercent.doubleValue() * factor));
         logger.trace("convert {}% into {}/{} (factor={})", colorPercent.toString(), value.toString(), value.intValue(), factor.toString());
         return value.intValue();
     }
@@ -433,7 +433,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
             Double v = new Double(maxValue) * percent.doubleValue() / 100.0;
-            value = new DecimalType(v);
+            value = new DecimalType(v.intValue());
             logger.trace("Value for {} is in %: {}%={}", colorName, percent, value);
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
@@ -452,12 +452,7 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private Integer setColor(Integer lightId, String colorName, Integer value) throws IOException, IllegalArgumentException {
         ShellyDeviceProfile profile = super.getProfile();
-        Integer col = (Integer) super.getChannelValue(CHANNEL_GROUP_COLOR_CONTROL, colorName);
-        if ((col != null) && (col == value)) {
-            logger.debug("Color {} was not changed (value={}), skip API call to update", colorName, value.toString());
-        }
-
-        logger.info("Set color {} for channel {}, to {}", colorName, lightId, value.toString());
+        logger.info("Set color {} for channel {} to {}", colorName, lightId, value.toString());
         api.setLightParm(lightId, colorName, value.toString());
         return value;
     }
