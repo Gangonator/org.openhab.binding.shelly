@@ -428,35 +428,35 @@
         <item-type>Number</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
     <channel-type id="lastPower1">
         <item-type>Number</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minute</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%0.4f" >
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minute</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%0.4f" >
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minute</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%0.4f" >
         </state>
     </channel-type>
    <channel-type id="meterTotal">
         <item-type>Number</item-type>
         <label>Total Energy (kw/h)</label>
         <description>Total power consumption in kw/h</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%0.4f" >
         </state>
     </channel-type>
    <channel-type id="meterTimestamp">
@@ -646,7 +646,7 @@
         <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Temperature from the sensor</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
     <channel-type id="sensorTempUnit">
@@ -664,7 +664,7 @@
         <item-type>Number</item-type>
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%.2f" >
         </state>
     </channel-type>
 
@@ -672,7 +672,7 @@
         <item-type>Number</item-type>
         <label>Battery level</label>
         <description>Battery level in %</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
     <channel-type id="batAlaert">

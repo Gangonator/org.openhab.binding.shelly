@@ -566,7 +566,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
         } catch (RuntimeException e) {
             logger.warn("Unable to update channel {}.{}#{} with {} (type {}): {} ({})", thingName, group, channel, value, value.getClass(),
-                    e.getMessage());
+                    e.getMessage(), e.getClass());
         }
         return false;
 
