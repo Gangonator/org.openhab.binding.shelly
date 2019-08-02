@@ -236,56 +236,47 @@ public class ShellyHandlerLight extends ShellyHandler {
             super.updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
             ShellyColorUtils col = getCurrentColors(lightId);
-            if (col == null) {
-                logger.warn("Unable to load last colors for lightId {}", lightId);
-                continue;
-            }
+            Validate.notNull(col);
+
             if (profile.inColor || profile.isBulb) {
                 col.setRGBW(getInteger(light.red), getInteger(light.green), getInteger(light.blue), getInteger(light.white));
                 col.setGain(getInteger(light.gain));
                 col.setEffect(getInteger(light.effect));
-                updateColorChannels(profile, channelId, col);
+
+                String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
+                logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}%, gain={}%", colorGroup,
+                        col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue, col.percentWhite, col.percentGain);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
+
+                logger.trace("update {}.color picker", colorGroup);
+                super.updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
             if (!profile.inColor || profile.isBulb) {
                 col.setBrightness(light.brightness);
                 col.setTemp(light.temp);
-                updateWhiteChannels(profile, channelId, col);
+
+                String whiteGroup = buildWhiteGroupName(profile, channelId);
+                if (profile.isBulb) {
+                    logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
+                    super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+                    super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+                } else {
+                    logger.trace("Update {} channels: brightness={}", whiteGroup, col.percentBrightness);
+                    super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+
+                }
+                logger.trace("update {}.color picker", whiteGroup);
+                super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
 
             // continue with next light
             lightId++;
         }
-    }
-
-    private void updateColorChannels(ShellyDeviceProfile profile, Integer channelId, ShellyColorUtils col) {
-        String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
-        logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}%, gain={}%", colorGroup,
-                col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue, col.percentWhite, col.percentGain);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
-
-        logger.trace("update {}.color picker", colorGroup);
-        super.updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
-    }
-
-    private void updateWhiteChannels(ShellyDeviceProfile profile, Integer channelId, ShellyColorUtils col) {
-        String whiteGroup = buildWhiteGroupName(profile, channelId);
-
-        if (profile.isBulb) {
-            logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
-            super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
-            super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-        } else {
-            logger.trace("Update {} channels: brightness={}", whiteGroup, col.percentBrightness);
-            super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-
-        }
-        logger.trace("update {}.color picker", whiteGroup);
-        super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
     }
 
     private Integer setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue)
@@ -315,19 +306,23 @@ public class ShellyHandlerLight extends ShellyHandler {
         boolean updated = false;
         Integer channelId = lightId + 1;
         ShellyColorUtils col = getCurrentColors(lightId);
-        Validate.notNull(col, "Unable to load current colors!");
+        Validate.notNull(col, "updateColors(): Unable to load current colors!");
 
         logger.debug("Update color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}",
-                channelId, col.red, col.green, col.blue, col.white, col.gain, col.brightness);
+                channelId, newCol.red, newCol.green, newCol.blue, newCol.white, newCol.gain, newCol.brightness);
         if (profile.inColor) {
-            if (!col.red.equals(newCol.red) || !col.green.equals(newCol.green) || !col.blue.equals(newCol.blue)) {
-                logger.info("Setting RGB to {}/{}/{}", newCol.red, newCol.green, newCol.blue);
+            logger.trace("current-red={}, new-red={}", col.red, newCol.red);
+            logger.trace("current-green={}, new-red={}", col.green, newCol.green);
+            logger.trace("current-blue={}, new-blue={}", col.blue, newCol.blue);
+            if ((col.red != newCol.red) || (col.green != newCol.green) || (col.blue != newCol.blue) || (col.white != newCol.white)) {
+                logger.info("Setting RGBW to {}/{}/{}/{}", newCol.red, newCol.green, newCol.blue, newCol.white);
                 Map<String, String> parms = new HashMap<String, String>();
                 parms.put(SHELLY_LIGHT_TURN, SHELLY_API_ON);
                 parms.put(SHELLY_COLOR_RED, newCol.red.toString());
                 parms.put(SHELLY_COLOR_GREEN, newCol.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, newCol.blue.toString());
                 parms.put(SHELLY_COLOR_WHITE, newCol.white.toString());
+                logger.debug("Send collor settings: {}", parms.toString());
                 api.setLightParms(lightId, parms);
                 updated |= true;
             }
