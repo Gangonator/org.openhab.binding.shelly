@@ -63,6 +63,25 @@ public class ShellyBindingConstants {
     public static final String            CONFIG_UPDATE_HTTP_USER      = "userId";
     public static final String            CONFIG_UPDATE_HTTP_PWD       = "password";
 
+    public static final String            PROPERTY_SERVICE_NAME        = "serviceName";
+    public static final String            PROPERTY_HWREV               = "hwardwareRev";
+    public static final String            PROPERTY_HWBATCH             = "hardwareBatch";
+    public static final String            PROPERTY_MODE                = "deviceMode";
+    public static final String            PROPERTY_HOSTNAME            = "hostname";
+    public static final String            PROPERTY_NUM_RELAYS          = "numberRelays";
+    public static final String            PROPERTY_NUM_ROLLERS         = "numberRollers";
+    public static final String            PROPERTY_NUM_METER           = "numberMeters";
+    public static final String            PROPERTY_TIME                = "time";
+    public static final String            PROPERTY_UPTIME              = "uptime";
+    public static final String            PROPERTY_WIFI_NETW           = "wifiNetwork";
+    public static final String            PROPERTY_WIFI_RSSI           = "wifiRSSI";
+    public static final String            PROPERTY_WIFI_IP             = "networkIP";
+    public static final String            PROPERTY_UPDATE_STATUS       = "updateStatus";
+    public static final String            PROPERTY_UPDATE_AVAILABLE    = "updateAvailable";
+    public static final String            PROPERTY_UPDATE_CURR_VERS    = "updateCurrentVersion";
+    public static final String            PROPERTY_UPDATE_NEWV_ERS     = "updateNewVersion";
+    public static final String            PROPERTY_MAX_POWER           = "maxPower";
+
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL  = "relay";
     public static final String            CHANNEL_RELAY_OUTPUT         = "output";

@@ -327,6 +327,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 parms.put(SHELLY_COLOR_RED, newCol.red.toString());
                 parms.put(SHELLY_COLOR_GREEN, newCol.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, newCol.blue.toString());
+                parms.put(SHELLY_COLOR_WHITE, newCol.white.toString());
                 api.setLightParms(lightId, parms);
                 updated |= true;
             }
@@ -349,13 +350,13 @@ public class ShellyHandlerLight extends ShellyHandler {
         }
 
         if (col.effect.equals(newCol.effect)) {
-            logger.info("Selecting effect to {}", newCol.effect);
+            logger.info("Setting effect to {}", newCol.effect);
             api.setLightParm(lightId, SHELLY_COLOR_EFFECT, newCol.effect.toString());
             updated |= true;
         }
 
         if (updated) {
-            updateCurrentColors(lightId, col);
+            updateCurrentColors(lightId, newCol);
         }
     }
 
@@ -365,7 +366,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         } else {
             channelColors.replace(lightId, col);
         }
-        logger.debug("CurrentColors updated for lightId {}: RGBW={}/{}/{}/{}, Sat/Gain={}, Bright={}, Temp={} ",
+        logger.debug("Colors updated for lightId {}: RGBW={}/{}/{}/{}, Sat/Gain={}, Bright={}, Temp={} ",
                 lightId.toString(), col.red, col.green, col.blue, col.white, col.gain, col.brightness, col.temp);
     }
 

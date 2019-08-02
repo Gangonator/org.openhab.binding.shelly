@@ -456,7 +456,7 @@
         <item-type>Number</item-type>
         <label>Total Energy (kw/h)</label>
         <description>Total power consumption in kw/h</description>
-        <state readOnly="true" pattern="%0.4f" >
+        <state readOnly="true" pattern="%.5f" >
         </state>
     </channel-type>
    <channel-type id="meterTimestamp">

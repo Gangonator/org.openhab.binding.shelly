@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -171,10 +172,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         try {
-            if (command instanceof RefreshType) {
-                // TODO: handle data refresh
-                return;
-            }
             if (profile == null) {
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
@@ -184,6 +181,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     refreshSettings = false;
                     profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
                 }
+            }
+            if (command instanceof RefreshType) {
+                // TODO: handle data refresh
+                return;
             }
 
             // Process command
@@ -207,11 +208,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                     break;
                 case CHANNEL_ROL_CONTROL_TURN:
+                    // The channel accepts open, stop, close
+                    // ON and OFF will be converted to open and close
                     String turn = command.toString().toLowerCase();
-                    if (turn.equalsIgnoreCase("on")) {
+                    if (turn.equalsIgnoreCase(SHELLY_API_ON)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_OPEN;
                     }
-                    if (turn.equalsIgnoreCase("off")) {
+                    if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_CLOSE;
                     }
                     logger.info("Set roller turn mode to {}", turn);
@@ -243,32 +246,39 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         DecimalType d = (DecimalType) command;
                         position = d.intValue();
                     }
-                    if (position == -1) {
-                        logger.info("Invalid position requested!");
-                        break;
-                    }
+                    Validate.isTrue(position != -1, "Invalid position requested: " + command.toString());
                     api.setRollerPos(rIndex, position);
                     break;
                 case CHANNEL_TIMER_AUTOON:
+                    logger.info("Set Auto-ON timer to {}", command.toString());
+                    Validate.isTrue(command instanceof DecimalType, "Invalid value type");
+                    Validate.isTrue(command instanceof DecimalType, "Timer AutoOn: Invalid value type: " + command.getClass());
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
                     break;
                 case CHANNEL_TIMER_AUTOOFF:
+                    logger.info("Set Auto-OFF timer to {}", command.toString());
+                    Validate.isTrue(command instanceof DecimalType, "Invalid value type");
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOOFF, ((DecimalType) command).doubleValue());
                     break;
                 case CHANNEL_LED_STATUS_DISABLE:
                     logger.info("Set STATUS LED disabled to {}", command.toString());
+                    logger.info("Set Auto-ON timer to {}", command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
                 case CHANNEL_LED_POWER_DISABLE:
                     logger.info("Set POWER LED disabled to {}", command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
             }
+
             requestUpdates(1, true);  // request an update and force a refresh of the settings
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
         }
+
     }
 
     /**
@@ -523,7 +533,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             String channelId = mkChannelName(group, channel);
             Object current = channelData.get(channelId);
-            logger.trace("Predict channel {}.{} to become {} (type {}).", group, channel, value, value.getClass());
+            // logger.trace("Predict channel {}.{} to become {} (type {}).", group, channel, value, value.getClass());
             if (!channelCache || (current == null) || !current.equals(value)) {
                 if (value instanceof String) {
                     updateState(channelId, new StringType((String) value));
@@ -579,21 +589,20 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected void updateProperties(ShellyDeviceProfile profile, ShellySettingsStatus status) {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put("mode", profile.mode);
-        properties.put("time", status.time);
-        properties.put("uptime", status.uptime.toString() + "sec");
+        properties.put(PROPERTY_MODE, profile.mode);
+        properties.put(PROPERTY_TIME, status.time);
+        properties.put(PROPERTY_UPTIME, status.uptime.toString() + "sec");
         if (status.wifi_sta != null) {
-            properties.put("wifiNetwork", getString(status.wifi_sta.ssid));
-            properties.put("wifiRssi", getInteger(status.wifi_sta.rssi).toString());
-            properties.put("networkIp", getString(status.wifi_sta.ip));
+            properties.put(PROPERTY_WIFI_NETW, getString(status.wifi_sta.ssid));
+            properties.put(PROPERTY_WIFI_RSSI, getInteger(status.wifi_sta.rssi).toString());
+            properties.put(PROPERTY_WIFI_IP, getString(status.wifi_sta.ip));
         }
-        properties.put("updateStaus", status.update.status);
-        properties.put("updateAvailable", status.update.has_update ? "yes" : "no");
-        properties.put("updateCurrentVersion", status.update.old_version);
-        properties.put("updateNewVersion", status.update.new_version);
+        properties.put(PROPERTY_UPDATE_STATUS, status.update.status);
+        properties.put(PROPERTY_UPDATE_AVAILABLE, status.update.has_update ? "yes" : "no");
+        properties.put(PROPERTY_UPDATE_CURR_VERS, status.update.old_version);
+        properties.put(PROPERTY_UPDATE_NEWV_ERS, status.update.new_version);
         if (profile.settings.max_power != null) {
-            Double maxPower = getDouble(profile.settings.max_power);
-            properties.put("maxPower", maxPower.toString());
+            properties.put(PROPERTY_MAX_POWER, getDouble(profile.settings.max_power).toString());
         }
         /*
          * if (profile.settings.dcpower != null) { Double maxPower = getDouble(profile.settings.dcpower); properties.put("dcPower",
