@@ -11,16 +11,30 @@ import org.slf4j.LoggerFactory;
 
 public class ShellyColorUtils {
 
-    private final Logger logger       = LoggerFactory.getLogger(ShellyColorUtils.class);
+    private final Logger logger = LoggerFactory.getLogger(ShellyColorUtils.class);
 
-    Integer              red          = 0;
-    Integer              green        = 0;
-    Integer              blue         = 0;
-    Integer              white        = 0;
-    PercentType          percentRed   = new PercentType(0);
-    PercentType          percentGreen = new PercentType(0);
-    PercentType          percentBlue  = new PercentType(0);
-    PercentType          percentWhite = new PercentType(0);
+    public ShellyColorUtils() {
+
+    }
+
+    public ShellyColorUtils(ShellyColorUtils col) {
+        setRed(col.red);
+        setGreen(col.green);
+        setBlue(col.blue);
+        setWhite(col.white);
+        setGain(col.gain);
+        setBrightness(col.brightness);
+        setTemp(col.temp);
+    }
+
+    Integer     red          = 0;
+    Integer     green        = 0;
+    Integer     blue         = 0;
+    Integer     white        = 0;
+    PercentType percentRed   = new PercentType(0);
+    PercentType percentGreen = new PercentType(0);
+    PercentType percentBlue  = new PercentType(0);
+    PercentType percentWhite = new PercentType(0);
 
     void setRGBW(int red, int green, int blue, int white) {
         logger.trace("setRGBW(): setting rgb+white to {}/{}/{}/{}", red, green, blue, white);
@@ -104,7 +118,7 @@ public class ShellyColorUtils {
         if (range > 0) {
             percent = new Double(Math.round(value * 100.0 / range));
         }
-        logger.trace("Value converted from {} into {}%", value.intValue(), percent);
+        // logger.trace("Value converted from {} into {}%", value.intValue(), percent);
         return new PercentType(new BigDecimal(percent));
     }
 }

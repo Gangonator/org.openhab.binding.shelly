@@ -68,8 +68,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             String groupName = channelUID.getGroupId();
             Integer lightId = getLightIdFromGroup(groupName);
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
-            ShellyColorUtils col = getCurrentColors(lightId);
-            ShellyColorUtils oldCol = col;
+            ShellyColorUtils oldCol = getCurrentColors(lightId);
+            ShellyColorUtils col = new ShellyColorUtils(oldCol);
             boolean updated = false;
 
             switch (channelUID.getIdWithoutGroup()) {
