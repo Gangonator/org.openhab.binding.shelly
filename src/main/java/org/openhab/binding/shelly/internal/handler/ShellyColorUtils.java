@@ -104,7 +104,7 @@ public class ShellyColorUtils {
         if (range > 0) {
             percent = new Double(Math.round(value * 100.0 / range));
         }
-        logger.trace("Value converted from {} into {}%", value, percent);
+        logger.trace("Value converted from {} into {}%", value.intValue(), percent);
         return new PercentType(new BigDecimal(percent));
     }
 }
