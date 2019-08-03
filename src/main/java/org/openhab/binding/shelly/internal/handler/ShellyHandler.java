@@ -14,6 +14,7 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
@@ -76,6 +78,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     private String                      thingName        = "";
     private Map<String, Object>         channelData      = new HashMap<>();
+    ArrayList<ShellySenseKeyCode>       senseIRCodes     = new ArrayList<ShellySenseKeyCode>();
 
     /**
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
@@ -154,6 +157,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }
 
         api.setEventURLs();
+
+        if (p.isSense) {
+            logger.debug("Getting list of stored IR codes");
+            senseIRCodes = api.getIRCodeList();
+        }
 
         profile = p; // all initialization done, so keep the profile
         thingName = p.hostname;

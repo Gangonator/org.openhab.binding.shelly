@@ -9,21 +9,21 @@ package org.openhab.binding.shelly.internal.api;
 
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
@@ -55,6 +55,8 @@ public class ShellyHttpApi {
     public static final String SHELLY_URL_SETTINGS_STA          = "/settings/sta";
     public static final String SHELLY_URL_SETTINGS_LOGIN        = "/settings/sta";
     public static final String SHELLY_URL_SETTINGS_CLOUD        = "/settings/cloud";
+    public static final String SHELLY_URL_LIST_IR               = "/ir/list";
+    public static final String SHELLY_URL_SEND_IR               = "/ir/emit";
 
     public static final String SHELLY_URL_SETTINGS_RELAY        = "/settings/relay";
     public static final String SHELLY_URL_SETTINGS_RELAY_SETURL = SHELLY_URL_SETTINGS_RELAY + "/{0}?{1}={2}";
@@ -85,6 +87,10 @@ public class ShellyHttpApi {
     public static final String SHELLY_SIMULATOR_URI             = "/shelly/simulator";
     public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
     public static final String CHARSET_UTF8                     = "utf-8";
+
+    public static final String SHELLY_IR_CODET_STORED           = "stored";
+    public static final String SHELLY_IR_CODET_PRONTO           = "pronto";
+    public static final String SHELLY_IR_CODET_PRONTO_HEX       = "pronto_hex";
 
     public static final String OPENHAB_HTTP_PORT                = "OPENHAB_HTTP_PORT";
     public static final String OPENHAB_DEF_PORT                 = "8080";
@@ -151,7 +157,7 @@ public class ShellyHttpApi {
     }
 
     public ShellySettingsDevice getDevInfo() throws IOException {
-        String json = request(SHELLY_URL_DEVINFO, null);
+        String json = request(SHELLY_URL_DEVINFO);
         logger.info("Shelly device info : {}", json);
         return gson.fromJson(json, ShellySettingsDevice.class);
     }
@@ -162,7 +168,7 @@ public class ShellyHttpApi {
             thingType = profile.thingType;
         }
         String json;
-        json = request(SHELLY_URL_SETTINGS, null);
+        json = request(SHELLY_URL_SETTINGS);
         profile = new ShellyDeviceProfile();
         profile.settingsJson = json;
         profile.settings = gson.fromJson(json, ShellySettingsGlobal.class);
@@ -238,49 +244,49 @@ public class ShellyHttpApi {
     }
 
     public ShellySettingsStatus gerStatus() throws IOException {
-        String result = request(SHELLY_URL_STATUS, null);
+        String result = request(SHELLY_URL_STATUS);
         ShellySettingsStatus status = gson.fromJson(result, ShellySettingsStatus.class);
         status.json = result;
         return status;
     }
 
     public ShellyStatusRelay getRelayStatus(Integer relayIndex) throws IOException {
-        String result = request(SHELLY_URL_STATUS_RELEAY + "/" + relayIndex.toString(), null);
+        String result = request(SHELLY_URL_STATUS_RELEAY + "/" + relayIndex.toString());
         return gson.fromJson(result, ShellyStatusRelay.class);
     }
 
     public void setRelayTurn(Integer relayIndex, String turnMode) throws IOException {
-        request(SHELLY_URL_CONTROL_RELEAY + "/" + relayIndex.toString() + "?turn=" + turnMode.toLowerCase(), null);
+        request(SHELLY_URL_CONTROL_RELEAY + "/" + relayIndex.toString() + "?turn=" + turnMode.toLowerCase());
     }
 
     public ShellyControlRoller getRollerStatus(Integer rollerIndex) throws IOException {
-        String result = request(SHELLY_URL_CONTROL_ROLLER + "/" + rollerIndex.toString() + "/pos", null);
+        String result = request(SHELLY_URL_CONTROL_ROLLER + "/" + rollerIndex.toString() + "/pos");
         return gson.fromJson(result, ShellyControlRoller.class);
     }
 
     public void setRollerTurn(Integer relayIndex, String turnMode) throws IOException {
-        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=" + turnMode, null);
+        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=" + turnMode);
     }
 
     public void setRollerPos(Integer relayIndex, Integer position) throws IOException {
-        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=to_pos&roller_pos=" + position.toString(), null);
+        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?go=to_pos&roller_pos=" + position.toString());
     }
 
     public void setRollerTimer(Integer relayIndex, Integer timer) throws IOException {
-        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?timer=" + timer.toString(), null);
+        request(SHELLY_URL_CONTROL_ROLLER + "/" + relayIndex.toString() + "?timer=" + timer.toString());
     }
 
     public void setRelayEventUrls(Integer relayIndex, String deviceName) throws IOException {
         String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
                 + relayIndex.toString();
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl), null);
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl), null);
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl), null);
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_REPORT, eventUrl), null);
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl));
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_REPORT, eventUrl));
     }
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
-        String result = request(SHELLY_URL_STATUS, null);
+        String result = request(SHELLY_URL_STATUS);
         if (!profile.isSense) {
             return gson.fromJson(result, ShellyStatusSensor.class);
         } else {
@@ -300,7 +306,7 @@ public class ShellyHttpApi {
 
             String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
             String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, SHELLY_API_EVENTURL_REPORT, urlEncode(eventUrl));
-            request(setUrl, null);
+            request(setUrl);
         }
     }
 
@@ -312,29 +318,29 @@ public class ShellyHttpApi {
             type = SHELLY_CLASS_LIGHT;
         }
         String uri = SHELLY_URL_SETTINGS + "/" + type + "/" + index + "?" + timerName + "=" + ((Integer) value.intValue()).toString();
-        request(uri, null);
+        request(uri);
     }
 
     public void setLedStatus(String ledName, Boolean value) throws IOException {
-        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_ON : SHELLY_API_OFF), null);
+        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_ON : SHELLY_API_OFF));
     }
 
     public ShellySettingsLight getLightSettings() throws IOException {
-        String result = request(SHELLY_URL_SETTINGS_LIGHT, null);
+        String result = request(SHELLY_URL_SETTINGS_LIGHT);
         return gson.fromJson(result, ShellySettingsLight.class);
     }
 
     public ShellyStatusLight getLightStatus() throws IOException {
-        String result = request(SHELLY_URL_STATUS, null);
+        String result = request(SHELLY_URL_STATUS);
         return gson.fromJson(result, ShellyStatusLight.class);
     }
 
     public void setLightSetting(String parm, String value) throws IOException {
-        request(SHELLY_URL_SETTINGS + "?" + parm + "=" + value, null);
+        request(SHELLY_URL_SETTINGS + "?" + parm + "=" + value);
     }
 
     public void setLightParm(Integer lightIndex, String parm, String value) throws IOException {
-        request("/" + profile.mode + "/" + lightIndex.toString() + "?" + parm + "=" + value, null);
+        request("/" + profile.mode + "/" + lightIndex.toString() + "?" + parm + "=" + value);
     }
 
     public void setLightParms(Integer lightIndex, Map<String, String> parameters) throws IOException {
@@ -347,25 +353,36 @@ public class ShellyHttpApi {
             url = url + key + "=" + parameters.get(key);
             i++;
         }
-        request(url, null);
+        request(url);
+    }
+
+    public ArrayList<ShellySenseKeyCode> getIRCodeList() throws IOException {
+        ArrayList<ShellySenseKeyCode> list = new ArrayList<ShellySenseKeyCode>();
+        String result = request(SHELLY_URL_LIST_IR);
+        logger.info("List of IR Codes: {}", result);
+        return list;
+    }
+
+    public void sendIRKey(String type, String keyCode) throws IOException {
+        String url = SHELLY_URL_SEND_IR + "?type=" + type;
+        if (type.equals(SHELLY_IR_CODET_PRONTO)) {
+            url = url + "&" + SHELLY_IR_CODET_PRONTO + "=" + Base64.getEncoder().encodeToString(keyCode.getBytes());
+        } else if (type.equals(SHELLY_IR_CODET_PRONTO_HEX)) {
+            url = url + "&" + SHELLY_IR_CODET_PRONTO_HEX + "=" + keyCode;
+        }
+        request(url);
     }
 
     /**
     *
     */
-    public String request(String uri, String postData) throws IOException {
+    public String request(String uri) throws IOException {
         String url = "http://" + deviceIp + uri;
-        Properties httpHeader = initHttpHeader();
         String httpResponse = "ERROR";
         try {
-            if (postData != null) {
-                InputStream content = new ByteArrayInputStream(postData.getBytes(Charset.forName(CHARSET_UTF8)));
-                httpResponse = HttpUtil.executeUrl(HTTP_POST, url, httpHeader, content,
-                        "application/x-www-form-urlencoded", SHELLY_API_TIMEOUT);
-            } else {
-                logger.trace("HTTP GET {}", url);
-                httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
-            }
+            logger.trace("HTTP GET {}", url);
+            httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
+            Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
             if (!httpResponse.startsWith("{")) {
@@ -383,17 +400,6 @@ public class ShellyHttpApi {
     private String buildEventUrl(Integer relayIndex, String parameter, String url) throws IOException {
         return MessageFormat.format(SHELLY_URL_SETTINGS_RELAY_SETURL, relayIndex.toString(), parameter,
                 urlEncode(url + "?type=" + StringUtils.substringBefore(parameter, "_url")));
-    }
-
-    private Properties initHttpHeader() {
-        Properties httpHeader = new Properties();
-        // httpHeader.setProperty(HEADER_USER_AGENT, OAUTH_USER_AGENT);
-        // httpHeader.setProperty(HEADER_ACCEPT, "*/*");
-        // httpHeader.setProperty(HEADER_LANGUAGE, "en-us");
-        // httpHeader.setProperty(HEADER_CACHE_CONTROL, "no-cache");
-
-        // httpHeader.setProperty("Content-Type", "application/x-www-form-urlencoded");
-        return httpHeader;
     }
 
     private String urlEncode(String input) throws IOException {
