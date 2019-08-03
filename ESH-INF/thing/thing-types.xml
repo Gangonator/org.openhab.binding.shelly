@@ -515,7 +515,6 @@
         <item-type>Dimmer</item-type>
         <label>Roller Position</label>
         <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
-        <state min="0" max="100" step="1" readOnly="false"  pattern="%d"></state>
     </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>
