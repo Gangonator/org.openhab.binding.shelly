@@ -159,8 +159,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         api.setEventURLs();
 
         if (p.isSense) {
-            logger.debug("Getting list of stored IR codes");
-            senseIRCodes = api.getIRCodeList();
+            logger.debug("Getting list of stored IR codes", profile.irCodes.toString());
         }
 
         profile = p; // all initialization done, so keep the profile
@@ -278,6 +277,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Set POWER LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
+                    break;
+
+                case CHANNEL_SENSE_KEY:
+                    logger.info("Send key {}", command.toString());
+                    api.sendIRKey(command.toString());
                     break;
             }
 

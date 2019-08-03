@@ -14,8 +14,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +23,6 @@ import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
@@ -134,6 +133,8 @@ public class ShellyHttpApi {
         public Boolean              isSensor; // true for HT & Smoke
         public Boolean              isSmoke; // true for Smoke
 
+        public Map<String, String>  irCodes; // Sense: list of stored IR codes
+
         public Boolean              supportsActionUrls;  // true if the action urls are supported
         public Boolean              supportsSensorUrls; // true if sensor url is supported
 
@@ -221,6 +222,10 @@ public class ShellyHttpApi {
             profile.numRelays = 0;
         }
         profile.hasRelays = profile.numRelays > 0;
+
+        if (profile.isSense) {
+            profile.irCodes = getIRCodeList();
+        }
 
         profile.supportsActionUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_BTN_ON);
         profile.supportsSensorUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_REPORT);
@@ -356,14 +361,22 @@ public class ShellyHttpApi {
         request(url);
     }
 
-    public ArrayList<ShellySenseKeyCode> getIRCodeList() throws IOException {
-        ArrayList<ShellySenseKeyCode> list = new ArrayList<ShellySenseKeyCode>();
+    public Map<String, String> getIRCodeList() throws IOException {
+        Map<String, String> list = new HashMap<String, String>();
         String result = request(SHELLY_URL_LIST_IR);
         logger.info("List of IR Codes: {}", result);
         return list;
     }
 
-    public void sendIRKey(String type, String keyCode) throws IOException {
+    public void sendIRKey(String keyCode) throws IOException {
+        String type = "";
+        if (profile.irCodes.containsKey(keyCode)) {
+            type = SHELLY_IR_CODET_STORED;
+        } else if ((keyCode.length() > 4) && keyCode.contains(" ")) {
+            type = SHELLY_IR_CODET_PRONTO;
+        } else {
+            type = SHELLY_IR_CODET_PRONTO_HEX;
+        }
         String url = SHELLY_URL_SEND_IR + "?type=" + type;
         if (type.equals(SHELLY_IR_CODET_PRONTO)) {
             url = url + "&" + SHELLY_IR_CODET_PRONTO + "=" + Base64.getEncoder().encodeToString(keyCode.getBytes());

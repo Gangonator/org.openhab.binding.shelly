@@ -383,7 +383,7 @@
             <channel id="motionTimer" typeId="senseMotionTimer" />
             <channel id="motionLED" typeId="senseMotionLED" />
             <channel id="charger" typeId="sensorCharger" />
-            <channel id="key" typeId="sensorKey" />
+            <channel id="key" typeId="senseKey" />
         </channels>
     </channel-group-type>
 
