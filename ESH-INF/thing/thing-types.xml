@@ -257,8 +257,11 @@
         <description>Shelly Sense Remote IR controller</description>
 
         <channel-groups>
+            <channel-group id="sensors" typeId="senseControl">
+                <label>Control</label>
+            </channel-group>
             <channel-group id="sensors" typeId="senseSensors">
-                <label>Sensor</label>
+                <label>Sensors</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
                 <label>Battery Status</label>
@@ -344,7 +347,7 @@
             <channel id="tempUnit" typeId="sensorTempUnit" />
             <channel id="humidity" typeId="sensorHumidity" />
         </channels>
-    </channel-group-type>
+   </channel-group-type>
    <channel-group-type id="senseSensors">
        <label>Sensors</label>
        <description>Data from the sensors</description>
@@ -354,7 +357,6 @@
             <channel id="humidity" typeId="sensorHumidity" />
             <channel id="lux" typeId="sensorLux" />
             <channel id="motion" typeId="sensorMotion" />
-            <channel id="charger" typeId="sensorCharger" />
         </channels>
     </channel-group-type>
    <channel-group-type id="smokeSensor">
@@ -372,6 +374,16 @@
             <channel id="batteryLevel" typeId="batLevel" />
             <channel id="lowBattery" typeId="batAlert" />
             <channel id="voltage" typeId="batVoltage" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="senseControl">
+       <label>Sense Control</label>
+       <description>Sense Settings</description>
+        <channels>
+            <channel id="motionTimer" typeId="senseMotionTimer" />
+            <channel id="motionLED" typeId="senseMotionLED" />
+            <channel id="charger" typeId="sensorCharger" />
+            <channel id="key" typeId="sensorKey" />
         </channels>
     </channel-group-type>
 
@@ -752,6 +764,12 @@
         </state>
     </channel-type>
 
+    <channel-type id="senseMotionTimer">
+        <item-type>Number</item-type>
+        <label>Motion Duration</label>
+        <description>Number of seconds to detect motion</description>
+        <state min="0" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
     <channel-type id="senseMotion">
         <item-type>Switch</item-type>
         <label>Motion detected</label>
@@ -759,12 +777,23 @@
         <state readOnly="true">
         </state>
     </channel-type>
+    <channel-type id="senseMotionLED">
+        <item-type>Switch</item-type>
+        <label>Motion LED</label>
+        <description>ON: LED indicates motion, OFF: LED will not light up</description>
+        <state min="0" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
     <channel-type id="senseCharger">
         <item-type>Switch</item-type>
         <label>Charging</label>
         <description>ON: Device is charging, OFF: No charger connected</description>
         <state readOnly="true">
         </state>
+    </channel-type>
+    <channel-type id="senseKey">
+        <item-type>String</item-type>
+        <label>IR Key to send</label>
+        <description>Send a defined key code</description>
     </channel-type>
     
 </thing:thing-descriptions>

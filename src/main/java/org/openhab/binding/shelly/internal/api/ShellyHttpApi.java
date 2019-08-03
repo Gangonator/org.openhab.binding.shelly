@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
@@ -141,7 +140,6 @@ public class ShellyHttpApi {
 
     private ShellyDeviceProfile profile;
     private Gson                gson      = new Gson();
-    private ShellyApiJson       jsonClass = new ShellyApiJson();
 
     public ShellyHttpApi(ShellyConfiguration config) {
         this.deviceIp = config.deviceIp;
@@ -287,15 +285,11 @@ public class ShellyHttpApi {
             return gson.fromJson(result, ShellyStatusSensor.class);
         } else {
             // complete reported data
-            ShellySenseStatus statusSense = gson.fromJson(result, ShellySenseStatus.class);
-            ShellyStatusSensor statusSensor = new ShellyStatusSensor();
-            statusSensor.tmp.is_valid = true;
-            statusSensor.tmp.value = statusSense.tmp;
-            statusSensor.tmp.tC = statusSense.temperature_units.equals(SHELLY_TEMP_CELSIUS) ? statusSense.tmp : 0;
-            statusSensor.tmp.tF = statusSense.temperature_units.equals(SHELLY_TEMP_FAHRENHEIT) ? statusSense.tmp : 0;
-            statusSensor.bat.value = statusSense.bat;
-            statusSensor.bat.voltage = 3.0; // simulate 3V
-            return statusSensor;
+            ShellyStatusSensor status = gson.fromJson(result, ShellyStatusSensor.class);
+            status.tmp.tC = status.tmp.units.equals(SHELLY_TEMP_CELSIUS) ? status.tmp.value : 0;
+            status.tmp.tF = status.tmp.units.equals(SHELLY_TEMP_FAHRENHEIT) ? status.tmp.value : 0;
+            status.bat.voltage = 3.0; // simulate 3V
+            return status;
         }
     }
 

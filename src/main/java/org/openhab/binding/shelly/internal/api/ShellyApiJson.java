@@ -199,6 +199,8 @@ public class ShellyApiJson {
 
         public String                         light_sensor;   // Sense: sensor type
         public ShellySenseSensors             sensors; // Sense: sensors
+        public Integer                        pir_motion_duration_time; // Sense: Set duration time in seconds for motion flag after motion detection.
+        public Boolean                        motion_led; // Sense: Whether LED light should indicate motion detected 1 or 0.
 
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
@@ -235,13 +237,6 @@ public class ShellyApiJson {
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
-
-        // Shelly Sense
-        public Boolean                         motion;
-        public Boolean                         charger;
-        public ShellyStatusSensor._tmp         tmp;
-        public ShellyStatusSensor._hum         hum;
-        public ShellyStatusSensor._bat         bat;
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
@@ -344,7 +339,12 @@ public class ShellyApiJson {
 
         public _tmp     tmp;
         public _hum     hum;
+        public _lux     lux;
         public _bat     bat;
+
+        public Boolean  motion;
+        public Boolean  charger;
+
         public String[] act_reasons; // HT/Smoke: list of reasons which woke up the device
     }
 
@@ -414,6 +414,11 @@ public class ShellyApiJson {
         // public ShellyStatusMqtt mqtt;
     }
 
+    public class ShellySenseKeyCode {
+        String id; // ID of the stored IR code into Shelly Sense.
+        String name; // Short description or name of the stored IR code.
+    }
+
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";
     public static final String  SHELLY_TIMER_AUTOOFF    = "aut_off";
     public static final String  SHELLY_TIMER_ACTIVE     = "has_timer";
@@ -454,15 +459,5 @@ public class ShellyApiJson {
         public String  temperature_units; // Temperature units C for Celsius and F for Fahrenheit
         public Boolean schedule; // Whether schedule settings are active/inactive. Value is 1 or 0.
         // ArrayList<ShellySettingsScheduleRules> schedule_rules;
-    }
-
-    public static class ShellySenseStatus {
-        public Boolean otion;   // Value for motion detection
-        public Boolean charger; // Value for charging status
-        public String  temperature_units; // Either 'C' or 'F'
-        public Double  tmp; // Temperature
-        public Double  hum; // Humidity
-        public Double  lux; // Brightness
-        public Double  bat; // Battery level
     }
 }

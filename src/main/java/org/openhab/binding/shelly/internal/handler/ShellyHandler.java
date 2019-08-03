@@ -400,10 +400,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
                     }
                 }
-                if (profile.isSense && profile.settings.sensors != null) {
-                    logger.debug("Update Sense sensors");
-                    // ShellySenseStatus = api.getSenseStatus();
-                }
 
                 if (profile.hasLed) {
                     logger.debug("{}: Updating LED settings", thingName);
@@ -424,13 +420,19 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, getString(sdata.tmp.units));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, getDouble(sdata.hum.value));
                         }
-
-                        if (profile.hasBattery) {
+                        if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW, getDouble(sdata.bat.value) < 20.0 ? true : false);
 
+                        }
+                        if (profile.isSense) {
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
+                                    getInteger(profile.settings.pir_motion_duration_time));
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getInteger(profile.settings.motion_led));
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
                         }
                     }
                 }
