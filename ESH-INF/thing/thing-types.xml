@@ -45,7 +45,7 @@
                 <label>Relay 2</label>
             </channel-group>
             <channel-group id="meter1" typeId="meter">
-                <label>Power Meter Channel 1</label>
+                <label>Power Meter</label>
             </channel-group>
         </channel-groups>
 
@@ -460,21 +460,21 @@
         <item-type>Number</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minute</description>
-        <state readOnly="true" pattern="%0.5f" >
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minute</description>
-        <state readOnly="true" pattern="%0.45" >
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minute</description>
-        <state readOnly="true" pattern="%0.45" >
+        <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
    <channel-type id="meterTotal">
