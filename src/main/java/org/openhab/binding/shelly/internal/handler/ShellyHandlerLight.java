@@ -332,7 +332,7 @@ public class ShellyHandlerLight extends ShellyHandler {
 
         if (!oldCol.gain.equals(newCol.gain)) {
             logger.info("Setting gain to {}", newCol.gain);
-            api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, newCol.brightness.toString());
+            api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, newCol.gain.toString());
             updated |= true;
         }
         if ((profile.isBulb || !profile.inColor) && !oldCol.brightness.equals(newCol.brightness)) {
@@ -346,7 +346,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             updated |= true;
         }
 
-        if (oldCol.effect.equals(newCol.effect)) {
+        if (!oldCol.effect.equals(newCol.effect)) {
             logger.info("Setting effect to {}", newCol.effect);
             api.setLightParm(lightId, SHELLY_COLOR_EFFECT, newCol.effect.toString());
             updated |= true;
