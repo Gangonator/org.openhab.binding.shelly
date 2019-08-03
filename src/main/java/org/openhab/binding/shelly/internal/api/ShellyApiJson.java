@@ -214,6 +214,9 @@ public class ShellyApiJson {
     public static final String SHELLY_LED_STATUS_DISABLE = "led_status_disable";
     public static final String SHELLY_LED_POWER_DISABLE  = "led_power_disable";
 
+    public static final String SHELLY_SENSE_MOTION_LED   = "motion_led";  // Sense
+    public static final String SHELLY_SENSE_MOTION_TIMER = "pir_motion_duration_time"; // Sense
+
     public class ShellySettingsAttributes {
         public String device_type; // Device model identifier
         public String device_mac; // MAC address of the device in hexadecimal

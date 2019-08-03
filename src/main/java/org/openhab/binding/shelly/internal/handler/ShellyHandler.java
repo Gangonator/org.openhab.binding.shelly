@@ -258,7 +258,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     break;
                 case CHANNEL_TIMER_AUTOON:
                     logger.info("Set Auto-ON timer to {}", command.toString());
-                    Validate.isTrue(command instanceof DecimalType, "Invalid value type");
                     Validate.isTrue(command instanceof DecimalType, "Timer AutoOn: Invalid value type: " + command.getClass());
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
                     break;
@@ -269,7 +268,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     break;
                 case CHANNEL_LED_STATUS_DISABLE:
                     logger.info("Set STATUS LED disabled to {}", command.toString());
-                    logger.info("Set Auto-ON timer to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
@@ -279,6 +277,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
 
+                case CHANNEL_SENSE_MOT_TIMER:
+                    logger.info("Setting Motion timer to {}", command.toString());
+                    Validate.isTrue(command instanceof DecimalType, "parameter must be of type DecimalType");
+                    api.setSenseSetting(SHELLY_SENSE_MOTION_TIMER, ((DecimalType) command).toString());
+                    break;
+                case CHANNEL_SENSE_MOT_LED:
+                    logger.info("Motion inlights the LED: {}", command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "parameter must be of type OnOffType");
+                    api.setSenseSetting(SHELLY_SENSE_MOTION_LED, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    break;
                 case CHANNEL_SENSE_KEY:
                     logger.info("Send key {}", command.toString());
                     api.sendIRKey(command.toString());

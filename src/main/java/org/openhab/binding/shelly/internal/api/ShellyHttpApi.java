@@ -386,6 +386,10 @@ public class ShellyHttpApi {
         request(url);
     }
 
+    public void setSenseSetting(String setting, String value) throws IOException {
+        request(SHELLY_URL_SETTINGS + "?" + setting + "=" + value);
+    }
+
     /**
     *
     */
