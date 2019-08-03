@@ -630,6 +630,7 @@
                 <option value="6">Red/Green Change</option>
             </options>
         </state>
+    </channel-type>
     <channel-type id="colorEffectRGBW2">
         <item-type>Number</item-type>
         <label>Effect</label>
