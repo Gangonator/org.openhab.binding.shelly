@@ -130,7 +130,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             }
 
             if (updated) {
-                updateColors(profile, lightId, oldCol, col);
+                sendColors(profile, lightId, oldCol, col);
             }
 
             super.requestUpdates(1, true);
@@ -302,57 +302,56 @@ public class ShellyHandlerLight extends ShellyHandler {
         return setColor(lightId, colorName, command, 0, maxValue);
     }
 
-    private void updateColors(ShellyDeviceProfile profile, Integer lightId, ShellyColorUtils oldCol, ShellyColorUtils newCol) throws IOException {
-        boolean updated = false;
+    private void sendColors(ShellyDeviceProfile profile, Integer lightId, ShellyColorUtils oldCol, ShellyColorUtils newCol) throws IOException {
+        // boolean updated = false;
         Integer channelId = lightId + 1;
-        // ShellyColorUtils col = getCurrentColors(lightId);
-        // Validate.notNull(col, "updateColors(): Unable to load current colors!");
+        Map<String, String> parms = new HashMap<String, String>();
 
-        logger.debug("old color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}",
-                channelId, oldCol.red, oldCol.green, oldCol.blue, oldCol.white, oldCol.gain, oldCol.brightness);
         logger.debug("new color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}",
                 channelId, newCol.red, newCol.green, newCol.blue, newCol.white, newCol.gain, newCol.brightness);
         if (profile.inColor) {
-            logger.trace("current-red={}, new-red={}", oldCol.red, newCol.red);
-            logger.trace("current-green={}, new-red={}", oldCol.green, newCol.green);
-            logger.trace("current-blue={}, new-blue={}", oldCol.blue, newCol.blue);
             if ((oldCol.red != newCol.red) || (oldCol.green != newCol.green) || (oldCol.blue != newCol.blue) || (oldCol.white != newCol.white)) {
                 logger.info("Setting RGBW to {}/{}/{}/{}", newCol.red, newCol.green, newCol.blue, newCol.white);
-                Map<String, String> parms = new HashMap<String, String>();
                 parms.put(SHELLY_LIGHT_TURN, SHELLY_API_ON);
                 parms.put(SHELLY_COLOR_RED, newCol.red.toString());
                 parms.put(SHELLY_COLOR_GREEN, newCol.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, newCol.blue.toString());
                 parms.put(SHELLY_COLOR_WHITE, newCol.white.toString());
-                logger.debug("Send collor settings: {}", parms.toString());
-                api.setLightParms(lightId, parms);
-                updated |= true;
+                // logger.debug("Send collor settings: {}", parms.toString());
+                // api.setLightParms(lightId, parms);
+                // updated |= true;
             }
         }
 
         if (!oldCol.gain.equals(newCol.gain)) {
             logger.info("Setting gain to {}", newCol.gain);
-            api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, newCol.gain.toString());
-            updated |= true;
+            // api.setLightParm(lightId, SHELLY_COLOR_GAIN, newCol.gain.toString());
+            // updated |= true;
+            parms.put(SHELLY_COLOR_GAIN, newCol.gain.toString());
         }
         if ((profile.isBulb || !profile.inColor) && !oldCol.brightness.equals(newCol.brightness)) {
             logger.info("Setting brightness to {}", newCol.brightness);
-            api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, newCol.brightness.toString());
-            updated |= true;
+            // api.setLightParm(lightId, SHELLY_COLOR_BRIGHTNESS, newCol.brightness.toString());
+            // updated |= true;
+            parms.put(SHELLY_COLOR_BRIGHTNESS, newCol.brightness.toString());
         }
         if ((profile.isBulb || !profile.inColor) && !oldCol.temp.equals(newCol.temp)) {
             logger.info("Setting color temp to {}", newCol.temp);
-            api.setLightParm(lightId, SHELLY_COLOR_TEMP, newCol.temp.toString());
-            updated |= true;
+            // pi.setLightParm(lightId, SHELLY_COLOR_TEMP, newCol.temp.toString());
+            // updated |= true;
+            parms.put(SHELLY_COLOR_TEMP, newCol.temp.toString());
         }
 
         if (!oldCol.effect.equals(newCol.effect)) {
             logger.info("Setting effect to {}", newCol.effect);
-            api.setLightParm(lightId, SHELLY_COLOR_EFFECT, newCol.effect.toString());
-            updated |= true;
+            // api.setLightParm(lightId, SHELLY_COLOR_EFFECT, newCol.effect.toString());
+            // updated |= true;
+            parms.put(SHELLY_COLOR_EFFECT, newCol.effect.toString());
         }
 
-        if (updated) {
+        if (parms.size() > 0) {
+            logger.debug("Send collor settings: {}", parms.toString());
+            api.setLightParms(lightId, parms);
             updateCurrentColors(lightId, newCol);
         }
     }
