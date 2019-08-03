@@ -75,7 +75,6 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             ShellyHttpApi api = new ShellyHttpApi(config);
 
             // Get device settings
-            @SuppressWarnings({ "null", "deprecation" })
             String thingType = StringUtils.substringBeforeLast(name, "-");
             ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
             logger.debug("Shelly settings : {}", profile.settingsJson);
@@ -95,6 +94,11 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             addProperty(properties, PROPERTY_NUM_RELAYS, profile.numRelays.toString());
             addProperty(properties, PROPERTY_NUM_ROLLERS, profile.numRollers.toString());
             addProperty(properties, PROPERTY_NUM_METER, profile.numMeters.toString());
+
+            if (profile.settings.light_sensor != null) {
+                addProperty(properties, PROPERTY_LIGHT_SENSOR, profile.settings.light_sensor);
+
+            }
 
             ThingUID thingUID = this.getThingUID(name, profile.mode);
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());

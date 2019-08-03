@@ -24,28 +24,6 @@ public class ShellyApiJson {
     public static final String SHELLY_CLASS_ROLLER = "roller"; // Relay: roller mode
     public static final String SHELLY_CLASS_LIGHT  = "light";  // Bulb: color mode
 
-    public class ShellyCommonSettings {
-        public Boolean reset; // Will perform a factory reset of the device
-        public Boolean mqtt_enable; // Enable connecting to a MQTT broker
-        public String  mqtt_server; // MQTT broker IP address and port, ex. 10.0.0.1:1883
-        public String  mqtt_user; // MQTT username, leave empty to disable authentication
-        public String  mqtt_pass; // MQTT password
-        public Integer mqtt_reconnect_timeout_max; // maximum interval for reconnect attempts
-        public Integer mqtt_reconnect_timeout_min; // minimum interval for reconnect attempts
-        public Boolean mqtt_clean_session; // MQTT clean session flag
-        public Integer mqtt_keep_alive; // MQTT keep alive period in seconds
-        public Integer mqtt_max_qos; // Max value of QOS for MQTT packets
-        public Boolean mqtt_retain; // MQTT retain flag
-        public Integer mqtt_update_period; // Periodic update in seconds, 0 to disable
-        public Boolean coiot_execute_enable; // Whether to allow execution of CoIoT commands
-        public Boolean tzautodetect; // Set this to false if you want to set custom geolocation (lat and lng) or custom
-                                     // timezone.
-        public Double  lat; // Degrees latitude in decimal format, South is negative
-        public Double  lng; // Degrees longitude in decimal format, between -180 and 180
-        public String  timezone; // Timezone identifier, see https://api.shelly.cloud/timezone/tzlist
-        public String  sntp_server; // Time server host to be used instead of the default time.google.com
-    }
-
     public class ShellySettingsDevice {
         public String  type;
         public String  mac;
@@ -219,6 +197,9 @@ public class ShellyApiJson {
         public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
 
+        public String                         light_sensor;   // Sense: sensor type
+        public ShellySenseSensor              sensors; // Sense: sensors
+
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
 
@@ -254,6 +235,13 @@ public class ShellyApiJson {
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
+
+        // Shelly Sense
+        public Boolean                         motion;
+        public Boolean                         charger;
+        public ShellyStatusSensor._tmp         tmp;
+        public ShellyStatusSensor._hum         hum;
+        public ShellyStatusSensor._bat         bat;
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
@@ -349,6 +337,11 @@ public class ShellyApiJson {
             public Double voltage; // battery voltage
         };
 
+        public static class _lux {
+            Boolean is_valid;
+            Double  value;
+        }
+
         public _tmp     tmp;
         public _hum     hum;
         public _bat     bat;
@@ -359,6 +352,12 @@ public class ShellyApiJson {
         public String  temperature_units; // Either 'C' or 'F'
         public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
+    }
+
+    public class ShellySenseSensor {
+        Integer motion_duration;
+        Boolean motion_led;
+        String  temperature_unit;
     }
 
     public static final String SHELLY_TEMP_CELSIUS    = "C";
