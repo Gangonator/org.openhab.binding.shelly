@@ -288,7 +288,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
-                    logger.debug("Status update triggers thing initialization for device {}", thingName);
+                    logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
                 }
 
@@ -299,7 +299,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // map status to channels
                 if (profile.hasRelays && !profile.isRoller) {
-                    logger.trace("{}: Updating relay(s)", thingName);
+                    logger.debug("{}: Updating relay(s)", thingName);
                     int i = 0;
                     ShellyStatusRelay rstatus = api.getRelayStatus(i);
                     if (rstatus != null) {
@@ -323,7 +323,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
                 if (profile.hasRelays && profile.isRoller && (status.rollers != null)) {
-                    logger.trace("{}: Updating {} rollers", thingName, profile.numRollers);
+                    logger.debug("{}: Updating {} rollers", thingName, profile.numRollers);
                     int i = 0;
                     for (ShellySettingsRoller roller : status.rollers) {
                         if (roller.is_valid) {
@@ -331,7 +331,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             Integer relayIndex = i + 1;
                             String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, getString(control.state));
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, getInteger(control.current_pos));
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getBool(control.overtemperature));
@@ -341,8 +341,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.hasMeter && (status.meters != null)) {
-                    logger.trace("{}: Updating {} standard meters", thingName, profile.numMeters);
                     if (!profile.isRoller) {
+                        logger.debug("{}: Updating {} standard meters", thingName, profile.numMeters);
+
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;
                         for (ShellySettingsMeter meter : status.meters) {
@@ -366,7 +367,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         }
                     } else {
                         // In Roller Mode we accumulate all meters to a single set of meters
-                        logger.trace("{}: Updating roller meter", thingName);
+                        logger.debug("{}: Updating roller meter", thingName);
                         Double currentWatts = 0.0;
                         Double totalWatts = 0.0;
                         Double lastMin1 = 0.0;
@@ -399,8 +400,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
                     }
                 }
+                if (profile.isSense && profile.settings.sensors != null) {
+                    logger.debug("Update Sense sensors");
+                    // ShellySenseStatus = api.getSenseStatus();
+                }
+
                 if (profile.hasLed) {
-                    logger.trace("{}: Updating LED settings", thingName);
+                    logger.debug("{}: Updating LED settings", thingName);
                     ShellyDeviceProfile prf = api.getDeviceProfile(null);
                     if (prf != null) {
                         updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
@@ -409,7 +415,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.isSensor || profile.hasBattery) {
-                    logger.trace("{}: Updating sensor", thingName);
+                    logger.debug("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (sdata != null) {
                         if (sdata.tmp.is_valid) {
@@ -434,7 +440,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 updateThingStatus();
 
                 // update some properties
-                logger.trace("{}: Updating thing properties", thingName);
+                logger.debug("{}: Updating thing properties", thingName);
                 updateProperties(profile, status);
 
                 // If status update was successful the thing must be online
@@ -445,7 +451,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 if (scheduledUpdates > 0) {
                     --scheduledUpdates;
-                    logger.trace("{} more updates requested", scheduledUpdates);
+                    logger.debug("{} more updates requested", scheduledUpdates);
                 }
                 if (!channelCache && (scheduledUpdates == 0)) {
                     logger.debug("Enabling channel cache for device {}", thingName);

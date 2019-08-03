@@ -40,7 +40,7 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYSENSE       = new ThingTypeUID(BINDING_ID, "shellysense");
     public static final ThingTypeUID      THING_TYPE_SHELLYSMOKE       = new ThingTypeUID(BINDING_ID, "shellysmoke");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_COLOR = new ThingTypeUID(BINDING_ID, "shellyrgbw2-color");
-    public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_WHITE = new ThingTypeUID(BINDING_ID, "shellyrgbw2-while");
+    public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_WHITE = new ThingTypeUID(BINDING_ID, "shellyrgbw2-white");
     public static final ThingTypeUID      THING_TYPE_SHELLYSIMULATOR   = new ThingTypeUID(BINDING_ID, "shelly-simulator");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS   = Collections
@@ -121,6 +121,9 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_TEMP          = "temperature";
     public static final String            CHANNEL_SENSOR_TUNIT         = "tempUnit";
     public static final String            CHANNEL_SENSOR_HUM           = "humidity";
+    public static final String            CHANNEL_SENSOR_LUX           = "lux";
+    public static final String            CHANNEL_SENSOR_MOTION        = "motion";
+    public static final String            CHANNEL_SENSOR_CHARGE        = "charge";
 
     public static final String            CHANNEL_GROUP_BATTERY        = "battery";
     public static final String            CHANNEL_SENSOR_BAT_LEVEL     = "batteryLevel";

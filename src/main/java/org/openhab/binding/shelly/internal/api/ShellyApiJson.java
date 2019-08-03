@@ -198,7 +198,7 @@ public class ShellyApiJson {
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
 
         public String                         light_sensor;   // Sense: sensor type
-        public ShellySenseSensor              sensors; // Sense: sensors
+        public ShellySenseSensors             sensors; // Sense: sensors
 
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
@@ -345,7 +345,7 @@ public class ShellyApiJson {
         public _tmp     tmp;
         public _hum     hum;
         public _bat     bat;
-        public String[] act_reasons; // list of reasons which woke up the device
+        public String[] act_reasons; // HT/Smoke: list of reasons which woke up the device
     }
 
     public class ShellySettingsSmoke {
@@ -354,10 +354,10 @@ public class ShellyApiJson {
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
     }
 
-    public class ShellySenseSensor {
-        Integer motion_duration;
-        Boolean motion_led;
-        String  temperature_unit;
+    public class ShellySenseSensors {
+        public Integer motion_duration;
+        public Boolean motion_led;
+        public String  temperature_unit;
     }
 
     public static final String SHELLY_TEMP_CELSIUS    = "C";

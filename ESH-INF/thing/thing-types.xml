@@ -257,7 +257,7 @@
         <description>Shelly Sense Remote IR controller</description>
 
         <channel-groups>
-            <channel-group id="sensor" typeId="smokeSensor">
+            <channel-group id="sensors" typeId="senseSensors">
                 <label>Sensor</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
@@ -343,6 +343,18 @@
             <channel id="temperature" typeId="sensorTemp" />
             <channel id="tempUnit" typeId="sensorTempUnit" />
             <channel id="humidity" typeId="sensorHumidity" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="senseSensors">
+       <label>Sensors</label>
+       <description>Data from the sensors</description>
+        <channels>
+            <channel id="temperature" typeId="sensorTemp" />
+            <channel id="tempUnit" typeId="sensorTempUnit" />
+            <channel id="humidity" typeId="sensorHumidity" />
+            <channel id="lux" typeId="sensorLux" />
+            <channel id="motion" typeId="sensorMotion" />
+            <channel id="charger" typeId="sensorCharger" />
         </channels>
     </channel-group-type>
    <channel-group-type id="smokeSensor">
@@ -692,6 +704,13 @@
         <state readOnly="true" pattern="%.2f" >
         </state>
     </channel-type>
+    <channel-type id="sensorLux">
+        <item-type>Number</item-type>
+        <label>Lux</label>
+        <description>Brightness from the sensor (Lux)</description>
+        <state readOnly="true" pattern="%.1f Lux" >
+        </state>
+    </channel-type>
 
     <channel-type id="batLevel">
         <item-type>Number</item-type>
@@ -700,7 +719,7 @@
         <state readOnly="true" pattern="%.1f" >
         </state>
     </channel-type>
-    <channel-type id="batAlaert">
+    <channel-type id="batAlert">
         <item-type>Number</item-type>
         <label>Low Battery</label>
         <description>ON: Battery level is less than 20%</description>
@@ -732,4 +751,20 @@
         <state readOnly="true">
         </state>
     </channel-type>
+
+    <channel-type id="senseMotion">
+        <item-type>Switch</item-type>
+        <label>Motion detected</label>
+        <description>ON: Motion detected, OFF: No Motion</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="senseCharger">
+        <item-type>Switch</item-type>
+        <label>Charging</label>
+        <description>ON: Device is charging, OFF: No charger connected</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    
 </thing:thing-descriptions>
