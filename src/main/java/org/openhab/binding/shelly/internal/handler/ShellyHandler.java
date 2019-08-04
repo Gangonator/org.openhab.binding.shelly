@@ -228,9 +228,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Setting roller to position {}", command.toString());
                     if (command == StopMoveType.STOP) {
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
-                        break;
-                    }
-                    if (command instanceof UpDownType) {
+                    } else if (command instanceof UpDownType) {
                         if (UpDownType.UP.equals(command)) {
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
                             break;
@@ -239,19 +237,20 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
                             break;
                         }
-                    }
+                    } else {
+                        Integer position = -1;
+                        if (command instanceof PercentType) {
+                            PercentType p = (PercentType) command;
+                            position = p.intValue();
 
-                    Integer position = -1;
-                    if (command instanceof PercentType) {
-                        PercentType p = (PercentType) command;
-                        position = p.intValue();
-
-                    } else if (command instanceof DecimalType) {
-                        DecimalType d = (DecimalType) command;
-                        position = d.intValue();
+                        } else if (command instanceof DecimalType) {
+                            DecimalType d = (DecimalType) command;
+                            position = d.intValue();
+                        }
+                        Validate.isTrue(position != -1, "Invalid position requested: " + command.toString());
+                        api.setRollerPos(rIndex, position);
                     }
-                    Validate.isTrue(position != -1, "Invalid position requested: " + command.toString());
-                    api.setRollerPos(rIndex, position);
+                    requestUpdates(30 / UPDATE_STATUS_INTERVAL, false); // request updates the next 30sec to update roller position after it stopped
                     break;
                 case CHANNEL_TIMER_AUTOON:
                     logger.info("Set Auto-ON timer to {}", command.toString());
@@ -326,13 +325,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
                                 updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
                                 updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
-                                if (relay.has_timer != null) {
-                                    updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
-                                    ShellySettingsRelay rsettings = profile.settings.relays.get(i);
-                                    if (rsettings != null) {
-                                        updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDouble(rsettings.auto_on));
-                                        updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDouble(rsettings.auto_off));
-                                    }
+                                updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
+                                ShellySettingsRelay rsettings = profile.settings.relays.get(i);
+                                if (rsettings != null) {
+                                    updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDouble(rsettings.auto_on));
+                                    updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDouble(rsettings.auto_off));
                                 }
                             }
                             i++;
@@ -348,7 +345,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             Integer relayIndex = i + 1;
                             String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, getString(control.state));
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                            if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
+                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                            }
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getBool(control.overtemperature));
@@ -366,7 +365,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         for (ShellySettingsMeter meter : status.meters) {
                             Integer meterIndex = m + 1;
                             if (meter.is_valid) {
-                                String groupName = profile.numMeters > 1 ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
+                                String groupName = "";
+                                if (profile.numMeters > 1) {
+                                    groupName = CHANNEL_GROUP_METER + meterIndex.toString();
+                                } else {
+                                    groupName = CHANNEL_GROUP_METER;
+                                }
                                 updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
                                 if (meter.total != null) {
                                     Double kwh = getDouble(meter.total); // Watt/Min
@@ -391,7 +395,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         Double lastMin2 = 0.0;
                         Double lastMin3 = 0.0;
                         Long timestamp = 0l;
-                        String groupName = CHANNEL_GROUP_METER + "1";
+                        String groupName = CHANNEL_GROUP_METER;
                         for (ShellySettingsMeter meter : status.meters) {
                             if (meter.is_valid) {
                                 currentWatts += getDouble(meter.power);

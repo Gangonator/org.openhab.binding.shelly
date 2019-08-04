@@ -11,7 +11,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter1" typeId="basicMeter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -25,7 +25,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter1" typeId="meter">
+            <channel-group id="meter" typeId="meter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>
@@ -44,7 +44,7 @@
             <channel-group id="relay2" typeId="relayChannel">
                 <label>Relay 2</label>
             </channel-group>
-            <channel-group id="meter1" typeId="meter">
+            <channel-group id="meter" typeId="meter">
                 <label>Power Meter</label>
             </channel-group>
         </channel-groups>
@@ -59,7 +59,7 @@
             <channel-group id="roller1" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
-            <channel-group id="meter1" typeId="meter">
+            <channel-group id="meter" typeId="meter">
                 <label>Power Meter</label>
             </channel-group>
         </channel-groups>
@@ -96,7 +96,7 @@
             <channel-group id="roller1" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
-            <channel-group id="meter1" typeId="meter">
+            <channel-group id="meter" typeId="meter">
                 <label>Power Meter</label>
             </channel-group>
         </channel-groups>
@@ -111,7 +111,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
-            <channel-group id="meter1" typeId="simpleMeter">
+            <channel-group id="meter" typeId="simpleMeter">
                 <label>Power Meter</label>
             </channel-group>
         </channel-groups>
@@ -126,7 +126,7 @@
             <channel-group id="relay1" typeId="relayChannel">
                 <label>Plug</label>
             </channel-group>
-            <channel-group id="meter1" typeId="meter">
+            <channel-group id="meter" typeId="meter">
                 <label>Power Meter</label>
             </channel-group>
             <channel-group id="led" typeId="ledControl">
@@ -185,7 +185,7 @@
             <channel-group id="white" typeId="whiteSettings">
                 <label>White settings</label>
             </channel-group>
-            <channel-group id="meter1" typeId="basicMeter">
+            <channel-group id="meter" typeId="basicMeter">
                 <label>Meter</label>
             </channel-group>
         </channel-groups>

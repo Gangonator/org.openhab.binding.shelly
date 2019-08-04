@@ -28,6 +28,7 @@ public class ShellyBindingConstants {
     // List of all Thing Type UIDs
     public static final ThingTypeUID      THING_TYPE_SHELLY1           = new ThingTypeUID(BINDING_ID, "shelly1");
     public static final ThingTypeUID      THING_TYPE_SHELLY1PM         = new ThingTypeUID(BINDING_ID, "shelly1pm");
+    public static final ThingTypeUID      THING_TYPE_SHELLY1EM         = new ThingTypeUID(BINDING_ID, "shelly1em");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY     = new ThingTypeUID(BINDING_ID, "shelly2-relay");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER    = new ThingTypeUID(BINDING_ID, "shelly2-roller");
     public static final ThingTypeUID      THING_TYPE_SHELLY25_RELAY    = new ThingTypeUID(BINDING_ID, "shelly25-relay");
@@ -39,18 +40,18 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYHT          = new ThingTypeUID(BINDING_ID, "shellyht");
     public static final ThingTypeUID      THING_TYPE_SHELLYSENSE       = new ThingTypeUID(BINDING_ID, "shellysense");
     public static final ThingTypeUID      THING_TYPE_SHELLYSMOKE       = new ThingTypeUID(BINDING_ID, "shellysmoke");
+    public static final ThingTypeUID      THING_TYPE_SHELLYFLOOD       = new ThingTypeUID(BINDING_ID, "shellyflood");
+    public static final ThingTypeUID      THING_TYPE_SHELLYEYE         = new ThingTypeUID(BINDING_ID, "shellyseye");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_COLOR = new ThingTypeUID(BINDING_ID, "shellyrgbw2-color");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_WHITE = new ThingTypeUID(BINDING_ID, "shellyrgbw2-white");
-    public static final ThingTypeUID      THING_TYPE_SHELLYSIMULATOR   = new ThingTypeUID(BINDING_ID, "shelly-simulator");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS   = Collections
-            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM,
+            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM, THING_TYPE_SHELLY1EM,
                     THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER, THING_TYPE_SHELLY25_RELAY, THING_TYPE_SHELLY25_ROLLER,
                     THING_TYPE_SHELLY4PRO,
                     THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUGS,
                     THING_TYPE_SHELLYBULB, THING_TYPE_SHELLYRGBW2_COLOR, THING_TYPE_SHELLYRGBW2_WHITE,
-                    THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYSMOKE,
-                    THING_TYPE_SHELLYSIMULATOR)
+                    THING_TYPE_SHELLYHT, THING_TYPE_SHELLYSENSE, THING_TYPE_SHELLYEYE, THING_TYPE_SHELLYSMOKE, THING_TYPE_SHELLYFLOOD)
                     .collect(Collectors.toSet()));
 
     public static final int               UPDATE_STATUS_INTERVAL       = 3; // check for updates every x sec
