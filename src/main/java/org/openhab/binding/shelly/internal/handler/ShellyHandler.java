@@ -14,7 +14,6 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
@@ -78,7 +76,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     private String                      thingName        = "";
     private Map<String, Object>         channelData      = new HashMap<>();
-    ArrayList<ShellySenseKeyCode>       senseIRCodes     = new ArrayList<ShellySenseKeyCode>();
 
     /**
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
@@ -369,7 +366,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         for (ShellySettingsMeter meter : status.meters) {
                             Integer meterIndex = m + 1;
                             if (meter.is_valid) {
-                                String groupName = !profile.isLight ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
+                                String groupName = profile.numMeters > 1 ? CHANNEL_GROUP_METER + meterIndex.toString() : CHANNEL_GROUP_METER;
                                 updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
                                 if (meter.total != null) {
                                     Double kwh = getDouble(meter.total); // Watt/Min
@@ -409,7 +406,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 }
                             }
                         }
-                        // conver totalWatts into kw/h
+                        // convert totalWatts into kw/h
                         totalWatts = totalWatts / (60.0 * 10000.0);
 
                         updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
@@ -443,14 +440,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
-                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW, getDouble(sdata.bat.value) < 20.0 ? true : false);
+                            if (sdata.bat.value != null) {  // no update for Sense
+                                updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
+                            }
 
                         }
                         if (profile.isSense) {
                             updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
                                     getInteger(profile.settings.pir_motion_duration_time));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getInteger(profile.settings.motion_led));
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(profile.settings.motion_led));
                             updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
                         }

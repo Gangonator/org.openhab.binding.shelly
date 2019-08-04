@@ -263,7 +263,7 @@
             <channel-group id="sensors" typeId="senseSensors">
                 <label>Sensors</label>
             </channel-group>
-            <channel-group id="battery" typeId="batteryStatus">
+            <channel-group id="battery" typeId="shortBatteryStatus">
                 <label>Battery Status</label>
             </channel-group>
         </channel-groups>
@@ -374,6 +374,14 @@
             <channel id="batteryLevel" typeId="batLevel" />
             <channel id="lowBattery" typeId="batAlert" />
             <channel id="voltage" typeId="batVoltage" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="shortBatteryStatus">
+       <label>Battery Status</label>
+       <description>Status of the device's battery</description>
+        <channels>
+            <channel id="batteryLevel" typeId="batLevel" />
+            <channel id="lowBattery" typeId="batAlert" />
         </channels>
     </channel-group-type>
    <channel-group-type id="senseControl">
