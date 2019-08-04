@@ -78,7 +78,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             String thingType = StringUtils.substringBeforeLast(name, "-");
             ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
             logger.debug("Shelly settings : {}", profile.settingsJson);
-            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode);
+            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode.isEmpty() ? "n/a" : profile.mode);
 
             Map<String, Object> properties = new HashMap<>(5);
             properties.put(PROPERTY_VENDOR, "Shelly");

@@ -235,7 +235,7 @@
                 <label>Channel 4</label>
             </channel-group>
             
-            <channel-group id="meter" typeId="basicMeter">
+            <channel-group id="meter1" typeId="basicMeter">
                 <label>Power Meter Channel 1</label>
             </channel-group>
             <channel-group id="meter2" typeId="basicMeter">
@@ -421,7 +421,6 @@
        <label>Light Control</label>
        <description>Control your light channels</description>
         <channels>
-            <channel id="power" typeId="lightPower" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />

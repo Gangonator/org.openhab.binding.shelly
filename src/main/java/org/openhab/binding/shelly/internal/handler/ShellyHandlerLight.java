@@ -267,10 +267,9 @@ public class ShellyHandlerLight extends ShellyHandler {
                 if (profile.isBulb) {
                     col.setTemp(getInteger(light.temp));
                     super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+                    logger.trace("update {}.color picker", whiteGroup);
+                    super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
                 }
-
-                logger.trace("update {}.color picker", whiteGroup);
-                super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
 
             // continue with next light
