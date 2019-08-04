@@ -189,9 +189,9 @@ public class ShellyHandlerLight extends ShellyHandler {
         ShellyColorUtils col = channelColors.get(lightId);
         if (col == null) {
             col = new ShellyColorUtils();  // create a new entry
-            logger.debug("Colors entry created for lightId {}", lightId.toString());
+            logger.trace("Colors entry created for lightId {}", lightId.toString());
         } else {
-            logger.debug("Colors loaded for lightId {}: RGBW={}/{}/{}/{}, gain={}, brightness={}, color temp={} ",
+            logger.trace("Colors loaded for lightId {}: RGBW={}/{}/{}/{}, gain={}, brightness={}, color temp={} ",
                     lightId.toString(), col.red, col.green, col.blue, col.white, col.gain, col.brightness, col.temp);
         }
         return col;
@@ -239,6 +239,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             Validate.notNull(col);
 
             if (profile.inColor || profile.isBulb) {
+                logger.trace("update color settings");
                 col.setRGBW(getInteger(light.red), getInteger(light.green), getInteger(light.blue), getInteger(light.white));
                 col.setGain(getInteger(light.gain));
                 col.setEffect(getInteger(light.effect));
@@ -257,19 +258,15 @@ public class ShellyHandlerLight extends ShellyHandler {
                 super.updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
             if (!profile.inColor || profile.isBulb) {
-                col.setBrightness(light.brightness);
-                col.setTemp(light.temp);
                 String whiteGroup = buildWhiteGroupName(profile, channelId);
-                if (profile.isBulb) {
-                    logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
-                    super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
-                    super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-                } else {
-                    logger.trace("Update {} channels: brightness={}", whiteGroup, col.percentBrightness);
-                    super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-
-                }
+                logger.trace("update white settings for {}.{}", whiteGroup, channelId);
+                col.setBrightness(getInteger(light.brightness));
+                super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
                 super.updateChannel(controlGroup, CHANNEL_COLOR_EFFECT, col.effect);
+                if (profile.isBulb) {
+                    col.setTemp(getInteger(light.temp));
+                    super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+                }
 
                 logger.trace("update {}.color picker", whiteGroup);
                 super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());

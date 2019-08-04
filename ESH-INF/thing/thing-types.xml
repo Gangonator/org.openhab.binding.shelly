@@ -459,7 +459,7 @@
        <description>Adjust colors when device is in white mode</description>
         <channels>
             <channel id="brightness" typeId="whiteBrightness" />
-            <channel id="temperature" typeId="colorTemp" />
+            <channel id="temperature" typeId="whiteTemp" />
         </channels>
     </channel-group-type>
     <channel-group-type id="rgbw2Channel">
@@ -645,13 +645,13 @@
         <description>gain for all channels, 0..100, applies in mode=color</description>
         <state min="0" max="100" step="1" pattern="%d %%" readOnly="false"></state>
     </channel-type>
-    <channel-type id="colorTemp">
+    <channel-type id="whiteTemp">
         <item-type>Dimmer</item-type>
-        <label>Color Temperature</label>
-        <description>Color Temperature 3000..6500K</description>
+        <label>Light Temperature</label>
+        <description>Light Temperature 3000..6500K</description>
         <state min="3000" max="6500" step="10" pattern="%d K" readOnly="false"></state>
     </channel-type>
-    <channel-type id="colorBrightness">
+    <channel-type id="whiteBrightness">
         <item-type>Dimmer</item-type>
         <label>Brightness</label>
         <description>Brightness: 0..100%</description>
