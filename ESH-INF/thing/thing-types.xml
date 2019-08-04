@@ -218,8 +218,8 @@
         <category>Lightbulb</category>
 
         <channel-groups>
-            <channel-group id="control" typeId="rgbw2Control">
-                <label>Channel 1</label>
+            <channel-group id="control" typeId="whiteControl">
+                <label>Control</label>
             </channel-group>
 
             <channel-group id="channel1" typeId="rgbw2Channel">
@@ -415,6 +415,17 @@
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
+        </channels>
+    </channel-group-type>
+   <channel-group-type id="whiteControl">
+       <label>Light Control</label>
+       <description>Control your light channels</description>
+        <channels>
+            <channel id="power" typeId="lightPower" />
+            <channel id="autoOn" typeId="timerAutoOn" />
+            <channel id="autoOff" typeId="timerAutoOff" />
+            <channel id="timerActive" typeId="timerActive" />
+            <channel id="effect" typeId="colorEffectBulb" />
         </channels>
     </channel-group-type>
     <channel-group-type id="colorSettingsBulb">

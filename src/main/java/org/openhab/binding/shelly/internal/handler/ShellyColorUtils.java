@@ -6,12 +6,10 @@ import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ShellyColorUtils {
 
-    private final Logger logger = LoggerFactory.getLogger(ShellyColorUtils.class);
+    // private final Logger logger = LoggerFactory.getLogger(ShellyColorUtils.class);
 
     public ShellyColorUtils() {
 
@@ -37,7 +35,7 @@ public class ShellyColorUtils {
     PercentType percentWhite = new PercentType(0);
 
     void setRGBW(int red, int green, int blue, int white) {
-        logger.trace("setRGBW(): setting rgb+white to {}/{}/{}/{}", red, green, blue, white);
+        // logger.trace("setRGBW(): setting rgb+white to {}/{}/{}/{}", red, green, blue, white);
         setRed(red);
         setGreen(green);
         setBlue(blue);
@@ -45,25 +43,25 @@ public class ShellyColorUtils {
     }
 
     void setRed(int value) {
-        logger.trace("   setting red={}", value);
+        // logger.trace(" setting red={}", value);
         red = value;
         percentRed = toPercent(red);
     }
 
     void setGreen(int value) {
-        logger.trace("   setting green={}", value);
+        // logger.trace(" setting green={}", value);
         green = value;
         percentGreen = toPercent(green);
     }
 
     void setBlue(int value) {
-        logger.trace("   setting blue={}", value);
+        // logger.trace(" setting blue={}", value);
         blue = value;
         percentBlue = toPercent(blue);
     }
 
     void setWhite(int value) {
-        logger.trace("   setting white={}", value);
+        // logger.trace(" setting white={}", value);
         white = value;
         percentWhite = toPercent(white);
     }
@@ -76,19 +74,19 @@ public class ShellyColorUtils {
     PercentType percentTemp       = new PercentType(0);
 
     void setBrightness(int value) {
-        logger.trace("   setting brightness={}", value);
+        // logger.trace(" setting brightness={}", value);
         brightness = value;
         percentBrightness = toPercent(brightness, SHELLY_MIN_BRIGHTNESS, SHELLY_MAX_BRIGHTNESS);
     }
 
     void setGain(int value) {
-        logger.trace("   setting gain={}", value);
+        // logger.trace(" setting gain={}", value);
         gain = value;
         percentGain = toPercent(gain, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
     }
 
     void setTemp(int value) {
-        logger.trace("   setting temp={}", value);
+        // logger.trace(" setting temp={}", value);
         temp = value;
         percentTemp = toPercent(temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
     }
@@ -96,12 +94,12 @@ public class ShellyColorUtils {
     Integer effect = 0;
 
     void setEffect(int value) {
-        logger.trace("   setting effect={}", value);
+        // logger.trace(" setting effect={}", value);
         effect = value;
     }
 
     public HSBType toHSB() {
-        logger.trace("toHSB(): create HSB from {}/{}/{}", red, green, blue);
+        // logger.trace("toHSB(): create HSB from {}/{}/{}", red, green, blue);
         return HSBType.fromRGB(red, green, blue);
     }
 

@@ -259,7 +259,6 @@ public class ShellyHandlerLight extends ShellyHandler {
             if (!profile.inColor || profile.isBulb) {
                 col.setBrightness(light.brightness);
                 col.setTemp(light.temp);
-
                 String whiteGroup = buildWhiteGroupName(profile, channelId);
                 if (profile.isBulb) {
                     logger.trace("Update {} channels: brightness={}, tempo={}", whiteGroup, col.percentBrightness, col.percentTemp);
@@ -270,6 +269,8 @@ public class ShellyHandlerLight extends ShellyHandler {
                     super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
 
                 }
+                super.updateChannel(controlGroup, CHANNEL_COLOR_EFFECT, col.effect);
+
                 logger.trace("update {}.color picker", whiteGroup);
                 super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
