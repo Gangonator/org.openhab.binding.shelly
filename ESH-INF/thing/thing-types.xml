@@ -291,7 +291,7 @@
         <channels>
             <channel id="turn" typeId="rollerTurn" />
             <channel id="position" typeId="rollerShutter" />
-            <channel id="direction" typeId="rollerDirection" />
+            <channel id="lastDirection" typeId="rollerDirection" />
             <channel id="stopReason" typeId="rollerStop" />
             <channel id="calibrating" typeId="rollerCalibrating" />
         </channels>
@@ -568,7 +568,7 @@
     
     <channel-type id="rollerDirection">
         <item-type>String</item-type>
-        <label>Roller Direction</label>
+        <label>Last Roller Direction</label>
         <description>Last direction: open or close</description>
         <state readOnly="true">
             <options>

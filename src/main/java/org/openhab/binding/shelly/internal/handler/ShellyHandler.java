@@ -402,21 +402,21 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 totalWatts += getDouble(meter.total);
                                 if (meter.counters != null) {
                                     lastMin1 += getDouble(meter.counters[0]);
-                                    lastMin1 += getDouble(meter.counters[1]);
-                                    lastMin1 += getDouble(meter.counters[2]);
+                                    lastMin2 += getDouble(meter.counters[1]);
+                                    lastMin3 += getDouble(meter.counters[2]);
                                 }
                                 if (getLong(meter.timestamp) > timestamp) {
                                     timestamp = getLong(meter.timestamp);
                                 }
                             }
                         }
-                        // convert totalWatts into kw/h
-                        totalWatts = totalWatts / (60.0 * 10000.0);
-
-                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
                         updateChannel(groupName, CHANNEL_METER_LASTMIN1, lastMin1);
                         updateChannel(groupName, CHANNEL_METER_LASTMIN2, lastMin2);
                         updateChannel(groupName, CHANNEL_METER_LASTMIN3, lastMin3);
+
+                        // convert totalWatts into kw/h
+                        totalWatts = totalWatts / (60.0 * 10000.0);
+                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
                         updateChannel(groupName, CHANNEL_METER_TOTALWATTS, totalWatts);
                         updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
                     }
