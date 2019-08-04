@@ -422,6 +422,10 @@ public class ShellyApiJson {
         String name; // Short description or name of the stored IR code.
     }
 
+    public class SellySendKeyList {
+        public ArrayList<ShellySenseKeyCode> key_codes;
+    }
+
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";
     public static final String  SHELLY_TIMER_AUTOOFF    = "aut_off";
     public static final String  SHELLY_TIMER_ACTIVE     = "has_timer";

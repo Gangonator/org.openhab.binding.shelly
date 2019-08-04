@@ -156,7 +156,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         api.setEventURLs();
 
         if (p.isSense) {
-            logger.debug("Getting list of stored IR codes", profile.irCodes.toString());
+            logger.info("Sense stored key list loaded, {} entries.", p.irCodes.size());
         }
 
         profile = p; // all initialization done, so keep the profile
@@ -356,7 +356,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 if (profile.hasMeter && (status.meters != null)) {
                     if (!profile.isRoller) {
-                        logger.debug("{}: Updating {} standard meters", thingName, profile.numMeters);
+                        logger.debug("{}: Updating {}/{} standard meters", thingName, profile.numMeters, status.meters.size());
 
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;

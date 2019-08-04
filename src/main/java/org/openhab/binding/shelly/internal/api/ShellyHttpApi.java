@@ -22,7 +22,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.SellySendKeyList;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsGlobal;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
@@ -224,9 +226,7 @@ public class ShellyHttpApi {
         }
         profile.hasRelays = profile.numRelays > 0;
 
-        if (profile.isSense) {
-            profile.irCodes = getIRCodeList();
-        }
+        profile.irCodes = profile.isSense ? getIRCodeList() : new HashMap<String, String>();
 
         profile.supportsActionUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_BTN_ON);
         profile.supportsSensorUrls = profile.settingsJson.contains(SHELLY_API_EVENTURL_REPORT);
@@ -359,9 +359,21 @@ public class ShellyHttpApi {
     }
 
     public Map<String, String> getIRCodeList() throws IOException {
+        // String result = request(SHELLY_URL_LIST_IR);
+        String result = "[[\"1_231_pwr\",\"tv(231) - Power\"],[\"1_231_chdwn\",\"tv(231) - Channel Down\"],[\"1_231_chup\",\"tv(231) - Channel Up\"], [\"1_231_voldwn\",\"tv(231) - Volume Down\"],[\"1_231_volup\",\"tv(231) - Volume Up\"],[\"1_231_mute\",\"tv(231) - Mute\"],[\"1_231_menu\",\"tv(231) - Menu\"],[\"1_231_inp\",\"tv(231) - Input\"],[\"1_231_info\",\"tv(231) - Info\"],[\"1_231_left\",\"tv(231) - Left\"],[\"1_231_up\",\"tv(231) - Up\"],[\"1_231_right\",\"tv(231) - Right\"],[\"1_231_ok\",\"tv(231) - OK\"],[\"1_231_down\",\"tv(231) - Down\"],[\"1_231_back\",\"tv(231) - Back\"],[\"6_546_pwr\",\"receiver(546) - Power\"],[\"6_546_voldwn\",\"receiver(546) - Volume Down\"],[\"6_546_volup\",\"receiver(546) - Volume Up\"],[\"6_546_mute\",\"receiver(546) - Mute\"],[\"6_546_menu\",\"receiver(546) - Menu\"],[\"6_546_info\",\"receiver(546) - Info\"],[\"6_546_left\",\"receiver(546) - Left\"],[\"6_546_up\",\"receiver(546) - Up\"],[\"6_546_right\",\"receiver(546) - Right\"],[\"6_546_ok\",\"receiver(546) - OK\"],[\"6_546_down\",\"receiver(546) - Down\"],[\"6_546_back\",\"receiver(546) - Back\"]]";
+
+        String key_list = StringUtils.substringAfter(result, "[");
+        key_list = StringUtils.substringBeforeLast(key_list, "]");
+        key_list = key_list.replaceAll(java.util.regex.Pattern.quote("\",\""), "\", \"name\": \"");
+        key_list = key_list.replaceAll(java.util.regex.Pattern.quote("["), "{ \"id\":");
+        key_list = key_list.replaceAll(java.util.regex.Pattern.quote("]"), "} ");
+        String json = "{\"key_codes\" : [" + key_list + "] }";
+
+        SellySendKeyList codes = gson.fromJson(json, SellySendKeyList.class);
         Map<String, String> list = new HashMap<String, String>();
-        String result = request(SHELLY_URL_LIST_IR);
-        logger.info("List of IR Codes: {}", result);
+        for (ShellySenseKeyCode key : codes.key_codes) {
+            list.put(key.id, key.name);
+        }
         return list;
     }
 
@@ -399,7 +411,7 @@ public class ShellyHttpApi {
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
-            if (!httpResponse.startsWith("{")) {
+            if (!httpResponse.startsWith("{") && !httpResponse.startsWith("[")) {
                 throw new IOException("ERROR: Unexpected http resonse: " + httpResponse + ", url=" + url);
             }
 
