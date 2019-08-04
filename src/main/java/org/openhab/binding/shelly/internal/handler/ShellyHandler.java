@@ -231,11 +231,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     } else if (command instanceof UpDownType) {
                         if (UpDownType.UP.equals(command)) {
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
-                            break;
                         }
                         if (UpDownType.DOWN.equals(command)) {
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
-                            break;
                         }
                     } else {
                         Integer position = -1;
