@@ -72,6 +72,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             ShellyColorUtils col = new ShellyColorUtils(oldCol);
             boolean updated = false;
 
+            logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
             switch (channelUID.getIdWithoutGroup()) {
                 default: // non-bulb commands will be handled by the generic handler
                     super.handleCommand(channelUID, command);
@@ -79,7 +80,7 @@ public class ShellyHandlerLight extends ShellyHandler {
 
                 case CHANNEL_LIGHT_COLOR_MODE:
                     logger.info("Select color mode {}", command.toString());
-                    Validate.isTrue(command instanceof OnOffType, "Invalid value for color mode (ON or OFF): {}", command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value for color mode (ON or OFF): " + command.toString());
                     api.setLightSetting(SHELLY_API_MODE, (OnOffType) command == OnOffType.ON ? SHELLY_MODE_COLOR : SHELLY_MODE_WHITE);
                     break;
                 case CHANNEL_LIGHT_POWER:
@@ -282,14 +283,15 @@ public class ShellyHandlerLight extends ShellyHandler {
         DecimalType value = new DecimalType();
         validateRange(colorName, value.intValue(), minValue, maxValue);
 
+        logger.info("Set {} to {} ({})", colorName, command, command.getClass());
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
             Double v = new Double(maxValue) * percent.doubleValue() / 100.0;
             value = new DecimalType(v.intValue());
-            logger.trace("Value for {} is in %: {}%={}", colorName, percent, value);
+            logger.debug("Value for {} is in percent: {}%={}", colorName, percent, value);
         } else if (command instanceof DecimalType) {
             value = (DecimalType) command;
-            logger.trace("Value for {} is a number: {}", colorName, value);
+            logger.debug("Value for {} is a number: {}", colorName, value);
         } else {
             throw new IllegalArgumentException("Invalid value for " + colorName + ": " + value.toString() + " / type " + value.getClass());
         }
@@ -305,8 +307,8 @@ public class ShellyHandlerLight extends ShellyHandler {
         Integer channelId = lightId + 1;
         Map<String, String> parms = new HashMap<String, String>();
 
-        logger.debug("new color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}",
-                channelId, newCol.red, newCol.green, newCol.blue, newCol.white, newCol.gain, newCol.brightness);
+        logger.info("New color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}, color-temp={}",
+                channelId, newCol.red, newCol.green, newCol.blue, newCol.white, newCol.gain, newCol.brightness, newCol.temp);
         if (profile.inColor) {
             if ((oldCol.red != newCol.red) || (oldCol.green != newCol.green) || (oldCol.blue != newCol.blue) || (oldCol.white != newCol.white)) {
                 logger.info("Setting RGBW to {}/{}/{}/{}", newCol.red, newCol.green, newCol.blue, newCol.white);
@@ -333,7 +335,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             // updated |= true;
             parms.put(SHELLY_COLOR_BRIGHTNESS, newCol.brightness.toString());
         }
-        if ((profile.isBulb || !profile.inColor) && !oldCol.temp.equals(newCol.temp)) {
+        if ((profile.isBulb || !profile.inColor) && oldCol.temp != newCol.temp) {
             logger.info("Setting color temp to {}", newCol.temp);
             // pi.setLightParm(lightId, SHELLY_COLOR_TEMP, newCol.temp.toString());
             // updated |= true;
