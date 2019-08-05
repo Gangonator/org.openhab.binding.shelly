@@ -263,7 +263,6 @@ public class ShellyHandlerLight extends ShellyHandler {
                 logger.trace("update white settings for {}.{}", whiteGroup, channelId);
                 col.setBrightness(getInteger(light.brightness));
                 super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
-                super.updateChannel(controlGroup, CHANNEL_COLOR_EFFECT, col.effect);
                 if (profile.isBulb) {
                     col.setTemp(getInteger(light.temp));
                     super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
