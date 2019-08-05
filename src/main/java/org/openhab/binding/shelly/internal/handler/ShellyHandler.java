@@ -254,32 +254,38 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Set Auto-ON timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "Timer AutoOn: Invalid value type: " + command.getClass());
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
+                    refreshSettings = true;
                     break;
                 case CHANNEL_TIMER_AUTOOFF:
                     logger.info("Set Auto-OFF timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "Invalid value type");
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOOFF, ((DecimalType) command).doubleValue());
+                    refreshSettings = true;
                     break;
                 case CHANNEL_LED_STATUS_DISABLE:
                     logger.info("Set STATUS LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
+                    refreshSettings = true;
                     break;
                 case CHANNEL_LED_POWER_DISABLE:
                     logger.info("Set POWER LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
+                    refreshSettings = true;
                     break;
 
                 case CHANNEL_SENSE_MOT_TIMER:
                     logger.info("Setting Motion timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "parameter must be of type DecimalType");
                     api.setSenseSetting(SHELLY_SENSE_MOTION_TIMER, ((DecimalType) command).toString());
+                    refreshSettings = true;
                     break;
                 case CHANNEL_SENSE_MOT_LED:
                     logger.info("Motion inlights the LED: {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "parameter must be of type OnOffType");
                     api.setSenseSetting(SHELLY_SENSE_MOTION_LED, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    refreshSettings = true;
                     break;
                 case CHANNEL_SENSE_KEY:
                     logger.info("Send key {}", command.toString());
@@ -421,9 +427,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 if (profile.hasLed) {
-                    logger.debug("{}: Updating LED settings", thingName);
-                    ShellyDeviceProfile prf = api.getDeviceProfile(null);
-                    Validate.notNull(prf, "LED update: ShellyDeviceProfile must not be null!");
+                    Validate.notNull(profile, "LED update: ShellyDeviceProfile must not be null!");
                     Validate.notNull(profile.settings.led_status_disable, "LED update: led_status_disable must not be null!");
                     Validate.notNull(profile.settings.led_power_disable, "LED update: led_power_disable must not be null!");
                     logger.debug("LED disabled status: status led: {}, powerLed: {}", profile.settings.led_status_disable,
