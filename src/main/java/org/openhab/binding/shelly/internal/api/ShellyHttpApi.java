@@ -324,7 +324,7 @@ public class ShellyHttpApi {
     }
 
     public void setLedStatus(String ledName, Boolean value) throws IOException {
-        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_ON : SHELLY_API_OFF));
+        request(SHELLY_URL_SETTINGS + "?" + ledName + "=" + (value ? SHELLY_API_TRUE : SHELLY_API_FALSE));
     }
 
     public ShellySettingsLight getLightSettings() throws IOException {

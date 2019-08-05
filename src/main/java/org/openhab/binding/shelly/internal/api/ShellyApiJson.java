@@ -19,6 +19,8 @@ public class ShellyApiJson {
 
     public static final String SHELLY_API_ON       = "on";
     public static final String SHELLY_API_OFF      = "off";
+    public static final String SHELLY_API_TRUE     = "true";
+    public static final String SHELLY_API_FALSE    = "false";
 
     public static final String SHELLY_CLASS_RELAY  = "relay";  // Relay: relay mode
     public static final String SHELLY_CLASS_ROLLER = "roller"; // Relay: roller mode
