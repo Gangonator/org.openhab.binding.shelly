@@ -423,10 +423,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 if (profile.hasLed) {
                     logger.debug("{}: Updating LED settings", thingName);
                     ShellyDeviceProfile prf = api.getDeviceProfile(null);
-                    if (prf != null) {
-                        updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
-                        updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
-                    }
+                    Validate.notNull(prf, "LED update: ShellyDeviceProfile must not be null!");
+                    Validate.notNull(profile.settings.led_status_disable, "LED update: led_status_disable must not be null!");
+                    Validate.notNull(profile.settings.led_power_disable, "LED update: led_power_disable must not be null!");
+                    logger.debug("LED disabled status: status led: {}, powerLed: {}", profile.settings.led_status_disable,
+                            profile.settings.led_power_disable);
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
+                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
                 }
 
                 if (profile.isSensor || profile.hasBattery) {
