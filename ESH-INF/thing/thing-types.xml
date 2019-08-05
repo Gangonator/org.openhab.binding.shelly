@@ -424,7 +424,6 @@
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
-            <channel id="effect" typeId="colorEffectBulb" />
         </channels>
     </channel-group-type>
     <channel-group-type id="colorSettingsBulb">

@@ -362,7 +362,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         int m = 0;
                         for (ShellySettingsMeter meter : status.meters) {
                             Integer meterIndex = m + 1;
-                            if (meter.is_valid) {
+                            if (meter.is_valid || profile.isLight) {   // RGBW2-white doesn't report das flag correctly in white mode
                                 String groupName = "";
                                 if (profile.numMeters > 1) {
                                     groupName = CHANNEL_GROUP_METER + meterIndex.toString();
