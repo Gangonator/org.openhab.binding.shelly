@@ -180,7 +180,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
             } else {
-                profile = getProfile();
+                profile = getProfile(true);
             }
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
@@ -250,38 +250,32 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Set Auto-ON timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "Timer AutoOn: Invalid value type: " + command.getClass());
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
-                    refreshSettings = true;
                     break;
                 case CHANNEL_TIMER_AUTOOFF:
                     logger.info("Set Auto-OFF timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "Invalid value type");
                     api.setTimer(rIndex, SHELLY_TIMER_AUTOOFF, ((DecimalType) command).doubleValue());
-                    refreshSettings = true;
                     break;
                 case CHANNEL_LED_STATUS_DISABLE:
                     logger.info("Set STATUS LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
-                    refreshSettings = true;
                     break;
                 case CHANNEL_LED_POWER_DISABLE:
                     logger.info("Set POWER LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
-                    refreshSettings = true;
                     break;
 
                 case CHANNEL_SENSE_MOT_TIMER:
                     logger.info("Setting Motion timer to {}", command.toString());
                     Validate.isTrue(command instanceof DecimalType, "parameter must be of type DecimalType");
                     api.setSenseSetting(SHELLY_SENSE_MOTION_TIMER, ((DecimalType) command).toString());
-                    refreshSettings = true;
                     break;
                 case CHANNEL_SENSE_MOT_LED:
                     logger.info("Motion inlights the LED: {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "parameter must be of type OnOffType");
                     api.setSenseSetting(SHELLY_SENSE_MOTION_LED, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
-                    refreshSettings = true;
                     break;
                 case CHANNEL_SENSE_KEY:
                     logger.info("Send key {}", command.toString());
@@ -302,6 +296,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     protected void updateStatus() {
         try {
+            // Refresh the settings every 60 sec if If device is initialized
+            if ((getThing().getStatus() == ThingStatus.ONLINE) && (profile != null) && (scheduledUpdates == 0)
+                    && (!profile.hasBattery || profile.isSense) &&
+                    (refreshSettings || ((skipUpdate + 1) % UPDATE_SKIP_COUNT == 0))) {
+                profile = getProfile(true);
+            }
+
             if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
@@ -660,11 +661,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return sdf.format(date);
     }
 
-    protected ShellyDeviceProfile getProfile() throws IOException {
-        if (refreshSettings) {
+    protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
+        refreshSettings |= forceRefresh;
+        if (this.refreshSettings) {
             logger.trace("Refresh settings for device {}", thingName);
             profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
             refreshSettings = false;
+            logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
         }
         return profile;
     }

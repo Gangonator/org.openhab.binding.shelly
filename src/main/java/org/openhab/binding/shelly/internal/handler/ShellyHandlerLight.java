@@ -64,7 +64,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             Integer lightId = getLightIdFromGroup(groupName);
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
 
-            ShellyDeviceProfile profile = super.getProfile();
+            ShellyDeviceProfile profile = super.getProfile(true);
             Validate.notNull(profile, "DeviceProfile must not be null, thing not initialized");
 
             ShellyColorUtils oldCol = getCurrentColors(lightId);
@@ -202,17 +202,12 @@ public class ShellyHandlerLight extends ShellyHandler {
     @Override
     public void updateThingStatus() throws IOException {
 
-        ShellyDeviceProfile profile = super.getProfile();
-        if (profile == null) {
-            logger.debug("ERROR: Light not yet initialized, but updating thing status!");
-            return;
-        }
-        if (!profile.isLight) {
-            logger.debug("ERROR: Device {} is not a light. but class ShellyHandlerLight is called!", profile.hostname);
-            return;
-        }
+        ShellyDeviceProfile profile = super.getProfile(false);
+        Validate.notNull(profile, "updateThingStatus(): profile must not be null!");
+        Validate.isTrue(profile.isLight, "ERROR: Device " + profile.hostname + " is not a light. but class ShellyHandlerLight is called!");
 
         ShellyStatusLight status = api.getLightStatus();
+        Validate.notNull(status, "updateThingStatus(): status must not be null!");
         logger.debug("Updating bulb/rgw2 status for {}, in {} mode, {} channel(s)", profile.hostname, profile.mode, status.lights.size());
 
         // In white mode we have multiple channels
