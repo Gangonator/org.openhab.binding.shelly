@@ -377,7 +377,7 @@ public class ShellyHttpApi {
         return list;
     }
 
-    public void sendIRKey(String keyCode) throws IOException {
+    public void sendIRKey(String keyCode) throws IOException, IllegalArgumentException {
         String type = "";
         if (profile.irCodes.containsKey(keyCode)) {
             type = SHELLY_IR_CODET_STORED;
@@ -387,8 +387,14 @@ public class ShellyHttpApi {
             type = SHELLY_IR_CODET_PRONTO_HEX;
         }
         String url = SHELLY_URL_SEND_IR + "?type=" + type;
-        if (type.equals(SHELLY_IR_CODET_PRONTO)) {
-            url = url + "&" + SHELLY_IR_CODET_PRONTO + "=" + Base64.getEncoder().encodeToString(keyCode.getBytes());
+        if (type.equals(SHELLY_IR_CODET_STORED)) {
+            String code = profile.irCodes.get(keyCode);
+            Validate.notNull(code, "Unknown key code requested for type stored: " + keyCode);
+            url = url + "&" + "id=" + code;
+        } else if (type.equals(SHELLY_IR_CODET_PRONTO)) {
+            String code = Base64.getEncoder().encodeToString(keyCode.getBytes());
+            Validate.notNull(code, "Unable to BASE64 encode the pronto code: " + keyCode);
+            url = url + "&" + SHELLY_IR_CODET_PRONTO + "=" + code;
         } else if (type.equals(SHELLY_IR_CODET_PRONTO_HEX)) {
             url = url + "&" + SHELLY_IR_CODET_PRONTO_HEX + "=" + keyCode;
         }

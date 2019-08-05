@@ -156,7 +156,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         api.setEventURLs();
 
         if (p.isSense) {
-            logger.info("Sense stored key list loaded, {} entries.", p.irCodes.size());
+            logger.info("Sense stored key list loaded, {} entries.", p.irCodes.size());
         }
 
         profile = p; // all initialization done, so keep the profile
@@ -180,11 +180,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
             } else {
-                if (refreshSettings) {
-                    logger.trace("Refresh settings for device {}", thingName);
-                    refreshSettings = false;
-                    profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
-                }
+                profile = getProfile();
             }
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
@@ -664,7 +660,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return sdf.format(date);
     }
 
-    protected ShellyDeviceProfile getProfile() {
+    protected ShellyDeviceProfile getProfile() throws IOException {
+        if (refreshSettings) {
+            logger.trace("Refresh settings for device {}", thingName);
+            profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+            refreshSettings = false;
+        }
         return profile;
     }
 

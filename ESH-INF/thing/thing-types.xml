@@ -253,7 +253,7 @@
         <description>Shelly Sense Remote IR controller</description>
 
         <channel-groups>
-            <channel-group id="sensors" typeId="senseControl">
+            <channel-group id="control" typeId="senseControl">
                 <label>Control</label>
             </channel-group>
             <channel-group id="sensors" typeId="senseSensors">

@@ -54,22 +54,23 @@ public class ShellyHandlerLight extends ShellyHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
-        if (command instanceof RefreshType) {
-            super.handleCommand(channelUID, command);
-            return;
-        }
-
-        ShellyDeviceProfile profile = super.getProfile();
-        if (profile == null) {
-            logger.debug("Light not yet initialized!");
-            return;
-        }
         try {
+            if (command instanceof RefreshType) {
+                super.handleCommand(channelUID, command);
+                return;
+            }
+
             String groupName = channelUID.getGroupId();
             Integer lightId = getLightIdFromGroup(groupName);
-            logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
+            logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
+
+            ShellyDeviceProfile profile = super.getProfile();
+            Validate.notNull(profile, "DeviceProfile must not be null, thing not initialized");
+
             ShellyColorUtils oldCol = getCurrentColors(lightId);
+            Validate.notNull(oldCol, "oldCol must not be null");
             ShellyColorUtils col = new ShellyColorUtils(oldCol);
+            Validate.notNull(oldCol, "copy of oldCol must not be null");
             boolean updated = false;
 
             logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
@@ -134,7 +135,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 sendColors(profile, lightId, oldCol, col);
             }
 
-            super.requestUpdates(1, true);
+            super.requestUpdates(1, true);  // always do a refresh after a command
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
@@ -221,7 +222,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.trace("Updating lightId {}/{}", lightId, channelId.toString());
             String controlGroup = buildControlGroupName(profile, channelId);
 
-            logger.debug("Updating light channels {}.{}", profile.hostname, controlGroup);
+            logger.debug("Updating light channels {}.{} (mode={})", profile.hostname, controlGroup, getString(profile.settings.mode));
 
             // The bulb has a combined channel set for color or white mode
             // The RGBW2 uses 2 different thing types: color=1 channel, white=4 channel
@@ -279,8 +280,6 @@ public class ShellyHandlerLight extends ShellyHandler {
     private Integer setColor(Integer lightId, String colorName, Command command, Integer minValue, Integer maxValue)
             throws IOException, IllegalArgumentException {
         DecimalType value = new DecimalType();
-        validateRange(colorName, value.intValue(), minValue, maxValue);
-
         logger.info("Set {} to {} ({})", colorName, command, command.getClass());
         if (command instanceof PercentType) {
             PercentType percent = (PercentType) command;
@@ -293,6 +292,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         } else {
             throw new IllegalArgumentException("Invalid value for " + colorName + ": " + value.toString() + " / type " + value.getClass());
         }
+        validateRange(colorName, value.intValue(), minValue, maxValue);
         return value.intValue();
     }
 
