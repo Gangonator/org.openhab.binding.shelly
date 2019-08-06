@@ -278,7 +278,7 @@
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
-            <channel id="trigger" typeId="relayTrigger" />
+            <channel id="event" typeId="eventTrigger" />
         </channels>
    </channel-group-type>
    <channel-group-type id="rollerControl">
@@ -290,6 +290,7 @@
             <channel id="lastDirection" typeId="rollerDirection" />
             <channel id="stopReason" typeId="rollerStop" />
             <channel id="calibrating" typeId="rollerCalibrating" />
+            <channel id="event" typeId="eventTrigger" />
         </channels>
     </channel-group-type>
 
@@ -342,6 +343,7 @@
             <channel id="temperature" typeId="sensorTemp" />
             <channel id="tempUnit" typeId="sensorTempUnit" />
             <channel id="humidity" typeId="sensorHumidity" />
+            <channel id="event" typeId="eventTrigger" />
         </channels>
    </channel-group-type>
    <channel-group-type id="senseSensors">
@@ -469,35 +471,35 @@
         <item-type>Number</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
-        <state readOnly="true" pattern="%.1f" >
+        <state readOnly="true" pattern="%.1fW" >
         </state>
     </channel-type>
     <channel-type id="lastPower1">
         <item-type>Number</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1f" >
+        <state readOnly="true" pattern="%.1fW/min" >
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1f" >
+        <state readOnly="true" pattern="%.1fW/min" >
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1f" >
+        <state readOnly="true" pattern="%.1fW/min" >
         </state>
     </channel-type>
    <channel-type id="meterTotal">
         <item-type>Number</item-type>
         <label>Total Energy (kw/h)</label>
         <description>Total power consumption in kw/h</description>
-        <state readOnly="true" pattern="%.5f" >
+        <state readOnly="true" pattern="%.5fkw/h" >
         </state>
     </channel-type>
    <channel-type id="meterTimestamp">
@@ -514,9 +516,9 @@
         <state readOnly="true">
         </state>
     </channel-type>
-    <channel-type id="relayTrigger">
+    <channel-type id="eventTrigger">
         <kind>trigger</kind>
-        <label>Relay Event Trigger</label>
+        <label>Event Trigger</label>
         <description>Triggers channel for events, type code be btn_on, btn_off, out_on, out_off</description>
         <event/>
     </channel-type>
@@ -634,7 +636,7 @@
         <item-type>Dimmer</item-type>
         <label>Light Temperature</label>
         <description>Light Temperature 3000..6500K</description>
-        <state min="3000" max="6500" step="10" pattern="%d K" readOnly="false"></state>
+        <state min="3000" max="6500" step="10" pattern="%d %%" readOnly="false"></state>
     </channel-type>
     <channel-type id="whiteBrightness">
         <item-type>Dimmer</item-type>
@@ -717,7 +719,7 @@
         <item-type>Number</item-type>
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
-        <state readOnly="true" pattern="%.2f" >
+        <state readOnly="true" pattern="%.2f%%" >
         </state>
     </channel-type>
     <channel-type id="sensorLux">
@@ -732,7 +734,7 @@
         <item-type>Number</item-type>
         <label>Battery level</label>
         <description>Battery level in %</description>
-        <state readOnly="true" pattern="%.1f" >
+        <state readOnly="true" pattern="%.1f %%" >
         </state>
     </channel-type>
     <channel-type id="batAlert">
@@ -746,7 +748,7 @@
         <item-type>Number</item-type>
         <label>Battery voltage</label>
         <description>Battery voltage in V</description>
-        <state readOnly="true">
+        <state readOnly="true" pattern="%dV" >
         </state>
     </channel-type>
 

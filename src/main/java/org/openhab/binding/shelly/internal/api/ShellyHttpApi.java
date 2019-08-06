@@ -233,7 +233,7 @@ public class ShellyHttpApi {
         return profile;
     }
 
-    public void setEventURLs() throws IOException {
+    public void setEventURLs(String deviceName) throws IOException {
         if (profile.supportsActionUrls) {
             // set event URLs for Shelly2/4 Pro
             logger.trace("Check/set Action event URLs for Relay or Roller");
@@ -241,11 +241,11 @@ public class ShellyHttpApi {
             for (ShellySettingsRelay relay : profile.settings.relays) {
                 logger.info("Current settings for relay[{}]: btn_on_url={}/btn_off_url={}, out_on_url={}, out_off_url={}", i,
                         relay.btn_on_url, relay.btn_off_url, relay.out_on_url, relay.out_off_url);
-                setRelayEventUrls(i, profile.hostname);
+                setRelayEventUrls(i, deviceName);
                 i++;
             }
         }
-        setSensorEventUrls(profile.hostname);
+        setSensorEventUrls(deviceName);
 
     }
 

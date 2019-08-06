@@ -64,7 +64,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             Integer lightId = getLightIdFromGroup(groupName);
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
 
-            ShellyDeviceProfile profile = super.getProfile(true);
+            ShellyDeviceProfile profile = super.getProfile(false);
             Validate.notNull(profile, "DeviceProfile must not be null, thing not initialized");
 
             ShellyColorUtils oldCol = getCurrentColors(lightId);

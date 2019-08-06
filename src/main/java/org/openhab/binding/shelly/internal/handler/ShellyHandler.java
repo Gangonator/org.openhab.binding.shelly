@@ -83,6 +83,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
      * @param networkAddressService instance of NetworkAddressService to get access to the OH default ip settings
      */
+    @SuppressWarnings("deprecation")
     public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory,
             NetworkAddressService networkAddressService) {
         super(thing);
@@ -125,6 +126,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
+
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
@@ -135,12 +137,20 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
+        Map<String, String> properties = getThing().getProperties();
+        Validate.notNull(properties, "properties must not be null!");
+        thingName = properties.get(PROPERTY_SERVICE_NAME);
+        if (thingName == null) {
+            thingName = p.hostname;
+        }
+        Validate.notNull(thingName, "thingName must not be null!");
+
         // update thing properties
         ShellySettingsStatus status = api.gerStatus();
         updateProperties(p, status);
         if (p.fwVersion.compareTo(SHELLY_API_MIN_FWVERSION) < 0) {
             logger.info("WARNING: Firmware of device {} too old, installed: {}/{} ({}), minimal {} is recommended",
-                    p.hostname, p.fwVersion, p.fwDate, p.fwId, SHELLY_API_MIN_FWVERSION);
+                    thingName, p.fwVersion, p.fwDate, p.fwId, SHELLY_API_MIN_FWVERSION);
             logger.info(
                     "The binding was tested with Version 1.5+ only. Older versions might work, but doesn't support all features or lead into technical issues.");
             logger.info("You should consider to upgrade the device to v1.5.0 or newer!");
@@ -155,14 +165,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.info("Thing is not in {} mode, going offline. May run discovery to find the thing for the requested mode.");
         }
 
-        api.setEventURLs();
+        api.setEventURLs(thingName);
 
         if (p.isSense) {
             logger.info("Sense stored key list loaded, {} entries.", p.irCodes.size());
         }
 
         profile = p; // all initialization done, so keep the profile
-        thingName = p.hostname;
         requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
         logger.info("Thing {} successfully initialized.", thingName);
 
@@ -183,7 +192,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
             } else {
-                profile = getProfile(true);
+                profile = getProfile(false);
             }
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
@@ -298,7 +307,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     protected void updateStatus() {
         try {
-            if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
+            if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (!profile.hasBattery || profile.isSense)
+                    && (getThing().getStatus() == ThingStatus.ONLINE)) {
                 refreshSettings = !profile.hasBattery || profile.isSense;
             }
 
@@ -475,7 +485,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // If status update was successful the thing must be online
                 if (getThing().getStatus() != ThingStatus.ONLINE) {
-                    logger.info("Thing {}({} is online", getThing().getLabel(), profile.hostname);
+                    logger.info("Thing {}({} is online", getThing().getLabel(), thingName);
                     updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
                 }
 
@@ -532,12 +542,32 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.debug("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
                     parameters.toString());
             if (profile == null) {
-                logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
+                logger.trace("Device {} is not yet initialized, event will trigger initialization", deviceName);
             }
-            requestUpdates(1, false);    // request update on next interval
-        }
-        if (profile == null) {
-            logger.debug("Device {} is not yet initialized, event triggers initialization", deviceName);
+
+            int i = 0;
+            String payload = "{ ";
+            for (String key : parameters.keySet()) {
+                if (i++ > 0) {
+                    payload = payload + ", ";
+                }
+                String[] values = parameters.get(key);
+                payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
+            }
+            payload = payload + " }";
+            if (eventClass.equals("relay") && profile.hasRelays) {
+                Integer rindex = Integer.parseInt(deviceIndex) + 1;
+                String channel = "relay" + rindex.toString() + "#event";
+                logger.debug("Trigger relay event, channel {}, payload={}", channel, payload);
+                triggerChannel(channel, payload);
+            }
+            if (eventClass.equals("sensordata")) {
+                String channel = "sensor#event";
+                logger.debug("Trigger sensor event, channel {}, payload={}", channel, payload);
+                triggerChannel(channel, payload);
+            }
+
+            requestUpdates(scheduledUpdates > 0 ? 0 : 1, true);    // request update on next interval
         }
     }
 
@@ -550,7 +580,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     protected boolean requestUpdates(int requestCount, boolean refreshSettings) {
-        this.refreshSettings = refreshSettings;
+        this.refreshSettings |= refreshSettings;
         if (refreshSettings) {
             logger.debug("Request a refresh of the settings for device {}", thingName);
         }
