@@ -388,9 +388,7 @@ public class ShellyHttpApi {
         }
         String url = SHELLY_URL_SEND_IR + "?type=" + type;
         if (type.equals(SHELLY_IR_CODET_STORED)) {
-            String code = profile.irCodes.get(keyCode);
-            Validate.notNull(code, "Unknown key code requested for type stored: " + keyCode);
-            url = url + "&" + "id=" + code;
+            url = url + "&" + "id=" + keyCode;
         } else if (type.equals(SHELLY_IR_CODET_PRONTO)) {
             String code = Base64.getEncoder().encodeToString(keyCode.getBytes());
             Validate.notNull(code, "Unable to BASE64 encode the pronto code: " + keyCode);
