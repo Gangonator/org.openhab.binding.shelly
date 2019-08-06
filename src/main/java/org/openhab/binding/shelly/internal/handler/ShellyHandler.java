@@ -299,7 +299,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     protected void updateStatus() {
         try {
             if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
-                refreshSettings = true;
+                refreshSettings = !profile.hasBattery || profile.isSense;
             }
 
             if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0) || refreshSettings) {
@@ -666,14 +666,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
         refreshSettings |= forceRefresh;
-        /*
-         * if (this.refreshSettings) {
-         * logger.trace("Refresh settings for device {}", thingName);
-         * profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
-         * refreshSettings = false;
-         * logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
-         * }
-         */
+
+        if (this.refreshSettings) {
+            logger.trace("Refresh settings for device {}", thingName);
+            profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+            refreshSettings = false;
+            logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
+        }
+
         return profile;
 
     }
