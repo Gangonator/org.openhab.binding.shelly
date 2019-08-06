@@ -71,6 +71,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                         skipUpdate       = 0;
     private int                         scheduledUpdates = 0;
     private int                         skipCount        = UPDATE_SKIP_COUNT;
+    private int                         skipRefresh      = 0;
+    private int                         refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
     private boolean                     refreshSettings  = false;
     private boolean                     channelCache     = false;
 
@@ -167,6 +169,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         if (statusJob == null || statusJob.isCancelled()) {
             statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
                     UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
+            Validate.notNull(statusJob, "statusJob must not be null");
             logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
                     skipCount * UPDATE_STATUS_INTERVAL);
         }
@@ -288,7 +291,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
         }
-
     }
 
     /**
@@ -296,17 +298,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     protected void updateStatus() {
         try {
-            // Refresh the settings every 60 sec if If device is initialized
-            if ((getThing().getStatus() == ThingStatus.ONLINE) && (profile != null) && (scheduledUpdates == 0)
-                    && (!profile.hasBattery || profile.isSense) &&
-                    (refreshSettings || ((skipUpdate + 1) % UPDATE_SKIP_COUNT == 0))) {
-                profile = getProfile(true);
+            if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
+                refreshSettings = true;
             }
 
-            if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0)) {
+            if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0) || refreshSettings) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
+                }
+                if (refreshSettings) {
+                    logger.debug("Refresh settings for device {}", thingName);
+                    profile = getProfile(true);
                 }
 
                 logger.trace("Updating status for device {}", thingName);
@@ -481,7 +484,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.debug("{} more updates requested", scheduledUpdates);
                 }
                 if (!channelCache && (scheduledUpdates == 0)) {
-                    logger.debug("Enabling channel cache for device {}", thingName);
+                    // logger.debug("Enabling channel cache for device {}", thingName);
                     // channelCache = true;
                 }
             } else {
@@ -663,13 +666,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
         refreshSettings |= forceRefresh;
-        if (this.refreshSettings) {
-            logger.trace("Refresh settings for device {}", thingName);
-            profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
-            refreshSettings = false;
-            logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
-        }
+        /*
+         * if (this.refreshSettings) {
+         * logger.trace("Refresh settings for device {}", thingName);
+         * profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+         * refreshSettings = false;
+         * logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
+         * }
+         */
         return profile;
+
     }
 
     @Override
@@ -678,6 +684,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         try {
             if (statusJob != null) {
                 statusJob.cancel(true);
+                statusJob = null;
             }
         } catch (Exception e) {
             logger.debug("Exception on dispose(): {} ({})", e.getMessage(), e.getClass());

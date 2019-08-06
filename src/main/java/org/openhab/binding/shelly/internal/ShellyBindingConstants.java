@@ -57,6 +57,7 @@ public class ShellyBindingConstants {
     public static final int               UPDATE_STATUS_INTERVAL       = 3; // check for updates every x sec
     public static final int               UPDATE_SKIP_COUNT            = 20; // update every x triggers or when a key was pressed
     public static final int               UPDATE_MIN_DELAY             = 15; // update every x triggers or when a key was pressed
+    public static final int               UPDATE_SETTINGS_INTERVAL     = 60; // check for updates every x sec
 
     // List of all Configuration Properties
     public static final String            CONFIG_DEVICEIP              = "deviceIp";
