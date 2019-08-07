@@ -75,6 +75,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                         refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
     private boolean                     refreshSettings  = false;
     private boolean                     channelCache     = false;
+    protected boolean                   lockUpdates      = false;
 
     private String                      thingName        = "";
     private Map<String, Object>         channelData      = new HashMap<>();
@@ -126,13 +127,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
+        lockUpdates = false;
 
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRelays={}, numMeter={}",
+                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
                 p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
                 p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
@@ -188,6 +190,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         try {
+            lockUpdates = true;
             if (profile == null) {
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
@@ -314,6 +317,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     protected void updateStatus() {
         try {
+            if (lockUpdates) {
+                logger.trace("Update locked, try on next cycle");
+                return;
+            }
             if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (!profile.hasBattery || profile.isSense)
                     && (getThing().getStatus() == ThingStatus.ONLINE)) {
                 refreshSettings = !profile.hasBattery || profile.isSense;
@@ -559,7 +566,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
 
             int i = 0;
-            String payload = "{ ";
+            String payload = "{ \"device\" : \"" + deviceName + "\", \"class\" : \"" + eventClass + "\", \"index\" : \"" + deviceIndex
+                    + "\", parameters[";
             for (String key : parameters.keySet()) {
                 if (i++ > 0) {
                     payload = payload + ", ";
@@ -567,7 +575,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 String[] values = parameters.get(key);
                 payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
             }
-            payload = payload + " }";
+            payload = payload + " ] }";
             if (eventClass.equals("relay") && profile.hasRelays) {
                 Integer rindex = Integer.parseInt(deviceIndex) + 1;
                 String channel = "relay" + rindex.toString() + "#event";
@@ -594,6 +602,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected boolean requestUpdates(int requestCount, boolean refreshSettings) {
         this.refreshSettings |= refreshSettings;
+        lockUpdates = false;
         if (refreshSettings) {
             logger.debug("Request a refresh of the settings for device {}", thingName);
         }

@@ -149,7 +149,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 return new ThingUID(THING_TYPE_SHELLY2_ROLLER, devid);
             }
         }
-        if (name.startsWith("shellys4pro")) {
+        if (name.startsWith("shelly4pro")) {
             return new ThingUID(THING_TYPE_SHELLY4PRO, devid);
         }
         if (name.startsWith("shellyplug-s")) {

@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -142,13 +143,15 @@ public class ShellyHttpApi {
 
     }
 
-    private final Logger        logger    = LoggerFactory.getLogger(ShellyHandler.class);
-    private String              localIp   = "";
-    private String              deviceIp  = "";
-    private String              localPort = OPENHAB_DEF_PORT;
+    private final Logger        logger      = LoggerFactory.getLogger(ShellyHandler.class);
+    private String              localIp     = "";
+    private String              deviceIp    = "";
+    private String              localPort   = OPENHAB_DEF_PORT;
 
     private ShellyDeviceProfile profile;
-    private Gson                gson      = new Gson();
+    private Gson                gson        = new Gson();
+
+    private Semaphore           accessMutex = new Semaphore(1);
 
     public ShellyHttpApi(ShellyConfiguration config) {
         this.deviceIp = config.deviceIp;
@@ -409,8 +412,10 @@ public class ShellyHttpApi {
     public String request(String uri) throws IOException {
         String url = "http://" + deviceIp + uri;
         String httpResponse = "ERROR";
+        // boolean acquired = false;
         try {
             logger.trace("HTTP GET {}", url);
+            // acquired = accessMutex.tryAcquire(2 * SHELLY_API_TIMEOUT, TimeUnit.MILLISECONDS);
             httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
@@ -423,8 +428,15 @@ public class ShellyHttpApi {
             return httpResponse;
         } catch (IOException e) {
             throw new IOException(
-                    "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage());
-        }
+                    "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());
+        } // catch (InterruptedException e) {
+          // throw new IOException(
+          // "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());
+          // } finally {
+          // if (acquired) {
+          // accessMutex.release();
+          // }
+          // }
     }
 
     private String buildEventUrl(Integer relayIndex, String parameter, String url) throws IOException {

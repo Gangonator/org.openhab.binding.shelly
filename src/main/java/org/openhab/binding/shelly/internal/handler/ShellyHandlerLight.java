@@ -60,6 +60,8 @@ public class ShellyHandlerLight extends ShellyHandler {
                 return;
             }
 
+            super.lockUpdates = true;
+
             String groupName = channelUID.getGroupId();
             Integer lightId = getLightIdFromGroup(groupName);
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
@@ -76,6 +78,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
             switch (channelUID.getIdWithoutGroup()) {
                 default: // non-bulb commands will be handled by the generic handler
+                    super.lockUpdates = false;
                     super.handleCommand(channelUID, command);
                     break;
 
