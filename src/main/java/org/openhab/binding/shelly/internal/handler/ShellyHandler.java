@@ -233,6 +233,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     api.setRollerTurn(rIndex, turn);
                     break;
                 case CHANNEL_ROL_CONTROL_POS:
+                    ShellyControlRoller rStatus = api.getRollerStatus(rIndex);
+                    if (getBool(rStatus.calibrating)) {
+                        logger.info("Roller is in calivration mode, positioning blocked!");
+                        break;
+                    }
+
                     logger.info("Setting roller to position {}", command.toString());
                     if (command == StopMoveType.STOP) {
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
@@ -253,7 +259,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             DecimalType d = (DecimalType) command;
                             position = d.intValue();
                         }
-                        Validate.isTrue(position != -1, "Invalid position requested: " + command.toString());
+                        Validate.isTrue(position == -1, "Invalid position requested: " + position.toString());
+                        logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
                         api.setRollerPos(rIndex, position);
                     }
                     requestUpdates(30 / UPDATE_STATUS_INTERVAL, false); // request updates the next 30sec to update roller position after it stopped
@@ -365,6 +372,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getBool(control.overtemperature));
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_CALIB, getBool(control.calibrating));
+
                             i = i + 1;
                         }
                     }
