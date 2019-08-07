@@ -450,11 +450,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.debug("{}: Updating sensor", thingName);
                     ShellyStatusSensor sdata = api.getSensorStatus();
                     if (sdata != null) {
-                        if (sdata.tmp.is_valid) {
+                        if (getBool(sdata.tmp.is_valid)) {
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP,
-                                    sdata.tmp.units.toUpperCase().equals(SHELLY_TEMP_CELSIUS) ? getDouble(sdata.tmp.tC) : getDouble(sdata.tmp.tF));
+                                    getString(sdata.tmp.units).toUpperCase().equals(SHELLY_TEMP_CELSIUS) ? getDouble(sdata.tmp.tC)
+                                            : getDouble(sdata.tmp.tF));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, getString(sdata.tmp.units));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, getDouble(sdata.hum.value));
+                        }
+                        if (getBool(sdata.lux.is_valid)) {
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX, getDouble(sdata.lux.value));
                         }
                         if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);

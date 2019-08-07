@@ -142,7 +142,7 @@
         <description>Shelly HT sensor device (battery powered)</description>
 
         <channel-groups>
-            <channel-group id="sensor" typeId="htSensor">
+            <channel-group id="sensors" typeId="htSensor">
                 <label>Sensor Data</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">
@@ -158,7 +158,7 @@
         <description>Shelly Smoke sensor device (battery powered)</description>
 
         <channel-groups>
-            <channel-group id="sensor" typeId="smokeSensor">
+            <channel-group id="sensors" typeId="smokeSensor">
                 <label>Sensor</label>
             </channel-group>
             <channel-group id="battery" typeId="batteryStatus">

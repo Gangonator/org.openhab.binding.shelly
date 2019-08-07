@@ -101,7 +101,7 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_ROL_CONTROL_POS      = "position";
     public static final String            CHANNEL_ROL_CONTROL_TIMER    = "timer";
     public static final String            CHANNEL_ROL_CONTROL_STOPR    = "stopReason";
-    public static final String            CHANNEL_ROL_CONTROL_DIR      = "direction";
+    public static final String            CHANNEL_ROL_CONTROL_DIR      = "lastDirection";
     public static final String            CHANNEL_ROL_CONTROL_OVERT    = "overtemp";
     public static final String            CHANNEL_ROL_CONTROL_CALIB    = "calibrating";
 

@@ -338,8 +338,8 @@ public class ShellyApiJson {
         };
 
         public static class _lux {
-            Boolean is_valid;
-            Double  value;
+            public Boolean is_valid;
+            public Double  value;
         }
 
         public _tmp     tmp;

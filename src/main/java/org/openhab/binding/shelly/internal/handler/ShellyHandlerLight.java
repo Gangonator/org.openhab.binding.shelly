@@ -118,12 +118,19 @@ public class ShellyHandlerLight extends ShellyHandler {
                     updated = true;
                     break;
                 case CHANNEL_COLOR_TEMP:
-                    col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
+                    if (command instanceof PercentType) {
+                        logger.info("Set color temp to {}%", ((PercentType) command).floatValue());
+                        col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
+                    } else if (command instanceof DecimalType) {
+                        Integer value = ((DecimalType) command).intValue();
+                        logger.info("Set color temp to {} (Integer)", value);
+                        validateRange(CHANNEL_COLOR_TEMP, value, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+                        col.setTemp(value);
+                    }
                     updated = true;
                     break;
 
                 case CHANNEL_COLOR_EFFECT:
-                    logger.info("Set color effect {}", command.toString());
                     Integer effect = ((DecimalType) command).intValue();
                     validateRange("effect", effect, SHELLY_MIN_EFFECT, SHELLY_MAX_EFFECT);
                     col.setEffect(effect.intValue());
