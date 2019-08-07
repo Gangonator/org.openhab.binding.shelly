@@ -471,35 +471,35 @@
         <item-type>Number</item-type>
         <label>Watt</label>
         <description>Current power consumption in Watt</description>
-        <state readOnly="true" pattern="%.1fW" >
+        <state readOnly="true" pattern="%.1f W" >
         </state>
     </channel-type>
     <channel-type id="lastPower1">
         <item-type>Number</item-type>
         <label>Last Power #1</label>
         <description>Last power consumption #1 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1fW/min" >
+        <state readOnly="true" pattern="%.1f W/min" >
         </state>
     </channel-type>
     <channel-type id="lastPower2">
         <item-type>Number</item-type>
         <label>Last Power #2</label>
         <description>Last power consumption #2 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1fW/min" >
+        <state readOnly="true" pattern="%.1f W/min" >
         </state>
     </channel-type>
     <channel-type id="lastPower3">
         <item-type>Number</item-type>
         <label>Last Power #3</label>
         <description>Last power consumption #3 - one rounded minute</description>
-        <state readOnly="true" pattern="%.1fW/min" >
+        <state readOnly="true" pattern="%.1f W/min" >
         </state>
     </channel-type>
    <channel-type id="meterTotal">
         <item-type>Number</item-type>
         <label>Total Energy (kw/h)</label>
         <description>Total power consumption in kw/h</description>
-        <state readOnly="true" pattern="%.5fkw/h" >
+        <state readOnly="true" pattern="%.5f kw/h" >
         </state>
     </channel-type>
    <channel-type id="meterTimestamp">
@@ -719,7 +719,7 @@
         <item-type>Number</item-type>
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
-        <state readOnly="true" pattern="%.2f%%" >
+        <state readOnly="true" pattern="%.2f %%" >
         </state>
     </channel-type>
     <channel-type id="sensorLux">
@@ -748,7 +748,7 @@
         <item-type>Number</item-type>
         <label>Battery voltage</label>
         <description>Battery voltage in V</description>
-        <state readOnly="true" pattern="%dV" >
+        <state readOnly="true" pattern="%d V" >
         </state>
     </channel-type>
 
@@ -756,11 +756,13 @@
         <item-type>Number</item-type>
         <label>Auto ON timer</label>
         <description>When Off - Turn On After xx seconds; 0 disables the timer</description>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
     </channel-type>
     <channel-type id="timerAutoOff">
         <item-type>Number</item-type>
         <label>Auto OFF timer</label>
         <description>When ON - Turn On After xx seconds; 0 disables the timer</description>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
     </channel-type>
     <channel-type id="timerActive">
         <item-type>Switch</item-type>
@@ -774,7 +776,7 @@
         <item-type>Number</item-type>
         <label>Motion Duration</label>
         <description>Number of seconds to detect motion</description>
-        <state min="0" step="1" pattern="%d" readOnly="false"></state>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
     </channel-type>
     <channel-type id="senseMotion">
         <item-type>Switch</item-type>
