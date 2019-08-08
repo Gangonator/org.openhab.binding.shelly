@@ -104,6 +104,8 @@
         <item-type>Switch</item-type>
         <label>Calibrating</label>
         <description>ON: Roller is calibrating</description>
+        <state readOnly="true">
+        </state>
     </channel-type>
     
     <channel-type id="rollerDirection">

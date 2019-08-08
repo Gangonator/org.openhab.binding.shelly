@@ -239,7 +239,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 case CHANNEL_ROL_CONTROL_POS:
                     ShellyControlRoller rStatus = api.getRollerStatus(rIndex);
                     if (getBool(rStatus.calibrating)) {
-                        logger.info("Roller is in calivration mode, positioning blocked!");
+                        logger.info("Roller is in calibration mode, positioning blocked!");
                         break;
                     }
 
