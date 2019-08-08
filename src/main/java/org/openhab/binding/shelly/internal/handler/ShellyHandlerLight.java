@@ -117,23 +117,35 @@ public class ShellyHandlerLight extends ShellyHandler {
                     updated = true;
                     break;
                 case CHANNEL_COLOR_BRIGHTNESS:  // only in white mode
-                    col.setBrightness(setColor(lightId, SHELLY_COLOR_BRIGHTNESS, command, SHELLY_MAX_BRIGHTNESS));
-                    updated = true;
-                    break;
-                case CHANNEL_COLOR_TEMP:
                     Integer value = -1;
                     if (command instanceof PercentType) {
-                        logger.info("Set color temp to {}%", ((PercentType) command).floatValue());
+                        logger.info("Set brightness to {}%", ((PercentType) command).floatValue());
                         Float percent = ((PercentType) command).floatValue();
-                        value = new DecimalType(MIN_COLOR_TEMPERATURE + (MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE) * percent).intValue();
+                        value = new DecimalType(MIN_BRIGHTNESS + (MAX_BRIGHTNESS - MIN_BRIGHTNESS) * percent).intValue();
                         logger.info("Converted color-temp {}% to {}K (from Percent to Integer)", percent, value);
                         // col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
                     } else if (command instanceof DecimalType) {
                         value = ((DecimalType) command).intValue();
-                        logger.info("Set color temp to {}K (Integer)", value);
+                        logger.info("Set color temp to {} (Integer)", value);
                     }
-                    validateRange(CHANNEL_COLOR_TEMP, value, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
-                    col.setTemp(value);
+                    // col.setBrightness(setColor(lightId, SHELLY_COLOR_BRIGHTNESS, command, SHELLY_MAX_BRIGHTNESS));
+                    col.setBrightness(value);
+                    updated = true;
+                    break;
+                case CHANNEL_COLOR_TEMP:
+                    Integer temp = -1;
+                    if (command instanceof PercentType) {
+                        logger.info("Set color temp to {}%", ((PercentType) command).floatValue());
+                        Float percent = ((PercentType) command).floatValue();
+                        temp = new DecimalType(MIN_COLOR_TEMPERATURE + (MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE) * percent).intValue();
+                        logger.info("Converted color-temp {}% to {}K (from Percent to Integer)", percent, temp);
+                        // col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
+                    } else if (command instanceof DecimalType) {
+                        temp = ((DecimalType) command).intValue();
+                        logger.info("Set color temp to {}K (Integer)", temp);
+                    }
+                    validateRange(CHANNEL_COLOR_TEMP, temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+                    col.setTemp(temp);
                     updated = true;
                     break;
 

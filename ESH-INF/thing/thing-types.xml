@@ -317,7 +317,7 @@
    </channel-group-type>
    <channel-group-type id="rollerControl">
        <label>Roller Control</label>
-       <description>Controlling teh Shelly2 in roller mode</description>
+       <description>Controlling the roller mode</description>
         <channels>
             <channel id="turn" typeId="rollerTurn" />
             <channel id="position" typeId="rollerShutter" />
