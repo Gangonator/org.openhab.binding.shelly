@@ -190,7 +190,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         try {
-            lockUpdates = true;
             if (profile == null) {
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
@@ -210,6 +209,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             } else if (groupName.startsWith(CHANNEL_GROUP_ROL_CONTROL) && groupName.length() > CHANNEL_GROUP_ROL_CONTROL.length()) {
                 rIndex = Integer.parseInt(StringUtils.substringAfter(channelUID.getGroupId(), CHANNEL_GROUP_ROL_CONTROL)) - 1;
             }
+
+            lockUpdates = true;
             switch (channelUID.getIdWithoutGroup()) {
                 default:
                     logger.trace("Unknown command {} for device {}", channelUID.getAsString(), thingName);
@@ -309,6 +310,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
+        } finally {
+            lockUpdates = false;
         }
     }
 
@@ -602,7 +605,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected boolean requestUpdates(int requestCount, boolean refreshSettings) {
         this.refreshSettings |= refreshSettings;
-        lockUpdates = false;
         if (refreshSettings) {
             logger.debug("Request a refresh of the settings for device {}", thingName);
         }

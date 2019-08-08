@@ -149,7 +149,10 @@ public class ShellyHandlerLight extends ShellyHandler {
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
+        } finally {
+            super.lockUpdates = false;
         }
+
     }
 
     private boolean handleColorPicker(ShellyDeviceProfile profile, Integer lightId, ShellyColorUtils col, Command command) throws IOException {
