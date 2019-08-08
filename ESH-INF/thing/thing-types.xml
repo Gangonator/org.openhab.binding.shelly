@@ -420,10 +420,10 @@
        <label>Sense Control</label>
        <description>Sense Settings</description>
         <channels>
+            <channel id="key" typeId="senseKey" />
             <channel id="motionTimer" typeId="senseMotionTimer" />
             <channel id="motionLED" typeId="senseMotionLED" />
             <channel id="charger" typeId="senseCharger" />
-            <channel id="key" typeId="senseKey" />
         </channels>
     </channel-group-type>
 

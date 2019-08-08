@@ -282,7 +282,7 @@
         </state>
     </channel-type>
     <channel-type id="batAlert">
-        <item-type>Number</item-type>
+        <item-type>Switch</item-type>
         <label>Low Battery</label>
         <description>ON: Battery level is less than 20%</description>
         <state readOnly="true">
@@ -337,7 +337,7 @@
     </channel-type>
     <channel-type id="senseCharger">
         <item-type>Switch</item-type>
-        <label>Charging</label>
+        <label>Charger connected</label>
         <description>ON: Device is charging, OFF: No charger connected</description>
         <state readOnly="true">
         </state>
