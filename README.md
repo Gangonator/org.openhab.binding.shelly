@@ -138,12 +138,13 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 ### Thing Configuration
 
-| Parameter      | Description                                                  |Mandantory| Default                                            |
-|----------------|--------------------------------------------------------------|----------|----------------------------------------------------|
-| deviceIp       | IP address of the Shelly device, usually auto-discovered     |    yes   | none                                               |
-| updateInterval | Interval for the background status check in seconds.         |    no    | 1h for battery powered devices, 60s for all others |
-| userId         | The userid used for http authentication*                     |    no    | none                                               |
-| password       | Password for http authentication*                            |    no    | none                                               |
+| Parameter      |Description                                                 |Mandantory|Default                                            |
+|----------------|------------------------------------------------------------|----------|---------------------------------------------------|
+| deviceIp       |IP address of the Shelly device, usually auto-discovered    |    yes   |none                                               |
+| updateInterval |Interval for the background status check in seconds.        |    no    |1h for battery powered devices, 60s for all others |
+| userId         |The userid used for http authentication*                    |    no    |none                                               |
+| password       |Password for http authentication*                           |    no    |none                                               |
+| lowBattery     |Threshold for battery level. Set alert when level is below. |    no    |20 (=20%), only for battery powered devices        |
 
 ## Channels
 
@@ -239,8 +240,40 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |          |powerLed     |Switch   |r/w      |ON: Power LED is disabled, OFF: LED enabled                                      |
 
 ### Shelly HT (thing-type: shellyht)
+|Group     |Channel      |Type     |read-only|Desciption                                                             |
+|----------|-------------|---------|---------|-----------------------------------------------------------------------|
+|sensors   |temperature  |Number   |yes      |Temperature, unit is reported by tempUnit                              |
+|          |tempUnit     |Number   |yes      |Unit for temperature value: C for Celsius or F for Fahrenheit          |
+|          |humidity     |Number   |yes      |Relative humidity in %                                                 |
+|battery   |batteryLevel |Number   |yes      |Battery Level in %                                                     |
+|          |batteryAlert |Switch   |yes      |Low battery alert                                                      |
+|          |batteryVoltage|Switch  |yes      |Voltage of the battery                                                 |
+
 
 ### Shelly Bulb (thing-type: shellybulb)
+|Group     |Channel      |Type     |read-only|Desciption                                                             |
+|----------|-------------|---------|---------|-----------------------------------------------------------------------|
+|control   |power        |Switch   |r/w      |Switch light ON/OFF                                                    |
+|          |mode         |Switch   |r/w      |Color mode: color or white                                             |
+|          |autoOn       |Number   |r/w      |Sets a  timer to turn the device ON after every OFF; in sec            |
+|          |autoOff      |Number   |r/w      |Sets a  timer to turn the device OFF after every ON: in sec            |
+|          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
+|color     |             |         |         |Color settings: only valid in COLOR mode                               |
+|          |hsb          |HSB      |r/w      |Represents the color picker (HSBType), control r/g/b, bight not white  |
+|          |red          |Dimmer   |r/w      |Red brightness: 0..100% or 0..255 (control only the red channel)       |
+|          |green        |Dimmer   |r/w      |Green brightness: 0..100% or 0..255 (control only the red channel)     |
+|          |blue         |Dimmer   |r/w      |Blue brightness: 0..100% or 0..255 (control only the red channel)      |
+|          |white        |Dimmer   |r/w      |White brightness: 0..100% or 0..255 (control only the red channel)     |
+|          |gain         |Dimmer   |r/w      |Gain setting: 0..100%     or 0..100                                    |
+|          |effect       |Number   |r/w      |Puts the light into effect mode: 0..6)                                 |
+|          |             |         |         |  0=No effect, 1=Meteor Shows, 2=Gradual Change, 3=Breath              |
+|          |             |         |         |  4=Flash, 5=On/Off Gradual, 6=Red/Green Change                        |
+|white     |             |         |         |Color settings: only valid in WHITE mode                               |
+|          |temperature  |Dimmer   |         |Color temperature: 0..100% for 3000..6500K                             |
+|          |brightness   |Dimmer   |         |Brightness: 0..100% or 0..100                                          |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                     |
+ 
+
 
 ### Shelly RGBW2 in Color Mode
 |Group     |Channel      |Type     |read-only|Desciption                                                             |
@@ -275,8 +308,28 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter3    |currentWatts |Number   |yes      |Channel 3: Current power consumption in Watts                          |
 |meter4    |currentWatts |Number   |yes      |Channel 4: Current power consumption in Watts                          |
 
+Please note that the settings of channel group color are only valid in color mode and vice versa for white mode.
+
 
 ### Shelly Sense
+|Group     |Channel      |Type     |read-only|Desciption                                                             |
+|----------|-------------|---------|---------|-----------------------------------------------------------------------|
+|control   |key          |String   |r/w      |Send a IR key to the sense. There a 3 different types supported        |
+|          |             |         |         |Stored key: send the key code defined by the App , e.g. 123_1_up       |
+|          |             |         |         |Pronto hex: send a Pronto Code in ex format, e.g. 0000 006C 0022 ...   |
+|          |             |         |         |Pronto base64: in base64 format, will be send 1:1 to the Sense         |
+|          |motionTime   |Number   |r/w      |Define the number of seconds when the Sense should report motion       |
+|          |motionLED    |Switch   |r/w      |Control the motion LED: ON when motion is detected or OFF              |
+|          |charger      |Switch   |yes      |ON: charger connected, OFF: charger not connected.                     |
+|sensors   |temperature  |Number   |yes      |Temperature, unit is reported by tempUnit                              |
+|          |tempUnit     |Number   |yes      |Unit for temperature value: C for Celsius or F for Fahrenheit          |
+|          |humidity     |Number   |yes      |Relative humidity in %                                                 |
+|          |lux          |Number   |yes      |Brightness in Lux                                                      |
+|          |motion       |Switch   |yes      |ON: Motion detected, OFF: No motion (check also motionTimer)           |
+|battery   |batteryLevel |Number   |yes      |Battery Level in %                                                     |
+|          |batteryAlert |Switch   |yes      |Low battery alert                                                      |
+
+
 
 ### Other devices
 

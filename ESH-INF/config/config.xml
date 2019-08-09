@@ -47,6 +47,12 @@
                 <default>3600</default>
                 <unitLabel>sec</unitLabel>
             </parameter>
+            <parameter name="lowBattery" type="integer" required="false">
+                <label>Low Battery</label>
+                <description>Threshold for the battery level, alert will be signed when battery level is below..</description>
+                <default>20</default>
+                <unitLabel>%</unitLabel>
+            </parameter>
         </config-description>
 
 </config-description:config-descriptions>

@@ -482,7 +482,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
-                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW, getDouble(sdata.bat.value) < 20.0 ? true : false);
+                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW,
+                                    getDouble(sdata.bat.value) < config.lowBattery ? true : false);
                             if (sdata.bat.value != null) {  // no update for Sense
                                 updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                             }
