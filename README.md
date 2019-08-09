@@ -1,35 +1,4 @@
-beta1-pre is available
 
-- new: support for Shelly1-PM (verified)
-- new: Bulb+RGBW2 gets discovered and initialized, still working on control and status updates
-- new: auto-on/off timers are supported for relays
-- new: property wifiRssi, indicates the WiFi signal strength, maxPower when reported by device
-- new: a event callback will auto-initialize the device when it's could not be initialized so far, this is useful for battery powered devices, which were offline when OH starts
-- new: refresh device settings after a channel command, start caching channel data after 10s
-- fix: NPE on bulb discovery fixed
-- fix: Event callbacks might cause a NPE depending on the URL parameters
-- fix: clear channel data on (re-)initialization
-- change: check all API response data to be filled avoiding NPEs, more strict type checking
-- change: thing status updates for Bulb refactored
-- change: use system's pre-define channel definitions where applicable
-
-Bulb and RGBW2 integration are still work-in-progress, @igi and @mherbstare helping.
-No status on Smoke - nobody seems to have one. Sense is not yet started.
-
-Before installing this as an update:
-- delete all Shelly things in PaperUI: Inbox and Configuration.Things
-- stop OH
-- make sure the JSON DB files have no left-overs on Shelly definitions, delete the entries
-- run "openhab-cli clean-cache"
-- maybe empty your log
-
-general:
-- copy the jar into you OH's Inbox folder.
-- start OH, wait until initialized
-- run the thing discovery from the Inbox
-
-Check the README, it's not yet complete, but already describes most of the channels.
-As always: feedback welcome
 # Shelly Binding (org.openhab.binding.shelly)
 
 This openHAB 2 Binding implements control for the Shelly series of devices. This includes sending commands to the devices as well as reding the device status and sensor data.
@@ -39,26 +8,21 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-Please note:
-This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
+beta 1 release notes
++ full support of RGBW2 (color + white mode)
++ support for Shelly 4 Pro
++ Support for Bulb and Sense is work in progress
++ Settings refresh every minute to catch changes by the Web UI or the App
++ refresh poller position for 30s to catch the new status when the roller stops moving
++ trigger channels for relay and HT events
++ channel calibrating gets filled, roller positioning will be blocked when calibration is active
++ compute total power consumption in kw/h
++ decimal numbers in the channel defintion for Watts etc.
+* fixed power meters for all devices
+* fixed refresh handling in several situations
+* fixed flipping switches (turn on in Paper UI, immediately flips back)
 
-Current build: **alpha 6**
-
-- new: support for Shelly1-PM (verified)
-- new: Bulb+RGBW2 gets discovered and initialized, still working on control and status updates
-- new: auto-on/off timers are supported for relays
-- new: property wifiRssi, indicates the WiFi signal strength, maxPower when reported by device
-- new: a event callback will auto-initialize the device when it's could not be initialized so far, this is useful for battery powered devices, which were offline when OH starts
-- new: refresh device settings after a channel command, start caching channel data after 10s
-- fix: NPE on bulb discovery fixed
-- fix: Event callbacks might cause a NPE depending on the URL parameters
-- fix: clear channel data on (re-)initialization
-- change: check all API response data to be filled avoiding NPEs, more strict type checking
-- change: thing status updates for Bulb refactored
-- change: use system's pre-define channel definitions where applicable
-
-Bulb and RGBW2 integration are still work-in-progress, @igi and @mherbstare helping.
-No status on Smoke - nobody seems to have one. Sense is not yet started.
+---
 
 Before installing this as an update:
 - delete all Shelly things in PaperUI: Inbox and Configuration.Things
@@ -74,6 +38,21 @@ general:
 
 Check the README, it's not yet complete, but already describes most of the channels.
 As always: feedback welcome
+
+---
+
+Contibutors:
+@Igi: lot of testing around RGBW2 and in general!
+@mherbst: supported Bulb and Sense testing
+@hmerck: some initial work
+
+Thanks guys supporting the community.
+
+---
+
+Please note:
+This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
+
 
 
 
@@ -93,14 +72,14 @@ Looking for contribution: If you are familar with HTML and CSS you are welcome t
 | shelly2-roller   | Shelly2 in Roller Mode (Shelly2 and Shelly2.5)         | fully supported                                          |
 | shellyht         | Shelly Sensor (temp+humidity)                          | fully supported, recovery handling needs to be optimized |
 | shellyplug-s     | Shelly Plug                                            | fully supported                                          |
-| shellybulb       | Shelly Bulb in Color or WHite Mode                     | work-in-progress, feedback open                          |
-| shellyplug       | Shelly Plug                                            | should get discovered, but no special handling yet       |
+| shellyplug       | Shelly Plug                                            | fully supported                                          |
+| shellyrgbw2      | Shelly RGB Controller                                  | fully supported                                          |
+| shellybulb       | Shelly Bulb in Color or WHite Mode                     | work-in-progress                                         |
+| shellysense      | Shelly Motion and IR Controller                        | work-in-progress                                         |
 | shelly4pro       | Shelly 4x Relay Switch                                 | should get discovered, but no special handling yet       |
 | shellysmoke      | Shelly Sensor (temp+humidity)                          | should get discovered, but no special handling yet       |
-| shellyrgbw2      | Shelly RGB Controller                                  | should get discovered, but no special handling yet       |
-| shellysense      | Shelly Motion and IR Controller                        | should get discovered, but no special handling yet       |
 
-Feedback is welcome anytime. Leave some comments in the forum.
+Feedback is welcome any time. Leave some comments in the forum.
 
 Please let me know if you could support implementation and testing for Shelly RGBW2, 4 Pro, Bulb, Sense. 
 Please send a PM to markus7017 If you encounter errors and include a TRACE log.
@@ -159,12 +138,12 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 ### Thing Configuration
 
-| Parameter      | Description                                                      |Mandantory| Default                                            |
-|----------------|------------------------------------------------------------------|----------|----------------------------------------------------|
-| deviceIp       | IP address of the Shelly device, usually auto-discovered         |    yes   | none                                               |
-| updateInterval | Interval for the background status check in seconds.             |    no    | 1h for battery powered devices, 60s for all others |
-| userId         | The userid used for http authentication*                         |    no    | none                                               |
-| password       | Password for http authentication*                                |    no    | none                                               |
+| Parameter      | Description                                                  |Mandantory| Default                                            |
+|----------------|--------------------------------------------------------------|----------|----------------------------------------------------|
+| deviceIp       | IP address of the Shelly device, usually auto-discovered     |    yes   | none                                               |
+| updateInterval | Interval for the background status check in seconds.         |    no    | 1h for battery powered devices, 60s for all others |
+| userId         | The userid used for http authentication*                     |    no    | none                                               |
+| password       | Password for http authentication*                            |    no    | none                                               |
 
 ## Channels
 
@@ -228,7 +207,36 @@ The Shelly 2.5 includes 2 meters, one for each channel. Refer to Shelly 2 channe
 
 The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make sense to differ power consumption for the roller moving up vs. moving down. For this the binding aggregates the power consumption of both relays and includes the values in "meter1". See channel description for Shelly 2 in roller mode.
 
+### Shelly4 Pro
+|Group     |Channel      |Type     |read-only|Desciption                                                                       |
+|----------|-------------|---------|---------|---------------------------------------------------------------------------------|
+|relay1    |             |         |         |See group relay1 for Shelly 2                                                    |
+|relay2    |             |         |         |See group relay1 for Shelly 2                                                    |
+|relay3    |             |         |         |See group relay1 for Shelly 2                                                    |
+|relay4    |             |         |         |See group relay1 for Shelly 2                                                    |
+|meter1    |             |         |         |See group meter1 for Shelly 2                                                    |
+|meter2    |             |         |         |See group meter1 for Shelly 2                                                    |
+|meter3    |             |         |         |See group meter1 for Shelly 2                                                    |
+|meter4    |             |         |         |See group meter1 for Shelly 2                                                    |
+
 ### Shelly Plug-S (thing-type: shellyplug-s)
+|Group     |Channel      |Type     |read-only|Desciption                                                                       |
+|----------|-------------|---------|---------|---------------------------------------------------------------------------------|
+|relay1    |output       |Switch   |r/w      |Relay #1: Controls the relay's output channel (on/off)                           |
+|          |overpower    |Switch   |yes      |Relay #1: ON: The relay detected an overpower condition, output was turned OFF   |
+|          |autoOn       |Number   |r/w      |Relay #1: Sets a  timer to turn the device ON after every OFF command; in seconds|
+|          |autoOff      |Number   |r/w      |Relay #1: Sets a  timer to turn the device OFF after every ON command; in seconds|
+|          |timerActive  |Switch   |yes      |Relay #1: ON: An auto-on/off timer is active                                     |
+|          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device                            |
+|          |             |         |         |          the payload includes the event type and value as a J                   |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
+|          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
+|          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
+|          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 3 minutes ago                    |
+|          |totalWatts   |Number   |yes      |Total energy consumption in Watts since the device powered up (reset on restart) |
+|          |timestamp    |String   |yes      |Timestamp of the last measurement                                                |
+|led       |statusLed    |Switch   |r/w      |ON: Status LED is disabled, OFF: LED enabled                                     |
+|          |powerLed     |Switch   |r/w      |ON: Power LED is disabled, OFF: LED enabled                                      |
 
 ### Shelly HT (thing-type: shellyht)
 
@@ -268,13 +276,14 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter4    |currentWatts |Number   |yes      |Channel 4: Current power consumption in Watts                          |
 
 
+### Shelly Sense
+
 ### Other devices
 
 The thing definiton fo the following devices is primarily. If you have one of those devices send a PM to marks7017 and we could work on the implementation/testing.
 - thing-type: shellysmoke
 - thing-type: shellysense
 - thing-type: shellyplug
-- thing-type: shelly4pro
 
 
 ## Full Example
