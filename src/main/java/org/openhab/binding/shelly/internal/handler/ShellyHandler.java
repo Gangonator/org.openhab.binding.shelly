@@ -134,9 +134,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
-                p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
-                p.numMeters);
+                "Device {}: has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
+                p.hostname, p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays,
+                p.numRollers, p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
         Map<String, String> properties = getThing().getProperties();
@@ -264,6 +264,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             position = d.intValue();
                         }
                         Validate.isTrue(position == -1, "Invalid position requested: " + position.toString());
+                        validateRange("roller position", position, 0, 100);
                         logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
                         api.setRollerPos(rIndex, position);
                     }
@@ -353,7 +354,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         for (ShellyShortStatusRelay relay : rstatus.relays) {
                             if ((relay.is_valid == null) || relay.is_valid) {
                                 Integer r = i + 1;
-                                String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
+                                String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
                                 updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
                                 updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
                                 updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
@@ -482,7 +483,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
-                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW, getDouble(sdata.bat.value) < 20.0 ? true : false);
+                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW,
+                                    getDouble(sdata.bat.value) < config.lowBattery ? true : false);
                             if (sdata.bat.value != null) {  // no update for Sense
                                 updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                             }
@@ -508,7 +510,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // If status update was successful the thing must be online
                 if (getThing().getStatus() != ThingStatus.ONLINE) {
-                    logger.info("Thing {}({} is online", getThing().getLabel(), thingName);
+                    logger.info("Thing {}({}) is now online", getThing().getLabel(), thingName);
                     updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
                 }
 
@@ -548,7 +550,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @throws IOException Communication problem on the API call
      */
     public void updateThingStatus() throws IOException {
-        logger.trace("No secondary updates");
+        logger.trace("No secondary updates for device {}", thingName);
     }
 
     /**
@@ -569,8 +571,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
 
             int i = 0;
-            String payload = "{ \"device\" : \"" + deviceName + "\", \"class\" : \"" + eventClass + "\", \"index\" : \"" + deviceIndex
-                    + "\", parameters[";
+            String payload = "{\"device\":\"" + deviceName + "\", \"class\":\"" + eventClass + "\", \"index\":\"" + deviceIndex
+                    + "\",\"parameters\":[";
             for (String key : parameters.keySet()) {
                 if (i++ > 0) {
                     payload = payload + ", ";
@@ -578,6 +580,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 String[] values = parameters.get(key);
                 payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
             }
+            payload = payload + "]}";
             payload = payload + " ] }";
             if (eventClass.equals("relay") && profile.hasRelays) {
                 Integer rindex = Integer.parseInt(deviceIndex) + 1;
@@ -715,7 +718,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         Date date = new java.util.Date(timestamp * 1000L);
         SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-        return sdf.format(date);
+        String result = sdf.format(date);
+        return !result.contains("1970-01-01") ? result : "n/a";
     }
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
@@ -730,6 +734,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         return profile;
 
+    }
+
+    protected void validateRange(String name, Integer value, Integer min, Integer max) {
+        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
     @Override

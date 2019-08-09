@@ -137,13 +137,13 @@ public class ShellyHttpApi {
         public Boolean              isSmoke; // true for Smoke
 
         public Map<String, String>  irCodes; // Sense: list of stored IR codes
-
         public Boolean              supportsActionUrls;  // true if the action urls are supported
         public Boolean              supportsSensorUrls; // true if sensor url is supported
 
     }
 
     private final Logger        logger      = LoggerFactory.getLogger(ShellyHandler.class);
+    private String              thingName   = "";
     private String              localIp     = "";
     private String              deviceIp    = "";
     private String              localPort   = OPENHAB_DEF_PORT;
@@ -159,7 +159,6 @@ public class ShellyHttpApi {
         Map<String, String> env = System.getenv();
         String portEnv = env.get(OPENHAB_HTTP_PORT);
         localPort = (portEnv != null) ? portEnv : OPENHAB_DEF_PORT;
-
     }
 
     public ShellySettingsDevice getDevInfo() throws IOException {
@@ -184,6 +183,7 @@ public class ShellyHttpApi {
         profile.hostname = profile.settings.device.hostname != null && !profile.settings.device.hostname.isEmpty()
                 ? profile.settings.device.hostname.toLowerCase()
                 : "shelly-" + profile.mac.toUpperCase().substring(6, 11);
+        thingName = profile.hostname;
         profile.mode = getString(profile.settings.mode) != null ? getString(profile.settings.mode).toLowerCase() : "";
         profile.hwRev = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.hw_revision) : "";
         profile.hwBatchId = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.batch_id.toString()) : "";
@@ -291,7 +291,7 @@ public class ShellyHttpApi {
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl));
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_REPORT, eventUrl));
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_OFF, eventUrl));
     }
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
@@ -362,8 +362,7 @@ public class ShellyHttpApi {
     }
 
     public Map<String, String> getIRCodeList() throws IOException {
-        // String result = request(SHELLY_URL_LIST_IR);
-        String result = "[[\"1_231_pwr\",\"tv(231) - Power\"],[\"1_231_chdwn\",\"tv(231) - Channel Down\"],[\"1_231_chup\",\"tv(231) - Channel Up\"], [\"1_231_voldwn\",\"tv(231) - Volume Down\"],[\"1_231_volup\",\"tv(231) - Volume Up\"],[\"1_231_mute\",\"tv(231) - Mute\"],[\"1_231_menu\",\"tv(231) - Menu\"],[\"1_231_inp\",\"tv(231) - Input\"],[\"1_231_info\",\"tv(231) - Info\"],[\"1_231_left\",\"tv(231) - Left\"],[\"1_231_up\",\"tv(231) - Up\"],[\"1_231_right\",\"tv(231) - Right\"],[\"1_231_ok\",\"tv(231) - OK\"],[\"1_231_down\",\"tv(231) - Down\"],[\"1_231_back\",\"tv(231) - Back\"],[\"6_546_pwr\",\"receiver(546) - Power\"],[\"6_546_voldwn\",\"receiver(546) - Volume Down\"],[\"6_546_volup\",\"receiver(546) - Volume Up\"],[\"6_546_mute\",\"receiver(546) - Mute\"],[\"6_546_menu\",\"receiver(546) - Menu\"],[\"6_546_info\",\"receiver(546) - Info\"],[\"6_546_left\",\"receiver(546) - Left\"],[\"6_546_up\",\"receiver(546) - Up\"],[\"6_546_right\",\"receiver(546) - Right\"],[\"6_546_ok\",\"receiver(546) - OK\"],[\"6_546_down\",\"receiver(546) - Down\"],[\"6_546_back\",\"receiver(546) - Back\"]]";
+        String result = request(SHELLY_URL_LIST_IR);
 
         String key_list = StringUtils.substringAfter(result, "[");
         key_list = StringUtils.substringBeforeLast(key_list, "]");
@@ -414,21 +413,22 @@ public class ShellyHttpApi {
         String httpResponse = "ERROR";
         // boolean acquired = false;
         try {
-            logger.trace("HTTP GET {}", url);
+            logger.trace("HTTP GET for {}: {}", thingName, url);
             // acquired = accessMutex.tryAcquire(2 * SHELLY_API_TIMEOUT, TimeUnit.MILLISECONDS);
             httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
             if (!httpResponse.startsWith("{") && !httpResponse.startsWith("[")) {
-                throw new IOException("ERROR: Unexpected http resonse: " + httpResponse + ", url=" + url);
+                throw new IOException("ERROR: Unexpected http resonse from " + thingName + ": " + httpResponse + ", url=" + url);
             }
 
-            logger.trace("HTTP response: {}", httpResponse);
+            logger.trace("HTTP response from {}: {}", thingName, httpResponse);
             return httpResponse;
         } catch (IOException e) {
             throw new IOException(
-                    "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());
+                    "Shelly API call for " + thingName + "failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - "
+                            + e.getClass());
         } // catch (InterruptedException e) {
           // throw new IOException(
           // "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());

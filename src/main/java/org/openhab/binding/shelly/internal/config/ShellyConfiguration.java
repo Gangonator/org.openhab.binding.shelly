@@ -22,6 +22,7 @@ public class ShellyConfiguration {
     public String deviceIp;
     public int    port           = 5684; // default port
     public int    updateInterval = 15;
+    public float  lowBattery     = 20;
 
     public String userId         = "";
     public String password       = "";

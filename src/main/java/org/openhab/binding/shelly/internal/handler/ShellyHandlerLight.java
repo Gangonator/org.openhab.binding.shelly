@@ -78,7 +78,6 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
             switch (channelUID.getIdWithoutGroup()) {
                 default: // non-bulb commands will be handled by the generic handler
-                    super.lockUpdates = false;
                     super.handleCommand(channelUID, command);
                     break;
 
@@ -127,7 +126,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                     } else if (command instanceof DecimalType) {
                         Integer value = ((DecimalType) command).intValue();
                         logger.info("Set color temp to {} (Integer)", value);
-                        validateRange(CHANNEL_COLOR_TEMP, value, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+                        super.validateRange(CHANNEL_COLOR_TEMP, value, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
                         col.setTemp(value);
                     }
                     updated = true;
@@ -135,7 +134,7 @@ public class ShellyHandlerLight extends ShellyHandler {
 
                 case CHANNEL_COLOR_EFFECT:
                     Integer effect = ((DecimalType) command).intValue();
-                    validateRange("effect", effect, SHELLY_MIN_EFFECT, SHELLY_MAX_EFFECT);
+                    super.validateRange("effect", effect, SHELLY_MIN_EFFECT, SHELLY_MAX_EFFECT);
                     col.setEffect(effect.intValue());
                     updated = true;
                     break;
@@ -300,7 +299,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         } else {
             throw new IllegalArgumentException("Invalid value for " + colorName + ": " + value.toString() + " / type " + value.getClass());
         }
-        validateRange(colorName, value.intValue(), minValue, maxValue);
+        super.validateRange(colorName, value.intValue(), minValue, maxValue);
         return value.intValue();
     }
 
@@ -398,9 +397,4 @@ public class ShellyHandlerLight extends ShellyHandler {
         return profile.isBulb && !profile.inColor ? CHANNEL_GROUP_WHITE_CONTROL
                 : CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
     }
-
-    private void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
-    }
-
 }
