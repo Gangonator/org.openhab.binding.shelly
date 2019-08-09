@@ -26,7 +26,7 @@ public class ShellyApiJson {
     public static final String SHELLY_CLASS_ROLLER = "roller"; // Relay: roller mode
     public static final String SHELLY_CLASS_LIGHT  = "light";  // Bulb: color mode
 
-    public class ShellySettingsDevice {
+    public static class ShellySettingsDevice {
         public String  type;
         public String  mac;
         public String  hostname;
@@ -37,13 +37,13 @@ public class ShellyApiJson {
         public Integer num_rollers;
     }
 
-    public class ShellySettingsWiFiAp {
+    public static class ShellySettingsWiFiAp {
         public Boolean enabled;
         public String  ssid;
         public String  key;
     }
 
-    public class ShellySettingsWiFiNetwork {
+    public static class ShellySettingsWiFiNetwork {
         public Boolean      enabled;
         public String       ssid;
         public Integer      rssi;
@@ -58,7 +58,7 @@ public class ShellyApiJson {
         public String       dns;
     }
 
-    public class ShellySettingsMqtt {
+    public static class ShellySettingsMqtt {
         public Boolean enabled;
         public String  server;
         public String  user;
@@ -73,41 +73,41 @@ public class ShellyApiJson {
         public Integer update_period;
     }
 
-    public class ShellySettingsSntp {
+    public static class ShellySettingsSntp {
         public String server;
     }
 
-    public class ShellySettingsLogin {
+    public static class ShellySettingsLogin {
         public Boolean enabled;
         public Boolean unprotected;
         public String  username;
         public String  password;
     }
 
-    public class ShellySettingsBuildInfo {
+    public static class ShellySettingsBuildInfo {
         public String build_id;
         public String build_timestamp;
         public String build_version;
     }
 
-    public class ShellyStatusCloud {
+    public static class ShellyStatusCloud {
         public Boolean enabled;
         public Boolean connected;
     }
 
-    public class ShellyStatusMqtt {
+    public static class ShellyStatusMqtt {
         public Boolean connected;
     }
 
-    public class ShellySettingsHwInfo {
+    public static class ShellySettingsHwInfo {
         public String  hw_revision;
         public Integer batch_id;
     }
 
-    public class ShellySettingsScheduleRules {
+    public static class ShellySettingsScheduleRules {
     }
 
-    public class ShellySettingsRelay {
+    public static class ShellySettingsRelay {
         public String  name;
         public Boolean ison;
         public Boolean overpower;
@@ -130,7 +130,7 @@ public class ShellyApiJson {
     public static final String SHELLY_API_EVENTURL_SW_OFF  = "out_off_url";
     public static final String SHELLY_API_EVENTURL_REPORT  = "report_url";
 
-    public class ShellySettingsRoller {
+    public static class ShellySettingsRoller {
         public Double  maxtime;
         public Double  maxtime_open;
         public Double  maxtime_close;
@@ -157,7 +157,7 @@ public class ShellyApiJson {
         public Boolean positioning;
     }
 
-    public class ShellySettingsMeter {
+    public static class ShellySettingsMeter {
         public Boolean  is_valid;
         public Double   power;
         public Double[] counters = { 0.0, 0.0, 0.0 };
@@ -165,14 +165,14 @@ public class ShellyApiJson {
         public Long     timestamp;
     }
 
-    public class ShellySettingsUpdate {
+    public static class ShellySettingsUpdate {
         public String  status;
         public Boolean has_update;
         public String  new_version;
         public String  old_version;
     }
 
-    public class ShellySettingsGlobal {
+    public static class ShellySettingsGlobal {
         // https://shelly-api-docs.shelly.cloud/#shelly1pm-settings
         public ShellySettingsDevice           device;
         public ShellySettingsWiFiAp           wifi_ap;
@@ -219,7 +219,7 @@ public class ShellyApiJson {
     public static final String SHELLY_SENSE_MOTION_LED   = "motion_led";  // Sense
     public static final String SHELLY_SENSE_MOTION_TIMER = "pir_motion_duration_time"; // Sense
 
-    public class ShellySettingsAttributes {
+    public static class ShellySettingsAttributes {
         public String device_type; // Device model identifier
         public String device_mac; // MAC address of the device in hexadecimal
         public String wifi_ap; // WiFi access poInteger configuration, see /settings/ap for details
@@ -231,7 +231,7 @@ public class ShellyApiJson {
         public String fw; // current FW version
     }
 
-    public class ShellySettingsStatus {
+    public static class ShellySettingsStatus {
         public ShellySettingsWiFiNetwork       wifi_sta;
 
         public String                          time;
@@ -253,7 +253,7 @@ public class ShellyApiJson {
         public String                          json;
     }
 
-    public class ShellyControlRelay {
+    public static class ShellyControlRelay {
         // https://shelly-api-docs.shelly.cloud/#shelly1-1pm-settings-relay-0
         public Boolean is_valid;
         public Boolean has_timer; // Whether a timer is currently armed for this channel
@@ -263,14 +263,14 @@ public class ShellyApiJson {
         public Integer timer; // A one-shot flip-back timer in seconds.
     }
 
-    public class ShellyShortStatusRelay {
+    public static class ShellyShortStatusRelay {
         public Boolean is_valid;
         public Boolean has_timer; // Whether a timer is currently armed for this channel
         public Boolean overpower; // Shelly1PM only if maximum allowed power was exceeded
         public Boolean ison; // Whether output channel is on or off
     }
 
-    public class ShellyStatusRelay {
+    public static class ShellyStatusRelay {
         public ShellySettingsWiFiNetwork         wifi_sta; // WiFi status
         public ShellyStatusCloud                 cloud; // Cloud status
         public ShellyStatusMqtt                  mqtt; // mqtt status
@@ -290,7 +290,7 @@ public class ShellyApiJson {
         public Integer                           uptime; // econds elapsed since boot
     }
 
-    public class ShellyControlRoller {
+    public static class ShellyControlRoller {
         public Integer roller_pos; // number Desired position in percent
         public Integer duration; // If specified, the motor will move for this period in seconds. If missing, the value of
                                  // maxtime in /settings/roller/N will be used.
@@ -310,7 +310,7 @@ public class ShellyApiJson {
     public static final String SHELLY_STOPR_SAFETYSW = "safety_switch";
     public static final String SHELLY_STOPR_OBSTACLE = "obstacle";
 
-    public class ShellySettingsSensor {
+    public static class ShellySettingsSensor {
         public String  temperature_units; // Either'C'or'F'
         public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer humidity_threshold; // RH delta in % which triggers an update
@@ -353,7 +353,7 @@ public class ShellyApiJson {
         public String[] act_reasons; // HT/Smoke: list of reasons which woke up the device
     }
 
-    public class ShellySettingsSmoke {
+    public static class ShellySettingsSmoke {
         public String  temperature_units; // Either 'C' or 'F'
         public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
@@ -368,7 +368,7 @@ public class ShellyApiJson {
     public static final String SHELLY_TEMP_CELSIUS    = "C";
     public static final String SHELLY_TEMP_FAHRENHEIT = "F";
 
-    public class ShellySettingsLight {
+    public static class ShellySettingsLight {
         public Integer red; // red brightness, 0..255, applies in mode="color"
         public Integer green; // green brightness, 0..255, applies in mode="color"
         public Integer blue; // blue brightness, 0..255, applies in mode="color"
@@ -388,7 +388,7 @@ public class ShellyApiJson {
     public static final int SHELLY_MIN_EFFECT = 0;
     public static final int SHELLY_MAX_EFFECT = 6;
 
-    public class ShellyStatusLightChannel {
+    public static class ShellyStatusLightChannel {
         public Boolean ison;
         public Double  power;
         public Boolean overpower;
@@ -405,7 +405,7 @@ public class ShellyApiJson {
         public Integer effect; // Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath,
     }
 
-    public class ShellyStatusLight {
+    public static class ShellyStatusLight {
         public Boolean                             ison; // Whether output channel is on or off
         public ArrayList<ShellyStatusLightChannel> lights;
         public ArrayList<ShellySettingsMeter>      meters;
@@ -419,12 +419,12 @@ public class ShellyApiJson {
         // public ShellyStatusMqtt mqtt;
     }
 
-    public class ShellySenseKeyCode {
+    public static class ShellySenseKeyCode {
         String id; // ID of the stored IR code into Shelly Sense.
         String name; // Short description or name of the stored IR code.
     }
 
-    public class SellySendKeyList {
+    public static class SellySendKeyList {
         public ArrayList<ShellySenseKeyCode> key_codes;
     }
 
@@ -463,7 +463,7 @@ public class ShellyApiJson {
     public static final double  GAIN_FACTOR             = SHELLY_MAX_GAIN / 100;
     public static final double  BRIGHTNESS_FACTOR       = SHELLY_MAX_BRIGHTNESS / 100;
 
-    public class ShellySenseSettings {
+    public static class ShellySenseSettings {
         // see https://shelly-api-docs.shelly.cloud/#shelly-sense-settings
         public Double  pir_motion_duration_time; // Set duration time in seconds for motion flag after motion detection.
         public Integer motion_led; // Whether LED light should indicate motion detected 1 or 0.

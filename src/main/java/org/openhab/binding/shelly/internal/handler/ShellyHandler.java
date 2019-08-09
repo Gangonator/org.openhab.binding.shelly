@@ -134,17 +134,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
                 p.fwVersion, p.fwDate, p.fwId, p.thingType);
         logger.debug(
-                "Device is has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
-                p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays, p.numRollers,
+                "Device {}: has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
+                p.hostname, p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays,
+                p.numRollers,
                 p.numMeters);
         logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
 
         Map<String, String> properties = getThing().getProperties();
         Validate.notNull(properties, "properties must not be null!");
-        thingName = properties.get(PROPERTY_SERVICE_NAME);
-        if (thingName == null) {
-            thingName = p.hostname;
-        }
+        thingName = properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : p.hostname;
         Validate.notNull(thingName, "thingName must not be null!");
 
         // update thing properties
@@ -508,7 +506,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // If status update was successful the thing must be online
                 if (getThing().getStatus() != ThingStatus.ONLINE) {
-                    logger.info("Thing {}({} is online", getThing().getLabel(), thingName);
+                    logger.info("Thing {}({}) is now online", getThing().getLabel(), thingName);
                     updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
                 }
 
@@ -569,8 +567,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
 
             int i = 0;
-            String payload = "{ \"device\" : \"" + deviceName + "\", \"class\" : \"" + eventClass + "\", \"index\" : \"" + deviceIndex
-                    + "\", parameters[";
+            String payload = "{\"device\":\"" + deviceName + "\", \"class\":\"" + eventClass + "\", \"index\":\"" + deviceIndex
+                    + "\",\"parameters\":[";
             for (String key : parameters.keySet()) {
                 if (i++ > 0) {
                     payload = payload + ", ";
@@ -578,7 +576,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 String[] values = parameters.get(key);
                 payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
             }
-            payload = payload + " ] }";
+            payload = payload + "]}";
             if (eventClass.equals("relay") && profile.hasRelays) {
                 Integer rindex = Integer.parseInt(deviceIndex) + 1;
                 String channel = "relay" + rindex.toString() + "#event";

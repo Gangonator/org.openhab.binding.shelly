@@ -101,7 +101,7 @@ public class ShellyHttpApi {
     public static final String HTTP_PUT                         = "PUT";
     public static final String HTTP_POST                        = "POST";
     public static final String HTTP_DELETE                      = "DELETE";
-    public static int          SHELLY_API_TIMEOUT               = 5000;
+    public static int          SHELLY_API_TIMEOUT               = 35000;
 
     public class ShellyDeviceProfile {
         public String               thingType;
@@ -239,7 +239,7 @@ public class ShellyHttpApi {
     public void setEventURLs(String deviceName) throws IOException {
         if (profile.supportsActionUrls) {
             // set event URLs for Shelly2/4 Pro
-            logger.trace("Check/set Action event URLs for Relay or Roller");
+            logger.trace("Check/set Action event URLs for Relay or Roller for device {}", profile.hostname);
             int i = 0;
             for (ShellySettingsRelay relay : profile.settings.relays) {
                 logger.info("Current settings for relay[{}]: btn_on_url={}/btn_off_url={}, out_on_url={}, out_off_url={}", i,
@@ -413,17 +413,17 @@ public class ShellyHttpApi {
         String httpResponse = "ERROR";
         // boolean acquired = false;
         try {
-            logger.trace("HTTP GET {}", url);
+            logger.trace("HTTP GET for {}: {}", profile.hostname, url);
             // acquired = accessMutex.tryAcquire(2 * SHELLY_API_TIMEOUT, TimeUnit.MILLISECONDS);
             httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
             if (!httpResponse.startsWith("{") && !httpResponse.startsWith("[")) {
-                throw new IOException("ERROR: Unexpected http resonse: " + httpResponse + ", url=" + url);
+                throw new IOException("ERROR from " + profile.hostname + ": Unexpected http resonse: " + httpResponse + ", url=" + url);
             }
 
-            logger.trace("HTTP response: {}", httpResponse);
+            logger.trace("HTTP response from {}: {}", profile.hostname, httpResponse);
             return httpResponse;
         } catch (IOException e) {
             throw new IOException(
