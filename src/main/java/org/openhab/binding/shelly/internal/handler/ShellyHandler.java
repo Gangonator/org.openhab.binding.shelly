@@ -716,7 +716,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         Date date = new java.util.Date(timestamp * 1000L);
         SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-        return sdf.format(date);
+        String result = sdf.format(date);
+        return !result.contains("1970-01-01") ? result : "n/a";
     }
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
