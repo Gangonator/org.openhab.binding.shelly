@@ -101,7 +101,7 @@ public class ShellyHttpApi {
     public static final String HTTP_PUT                         = "PUT";
     public static final String HTTP_POST                        = "POST";
     public static final String HTTP_DELETE                      = "DELETE";
-    public static int          SHELLY_API_TIMEOUT               = 2500;
+    public static int          SHELLY_API_TIMEOUT               = 5000;
 
     public class ShellyDeviceProfile {
         public String               thingType;
