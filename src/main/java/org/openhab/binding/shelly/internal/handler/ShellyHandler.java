@@ -737,7 +737,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     protected void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
+        Validate.isTrue((value >= min) && (value <= max),
+                "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + "): " + value.toString());
     }
 
     @Override
