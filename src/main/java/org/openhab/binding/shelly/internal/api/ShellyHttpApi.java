@@ -249,7 +249,6 @@ public class ShellyHttpApi {
             }
         }
         setSensorEventUrls(deviceName);
-
     }
 
     public ShellySettingsStatus gerStatus() throws IOException {
@@ -291,7 +290,7 @@ public class ShellyHttpApi {
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
         request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl));
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_REPORT, eventUrl));
+        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_OFF, eventUrl));
     }
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
