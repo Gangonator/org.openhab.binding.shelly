@@ -309,6 +309,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter4    |currentWatts |Number   |yes      |Channel 4: Current power consumption in Watts                          |
 
 Please note that the settings of channel group color are only valid in color mode and vice versa for white mode.
+The current firmware doesn't support the timestamp report for the meters. In thise case "n/a" is returned. Maybe an upcoming firmware release adds this attribute, then the correct value is returned;
 
 
 ### Shelly Sense
