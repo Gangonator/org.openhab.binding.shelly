@@ -353,7 +353,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         for (ShellyShortStatusRelay relay : rstatus.relays) {
                             if ((relay.is_valid == null) || relay.is_valid) {
                                 Integer r = i + 1;
-                                String groupName = CHANNEL_GROUP_RELAY_CONTROL + r.toString();
+                                String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
                                 updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
                                 updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
                                 updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);

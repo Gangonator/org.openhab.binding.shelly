@@ -8,7 +8,7 @@
 		<label>Shelly1 (SHSW-1)</label>
 		<description>Shelly1 device with single relay</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="basicMeter">
@@ -22,7 +22,7 @@
         <label>Shelly1PM (SHSW-PM)</label>
         <description>Shelly1PM device with single relay and power meter</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">
@@ -142,7 +142,7 @@
         <label>Shelly Plug</label>
         <description>Shelly Plug device with relay and power meter</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="simpleMeter">
@@ -157,7 +157,7 @@
         <description>Shelly Plug-S with relay, meter and LED control</description>
 
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Plug</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">

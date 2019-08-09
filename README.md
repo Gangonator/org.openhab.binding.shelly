@@ -152,7 +152,7 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|relay1    |output       |Switch   |r/w      |Controls the relay's output channel (on/off)                                     |
+|relay     |output       |Switch   |r/w      |Controls the relay's output channel (on/off)                                     |
 |          |overpower    |Switch   |yes      |ON: The relay detected an overpower condition, output was turned OFF             |
 |          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device                            |
 |          |             |         |         |          the payload includes the event type and value as a J                   |
@@ -176,7 +176,7 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 |          |autoOff      |Number   |r/w      |Relay #2: Sets a  timer to turn the device OFF after every ON command; in seconds|
 |          |timerActive  |Switch   |yes      |Relay #2: ON: An auto-on/off timer is active                                     |
 |          |event        |Trigger  |yes      |Relay #2: Triggers an event when posted by the device                            |
-|meter1    |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 |          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 3 minutes ago                    |
@@ -193,7 +193,7 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 |          |stopReason   |String   |yes      |Last stop reasons: normal, safety_switch or obstacle                             |
 |          |calibrating  |Switch   |yes      |ON: Roller is in calibration mode, OFF: normal mode (no calibration)             |
 |          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device, e,g, btn_up or btn_down   |
-|meter1    |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 |          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 3 minutes ago                    |
@@ -223,7 +223,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 ### Shelly Plug-S (thing-type: shellyplug-s)
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|relay1    |output       |Switch   |r/w      |Relay #1: Controls the relay's output channel (on/off)                           |
+|relay     |output       |Switch   |r/w      |Relay #1: Controls the relay's output channel (on/off)                           |
 |          |overpower    |Switch   |yes      |Relay #1: ON: The relay detected an overpower condition, output was turned OFF   |
 |          |autoOn       |Number   |r/w      |Relay #1: Sets a  timer to turn the device ON after every OFF command; in seconds|
 |          |autoOff      |Number   |r/w      |Relay #1: Sets a  timer to turn the device OFF after every ON command; in seconds|
@@ -290,6 +290,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |          |white        |Number   |r/w      |white brightness 0..255, use this only when not using the color picker |
 |          |gain         |Number   |r/w      |gain 0..255, use this only when not using the color picker             |
 |          |temperature  |Number   |r/w      |color temperature (K): 3000..6500                                      |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                     |
 
 ### Shelly RGBW2 in White Mode
 |control   |autoOn       |Number   |r/w      |Sets a  timer to turn the device ON after every OFF command; in seconds|
