@@ -415,8 +415,9 @@ public class ShellyHandlerLight extends ShellyHandler {
                 : CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
     }
 
-    private void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
+    @Override
+    protected void validateRange(String name, Integer value, Integer min, Integer max) throws IllegalArgumentException {
+        super.validateRange(name, value, min, max);
     }
 
 }

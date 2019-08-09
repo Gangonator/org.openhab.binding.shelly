@@ -263,7 +263,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             DecimalType d = (DecimalType) command;
                             position = d.intValue();
                         }
-                        Validate.isTrue(position == -1, "Invalid position requested: " + position.toString());
+                        validateRange("roller position", position, 0, 100);
                         logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
                         api.setRollerPos(rIndex, position);
                     }
@@ -500,7 +500,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 }
 
                 // update thing status from specific thing handlers
-                logger.trace("{}: Updating secondary status", thingName);
                 updateThingStatus();
 
                 // update some properties
@@ -549,7 +548,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @throws IOException Communication problem on the API call
      */
     public void updateThingStatus() throws IOException {
-        logger.trace("No secondary updates");
+        logger.trace("No secondary updates for device {}", thingName);
     }
 
     /**
@@ -732,6 +731,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         return profile;
 
+    }
+
+    protected void validateRange(String name, Integer value, Integer min, Integer max) {
+        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
     @Override
