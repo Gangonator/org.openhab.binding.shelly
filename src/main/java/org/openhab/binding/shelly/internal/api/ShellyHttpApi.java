@@ -346,6 +346,14 @@ public class ShellyHttpApi {
         request(SHELLY_URL_SETTINGS + "?" + parm + "=" + value);
     }
 
+    public void setLightMode(String mode) throws IOException {
+        if (!profile.mode.equals(mode)) {
+            profile.mode = mode;
+            profile.inColor = profile.isLight && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
+            setLightSetting(SHELLY_API_MODE, mode);
+        }
+    }
+
     public void setLightParm(Integer lightIndex, String parm, String value) throws IOException {
         request("/" + profile.mode + "/" + lightIndex.toString() + "?" + parm + "=" + value);
     }

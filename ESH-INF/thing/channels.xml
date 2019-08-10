@@ -332,7 +332,7 @@
 
     <channel-type id="senseMotionTimer">
         <item-type>Number</item-type>
-        <label>Motion Duration</label>
+        <label>Motion Timer</label>
         <description>Number of seconds to detect motion</description>
         <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
     </channel-type>

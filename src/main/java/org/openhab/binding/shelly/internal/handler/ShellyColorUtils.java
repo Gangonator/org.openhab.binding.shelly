@@ -26,6 +26,7 @@ public class ShellyColorUtils {
         setTemp(col.temp);
     }
 
+    String      mode         = "";
     Integer     red          = 0;
     Integer     green        = 0;
     Integer     blue         = 0;
@@ -35,36 +36,49 @@ public class ShellyColorUtils {
     PercentType percentBlue  = new PercentType(0);
     PercentType percentWhite = new PercentType(0);
 
-    void setRGBW(int red, int green, int blue, int white) {
+    void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    boolean setRGBW(int red, int green, int blue, int white) {
         // logger.trace("setRGBW(): setting rgb+white to {}/{}/{}/{}", red, green, blue, white);
         setRed(red);
         setGreen(green);
         setBlue(blue);
         setWhite(white);
+        return true;
     }
 
-    void setRed(int value) {
+    boolean setRed(int value) {
         // logger.trace(" setting red={}", value);
+        boolean changed = red != value;
         red = value;
         percentRed = toPercent(red);
+        return changed;
     }
 
-    void setGreen(int value) {
+    boolean setGreen(int value) {
         // logger.trace(" setting green={}", value);
+        boolean changed = green != value;
         green = value;
         percentGreen = toPercent(green);
+        return changed;
     }
 
-    void setBlue(int value) {
+    boolean setBlue(int value) {
         // logger.trace(" setting blue={}", value);
+        boolean changed = blue != value;
         blue = value;
         percentBlue = toPercent(blue);
+        return changed;
     }
 
-    void setWhite(int value) {
+    boolean setWhite(int value) {
         // logger.trace(" setting white={}", value);
+        boolean changed = white != value;
         white = value;
         percentWhite = toPercent(white);
+        return changed;
     }
 
     Integer     gain              = 0;
@@ -74,29 +88,37 @@ public class ShellyColorUtils {
     PercentType percentBrightness = new PercentType(0);
     PercentType percentTemp       = new PercentType(0);
 
-    void setBrightness(int value) {
+    boolean setBrightness(int value) {
         // logger.trace(" setting brightness={}", value);
+        boolean changed = brightness != value;
         brightness = value;
         percentBrightness = toPercent(brightness, SHELLY_MIN_BRIGHTNESS, SHELLY_MAX_BRIGHTNESS);
+        return changed;
     }
 
-    void setGain(int value) {
+    boolean setGain(int value) {
         // logger.trace(" setting gain={}", value);
+        boolean changed = gain != value;
         gain = value;
         percentGain = toPercent(gain, SHELLY_MIN_GAIN, SHELLY_MAX_GAIN);
+        return changed;
     }
 
-    void setTemp(int value) {
+    boolean setTemp(int value) {
         // logger.trace(" setting temp={}", value);
+        boolean changed = temp != value;
         temp = value;
         percentTemp = toPercent(temp, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE);
+        return changed;
     }
 
     Integer effect = 0;
 
-    void setEffect(int value) {
+    boolean setEffect(int value) {
         // logger.trace(" setting effect={}", value);
+        boolean changed = effect != value;
         effect = value;
+        return changed;
     }
 
     public HSBType toHSB() {

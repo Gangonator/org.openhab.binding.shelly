@@ -129,7 +129,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         refreshSettings = false;
         lockUpdates = false;
 
-        logger.info("Shelly Binding release beta1-pre2");
+        logger.info("Shelly Binding release: beta1 2019-08-10");
 
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
@@ -491,8 +491,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         }
                         if (profile.isSense) {
                             updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
-                                    getInteger(profile.settings.pir_motion_duration_time));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(profile.settings.motion_led));
+                                    getInteger(status.sensors.motion_duration));
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(status.sensors.motion_led));
                             updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
                         }

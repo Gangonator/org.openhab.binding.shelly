@@ -242,6 +242,7 @@ public class ShellyApiJson {
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
+        public ShellySenseSensors              sensors; // Sense: sensors
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;

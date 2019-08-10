@@ -8,16 +8,19 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-beta 1-pre2 release notes
-+ full support of RGBW2 (color + white mode)
-+ support for Shelly 4 Pro
-+ Support for Bulb and Sense is work in progress
+## beta 1 release notes
++ full support of RGBW2 (color + white mode,  verified) - thanks @Igi
++ full support for Bulb (verified) - thanks @MHerbst
++ full support for Sense (verified) - thanks @MHerbst
++ full support for Shelly 4 Pro (verified)
++ new channel fullColor (preset for Red, Green, Blue, Yellow, White or RGB value string)
 + Settings refresh every minute to catch changes by the Web UI or the App
 + refresh poller position for 30s to catch the new status when the roller stops moving
 + trigger channels for relay and HT events
 + channel calibrating gets filled, roller positioning will be blocked when calibration is active
 + compute total power consumption in kw/h
 + decimal numbers in the channel defintion for Watts etc.
+* adapt roller psotion: In OH it's 0..100 for Shelly 100..0 
 * fixed power meters for all devices
 * fixed refresh handling in several situations
 * fixed flipping switches (turn on in Paper UI, immediately flips back)
@@ -260,6 +263,8 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
 |color     |             |         |         |Color settings: only valid in COLOR mode                               |
 |          |hsb          |HSB      |r/w      |Represents the color picker (HSBType), control r/g/b, bight not white  |
+|          |fullColor    |String   |r/w      |Set Red / Green / Blue / Yellow / White mode and switch mode           |
+|          |             |         |r/w      |Valid settings: "red", "green", "blue", "yellow", "white" or "r,g,b,w" | 
 |          |red          |Dimmer   |r/w      |Red brightness: 0..100% or 0..255 (control only the red channel)       |
 |          |green        |Dimmer   |r/w      |Green brightness: 0..100% or 0..255 (control only the red channel)     |
 |          |blue         |Dimmer   |r/w      |Blue brightness: 0..100% or 0..255 (control only the red channel)      |
@@ -283,6 +288,8 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |          |autoOff      |Number   |r/w      |Sets a  timer to turn the device OFF after every ON command; in seconds|
 |          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
 |light     |color        |Color    |r/w      |Color picker (HSBType)                                                 |
+|          |fullColor    |String   |r/w      |Set Red / Green / Blue / Yellow / White mode and switch mode           | 
+|          |             |         |r/w      |Valid settings: "red", "green", "blue", "yellow", "white" or "r,g,b,w" | 
 |          |effect       |Number   |r/w      |Select a special effect                                                | 
 |          |red          |Number   |r/w      |red brightness 0..255, use this only when not using the color picker   |
 |          |green        |Number   |r/w      |green brightness 0..255, use this only when not using the color picker |

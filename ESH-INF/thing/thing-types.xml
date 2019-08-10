@@ -468,6 +468,7 @@
        <description>Light colors</description>
         <channels>
             <channel id="hsb" typeId="colorPicker" />
+            <channel id="full" typeId="colorFull" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
