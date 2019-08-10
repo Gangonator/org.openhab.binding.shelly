@@ -75,25 +75,30 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             ShellyHttpApi api = new ShellyHttpApi(config);
 
             // Get device settings
-            @SuppressWarnings({ "null", "deprecation" })
             String thingType = StringUtils.substringBeforeLast(name, "-");
             ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
             logger.debug("Shelly settings : {}", profile.settingsJson);
-            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode);
+            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode.isEmpty() ? "n/a" : profile.mode);
 
             Map<String, Object> properties = new HashMap<>(5);
             properties.put(PROPERTY_VENDOR, "Shelly");
+            properties.put(CONFIG_DEVICEIP, address);
             properties.put(PROPERTY_MODEL_ID, profile.thingType);
             properties.put(PROPERTY_MAC_ADDRESS, profile.mac);
             properties.put(PROPERTY_FIRMWARE_VERSION, profile.fwVersion + "/" + profile.fwDate + "(" + profile.fwId + ")");
-            properties.put("hwRev", profile.hwRev);
-            properties.put("hwBatchId", profile.hwBatchId);
-            properties.put(CONFIG_DEVICEIP, address);
-            addProperty(properties, "mode", profile.mode);
-            addProperty(properties, "hostname", profile.hostname);
-            addProperty(properties, "numRelays", profile.numRelays.toString());
-            addProperty(properties, "numRollers", profile.numRollers.toString());
-            addProperty(properties, "numMeters", profile.numMeters.toString());
+            addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
+            addProperty(properties, PROPERTY_HWREV, profile.hwRev);
+            addProperty(properties, PROPERTY_HWBATCH, profile.hwBatchId);
+            addProperty(properties, PROPERTY_MODE, profile.mode);
+            addProperty(properties, PROPERTY_HOSTNAME, profile.hostname);
+            addProperty(properties, PROPERTY_NUM_RELAYS, profile.numRelays.toString());
+            addProperty(properties, PROPERTY_NUM_ROLLERS, profile.numRollers.toString());
+            addProperty(properties, PROPERTY_NUM_METER, profile.numMeters.toString());
+
+            if (profile.settings.light_sensor != null) {
+                addProperty(properties, PROPERTY_LIGHT_SENSOR, profile.settings.light_sensor);
+
+            }
 
             ThingUID thingUID = this.getThingUID(name, profile.mode);
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
@@ -144,7 +149,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
                 return new ThingUID(THING_TYPE_SHELLY2_ROLLER, devid);
             }
         }
-        if (name.startsWith("shellys4pro")) {
+        if (name.startsWith("shelly4pro")) {
             return new ThingUID(THING_TYPE_SHELLY4PRO, devid);
         }
         if (name.startsWith("shellyplug-s")) {

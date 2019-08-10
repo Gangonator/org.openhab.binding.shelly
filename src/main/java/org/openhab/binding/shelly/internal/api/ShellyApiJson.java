@@ -19,32 +19,12 @@ public class ShellyApiJson {
 
     public static final String SHELLY_API_ON       = "on";
     public static final String SHELLY_API_OFF      = "off";
+    public static final String SHELLY_API_TRUE     = "true";
+    public static final String SHELLY_API_FALSE    = "false";
 
     public static final String SHELLY_CLASS_RELAY  = "relay";  // Relay: relay mode
     public static final String SHELLY_CLASS_ROLLER = "roller"; // Relay: roller mode
     public static final String SHELLY_CLASS_LIGHT  = "light";  // Bulb: color mode
-
-    public class ShellyCommonSettings {
-        public Boolean reset; // Will perform a factory reset of the device
-        public Boolean mqtt_enable; // Enable connecting to a MQTT broker
-        public String  mqtt_server; // MQTT broker IP address and port, ex. 10.0.0.1:1883
-        public String  mqtt_user; // MQTT username, leave empty to disable authentication
-        public String  mqtt_pass; // MQTT password
-        public Integer mqtt_reconnect_timeout_max; // maximum interval for reconnect attempts
-        public Integer mqtt_reconnect_timeout_min; // minimum interval for reconnect attempts
-        public Boolean mqtt_clean_session; // MQTT clean session flag
-        public Integer mqtt_keep_alive; // MQTT keep alive period in seconds
-        public Integer mqtt_max_qos; // Max value of QOS for MQTT packets
-        public Boolean mqtt_retain; // MQTT retain flag
-        public Integer mqtt_update_period; // Periodic update in seconds, 0 to disable
-        public Boolean coiot_execute_enable; // Whether to allow execution of CoIoT commands
-        public Boolean tzautodetect; // Set this to false if you want to set custom geolocation (lat and lng) or custom
-                                     // timezone.
-        public Double  lat; // Degrees latitude in decimal format, South is negative
-        public Double  lng; // Degrees longitude in decimal format, between -180 and 180
-        public String  timezone; // Timezone identifier, see https://api.shelly.cloud/timezone/tzlist
-        public String  sntp_server; // Time server host to be used instead of the default time.google.com
-    }
 
     public class ShellySettingsDevice {
         public String  type;
@@ -219,9 +199,15 @@ public class ShellyApiJson {
         public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
 
+        public String                         light_sensor;   // Sense: sensor type
+        public ShellySenseSensors             sensors; // Sense: sensors
+        public Integer                        pir_motion_duration_time; // Sense: Set duration time in seconds for motion flag after motion detection.
+        public Boolean                        motion_led; // Sense: Whether LED light should indicate motion detected 1 or 0.
+
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
     }
 
+    public static final String SHELLY_API_MODE           = "mode";
     public static final String SHELLY_MODE_RELAY         = "relay";  // Relay: relay mode
     public static final String SHELLY_MODE_ROLLER        = "roller"; // Relay: roller mode
     public static final String SHELLY_MODE_COLOR         = "color";  // Bulb/RGBW2: color mode
@@ -229,6 +215,9 @@ public class ShellyApiJson {
 
     public static final String SHELLY_LED_STATUS_DISABLE = "led_status_disable";
     public static final String SHELLY_LED_POWER_DISABLE  = "led_power_disable";
+
+    public static final String SHELLY_SENSE_MOTION_LED   = "motion_led";  // Sense
+    public static final String SHELLY_SENSE_MOTION_TIMER = "pir_motion_duration_time"; // Sense
 
     public class ShellySettingsAttributes {
         public String device_type; // Device model identifier
@@ -329,9 +318,9 @@ public class ShellyApiJson {
         public String  report_url; // URL gets posted on updates with sensor data
     }
 
-    public class ShellyStatusSensor {
+    public static class ShellyStatusSensor {
         // https://shelly-api-docs.shelly.cloud/#h-amp-t-settings
-        public class _tmp {
+        public static class _tmp {
             public Double  value; // Temperature in configured unites
             public String  units; // 'C' or 'F'
             public Double  tC; // temperature in deg C
@@ -339,25 +328,41 @@ public class ShellyApiJson {
             public Boolean is_valid; // whether the internal sensor is operating properly
         }
 
-        public class _hum {
+        public static class _hum {
             public Double value; // relative humidity in %
         }
 
-        public class _bat {
+        public static class _bat {
             public Double value; // estimated remaining battery capacity in %
             public Double voltage; // battery voltage
         };
 
+        public static class _lux {
+            public Boolean is_valid;
+            public Double  value;
+        }
+
         public _tmp     tmp;
         public _hum     hum;
+        public _lux     lux;
         public _bat     bat;
-        public String[] act_reasons; // list of reasons which woke up the device
+
+        public Boolean  motion;
+        public Boolean  charger;
+
+        public String[] act_reasons; // HT/Smoke: list of reasons which woke up the device
     }
 
     public class ShellySettingsSmoke {
         public String  temperature_units; // Either 'C' or 'F'
         public Integer temperature_threshold; // Temperature delta (in configured degree units) which triggers an update
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
+    }
+
+    public class ShellySenseSensors {
+        public Integer motion_duration;
+        public Boolean motion_led;
+        public String  temperature_unit;
     }
 
     public static final String SHELLY_TEMP_CELSIUS    = "C";
@@ -380,6 +385,9 @@ public class ShellyApiJson {
         public Integer dcpower; // RGW2:Set to true for 24 V power supply, false for 12 V
     }
 
+    public static final int SHELLY_MIN_EFFECT = 0;
+    public static final int SHELLY_MAX_EFFECT = 6;
+
     public class ShellyStatusLightChannel {
         public Boolean ison;
         public Double  power;
@@ -399,24 +407,34 @@ public class ShellyApiJson {
 
     public class ShellyStatusLight {
         public Boolean                             ison; // Whether output channel is on or off
-        public String                              wifi_sta; // WiFi client configuration. See /settings/sta for details
-        public ShellyStatusCloud                   cloud;
-        public ShellyStatusMqtt                    mqtt;
-        public Boolean                             has_update;
-        public String                              mode;  // COLOR or WHITE
-        public Integer                             input;
         public ArrayList<ShellyStatusLightChannel> lights;
         public ArrayList<ShellySettingsMeter>      meters;
 
+        // public String mode; // COLOR or WHITE
+        // public Integer input;
+        // public Boolean has_update;
+        // public ShellySettingsUpdate update;
+        // public ShellySettingsWiFiNetwork wifi_sta; // WiFi client configuration. See /settings/sta for details
+        // public ShellyStatusCloud cloud;
+        // public ShellyStatusMqtt mqtt;
+    }
+
+    public class ShellySenseKeyCode {
+        String id; // ID of the stored IR code into Shelly Sense.
+        String name; // Short description or name of the stored IR code.
+    }
+
+    public class SellySendKeyList {
+        public ArrayList<ShellySenseKeyCode> key_codes;
     }
 
     public static final String  SHELLY_TIMER_AUTOON     = "auto_on";
     public static final String  SHELLY_TIMER_AUTOOFF    = "aut_off";
     public static final String  SHELLY_TIMER_ACTIVE     = "has_timer";
 
-    public static final String  SHELLY_BULB_TURN        = "turn";
-    public static final String  SHELLY_BULB_DEFSTATE    = "def_state";
-    public static final String  SHELLY_BULB_TIMER       = "timer";
+    public static final String  SHELLY_LIGHT_TURN       = "turn";
+    public static final String  SHELLY_LIGHT_DEFSTATE   = "def_state";
+    public static final String  SHELLY_LIGHTTIMER       = "timer";
 
     public static final String  SHELLY_COLOR_RED        = "red";
     public static final String  SHELLY_COLOR_BLUE       = "blue";
@@ -427,8 +445,28 @@ public class ShellyApiJson {
     public static final String  SHELLY_COLOR_TEMP       = "temp";
     public static final String  SHELLY_COLOR_EFFECT     = "effect";
 
+    public static final Integer SHELLY_MIN_BRIGHTNESS   = 0;
     public static final Integer SHELLY_MAX_BRIGHTNESS   = 100;
+    public static final int     SHELLY_MIN_GAIN         = 0;
     public static final Integer SHELLY_MAX_GAIN         = 100;
+    public static final Integer SHELLY_MIN_COLOR        = 0;
     public static final Integer SHELLY_MAX_COLOR        = 255;
     public static final int     SHELLY_DIM_STEPSIZE     = 10;
+
+    // color temperature: 3000 = warm, 4750 = white, 6565 = cold; gain: 0..100
+    public static final int     MIN_COLOR_TEMPERATURE   = 3000;
+    public static final int     MAX_COLOR_TEMPERATURE   = 6500;
+    public static final int     COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
+    public static final double  SATURATION_FACTOR       = 2.55;
+    public static final double  GAIN_FACTOR             = SHELLY_MAX_GAIN / 100;
+    public static final double  BRIGHTNESS_FACTOR       = SHELLY_MAX_BRIGHTNESS / 100;
+
+    public class ShellySenseSettings {
+        // see https://shelly-api-docs.shelly.cloud/#shelly-sense-settings
+        public Double  pir_motion_duration_time; // Set duration time in seconds for motion flag after motion detection.
+        public Integer motion_led; // Whether LED light should indicate motion detected 1 or 0.
+        public String  temperature_units; // Temperature units C for Celsius and F for Fahrenheit
+        public Boolean schedule; // Whether schedule settings are active/inactive. Value is 1 or 0.
+        // ArrayList<ShellySettingsScheduleRules> schedule_rules;
+    }
 }

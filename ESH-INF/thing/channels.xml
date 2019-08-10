@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="shelly" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+
+    <channel-type id="output">
+        <item-type>Switch</item-type>
+        <label>Output</label>
+        <description>Control the relay output</description>
+    </channel-type>
+   <channel-type id="meterWatts">
+        <item-type>Number</item-type>
+        <label>Watt</label>
+        <description>Current power consumption in Watt</description>
+        <state readOnly="true" pattern="%.1f W" >
+        </state>
+    </channel-type>
+    <channel-type id="lastPower1">
+        <item-type>Number</item-type>
+        <label>Last Power #1</label>
+        <description>Last power consumption #1 - one rounded minute</description>
+        <state readOnly="true" pattern="%.1f W/min" >
+        </state>
+    </channel-type>
+    <channel-type id="lastPower2">
+        <item-type>Number</item-type>
+        <label>Last Power #2</label>
+        <description>Last power consumption #2 - one rounded minute</description>
+        <state readOnly="true" pattern="%.1f W/min" >
+        </state>
+    </channel-type>
+    <channel-type id="lastPower3">
+        <item-type>Number</item-type>
+        <label>Last Power #3</label>
+        <description>Last power consumption #3 - one rounded minute</description>
+        <state readOnly="true" pattern="%.1f W/min" >
+        </state>
+    </channel-type>
+   <channel-type id="meterTotal">
+        <item-type>Number</item-type>
+        <label>Total Energy (kw/h)</label>
+        <description>Total power consumption in kw/h</description>
+        <state readOnly="true" pattern="%.5f kw/h" >
+        </state>
+    </channel-type>
+   <channel-type id="meterTimestamp">
+        <item-type>String</item-type>
+        <label>Last Update</label>
+        <description>Timestamp of last measurement</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="overpower">
+        <item-type>Switch</item-type>
+        <label>Overpower</label>
+        <description>ON: Device detected an over power situation</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="eventTrigger">
+        <kind>trigger</kind>
+        <label>Event Trigger</label>
+        <description>Triggers channel for events, type code be btn_on, btn_off, out_on, out_off</description>
+        <event/>
+    </channel-type>
+
+    <channel-type id="rollerShutter">
+        <item-type>Rollershutter</item-type>
+        <label>Roller position</label>
+        <description>Controls the roller</description>
+        <category>Blinds</category>
+    </channel-type>
+    <channel-type id="rollerTurn">
+        <item-type>String</item-type>
+        <label>Roller Control</label>
+        <description>Control the roller operation</description>
+        <state readOnly="false">
+            <options>
+                <option value="open">open</option>
+                <option value="stop">stop</option>
+                <option value="close">close</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="rollerPosition">
+        <item-type>Dimmer</item-type>
+        <label>Roller Position</label>
+        <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
+    </channel-type>
+    <channel-type id="rollerStop">
+        <item-type>String</item-type>
+        <label>Roller stop reason</label>
+        <description>Last cause for stopping: normal, safety_switch, obstacle</description>
+        <state readOnly="true">
+            <options>
+                <option value="normal">normal</option>
+                <option value="safety_switch">safety switch</option>
+                <option value="obstacle">obstacle detected</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="rollerCalibrating">
+        <item-type>Switch</item-type>
+        <label>Calibrating</label>
+        <description>ON: Roller is calibrating</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    
+    <channel-type id="rollerDirection">
+        <item-type>String</item-type>
+        <label>Last Roller Direction</label>
+        <description>Last direction: open or close</description>
+        <state readOnly="true">
+            <options>
+                <option value="open">open</option>
+                <option value="close">close</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="ledStatusDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Status LED</label>
+        <description>Disable LED indication for network status</description>
+    </channel-type>
+    <channel-type id="ledPowerDisable">
+        <item-type>Switch</item-type>
+        <label>Disable Power LED</label>
+        <description>Disable LED indication for output status</description>
+    </channel-type>
+
+    <channel-type id="lightPower">
+        <item-type>Switch</item-type>
+        <label>Turn on/off</label>
+        <description>Turn ON/OFF</description>
+    </channel-type>
+    <channel-type id="colorPicker">
+        <item-type>Color</item-type>
+        <label>Color settings</label>
+        <description>Use the color picker change all settings at once</description>
+    </channel-type>
+    <channel-type id="colorRed">
+        <item-type>Dimmer</item-type>
+        <label>Red</label>
+        <description>red, 0..255, only in Color Mode</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorGreen">
+        <item-type>Dimmer</item-type>
+        <label>Green</label>
+        <description>green, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorBlue">
+        <item-type>Dimmer</item-type>
+        <label>Blue</label>
+        <description>blue, 0..255, only in Color Mode</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="Dimmer">
+        <item-type>Number</item-type>
+        <label>Blue</label>
+        <description>blue, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorWhite">
+        <item-type>Dimmer</item-type>
+        <label>White</label>
+        <description>white, 0..255, applies in mode=color</description>
+        <state min="0" max="255" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorGain">
+        <item-type>Dimmer</item-type>
+        <label>Gain</label>
+        <description>gain for all channels, 0..100, applies in mode=color</description>
+        <state min="0" max="100" step="1" pattern="%d %%" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="whiteTemp">
+        <item-type>Dimmer</item-type>
+        <label>Light Temperature</label>
+        <description>Light Temperature 3000..6500K</description>
+        <state min="3000" max="6500" step="10" pattern="%d %%" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="whiteBrightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>Brightness: 0..100%</description>
+        <state min="0" max="100" step="1" pattern="%d %%" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="colorEffectBulb">
+        <item-type>Number</item-type>
+        <label>Effect</label>
+        <description>Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Breath, 4: Flash, 5: On/Off Gradual, 6: Red/Green Change</description>
+        <state>
+            <options>
+                <option value="0">Off</option>
+                <option value="1">Meteor Shower</option>
+                <option value="2">Gradual Change</option>
+                <option value="3">Breath</option>
+                <option value="4">Flash</option>
+                <option value="5">On/Off Gradual</option>
+                <option value="6">Red/Green Change</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="colorEffectRGBW2">
+        <item-type>Number</item-type>
+        <label>Effect</label>
+        <description>Currently applied effect, description: 0: Off, 1: Meteor Shower, 2: Gradual Change, 3: Flash</description>
+        <state>
+            <options>
+                <option value="0">Off</option>
+                <option value="1">Meteor Shower</option>
+                <option value="2">Gradual Change</option>
+                <option value="3">Flash</option>
+            </options>
+        </state>
+    </channel-type>
+
+    <channel-type id="colorMode">
+        <item-type>Switch</item-type>
+        <label>Mode (ON=color, OFF=white)</label>
+        <description>ON: Device is in color mode, OFF: Device is in White Mode</description>
+    </channel-type>
+    <channel-type id="flipBackTimer">
+        <item-type>Number</item-type>
+        <label>Flip-back Timer</label>
+        <description>Automatic flip-back timer in seconds, used in combination with turn</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="autoOn">
+        <item-type>Number</item-type>
+        <label>Auto-ON timer</label>
+        <description>Sets a default timer to turn the device ON after every OFF command in seconds</description>
+    </channel-type>
+    <channel-type id="autoOff">
+        <item-type>Number</item-type>
+        <label>Auto-ON timer</label>
+        <description>Sets a default timer to turn the device OFF after every ON command in seconds</description>
+    </channel-type>
+
+    <channel-type id="sensorTemp">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Temperature from the sensor</description>
+        <state readOnly="true" pattern="%.1f" >
+        </state>
+    </channel-type>
+    <channel-type id="sensorTempUnit">
+        <item-type>String</item-type>
+        <label>Temp Unit (C/F)</label>
+        <description>Temperature from the sensor C=Celsius, F=Fahrenheit)</description>
+        <state readOnly="true">
+            <options>
+                <option value="C">Celsius</option>
+                <option value="F">Fahrehheit</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="sensorHumidity">
+        <item-type>Number</item-type>
+        <label>Humidity</label>
+        <description>Relative humidity in % (0..100%)</description>
+        <state readOnly="true" pattern="%.2f %%" >
+        </state>
+    </channel-type>
+    <channel-type id="sensorLux">
+        <item-type>Number</item-type>
+        <label>Lux</label>
+        <description>Brightness from the sensor (Lux)</description>
+        <state readOnly="true" pattern="%.1f Lux" >
+        </state>
+    </channel-type>
+
+    <channel-type id="batLevel">
+        <item-type>Number</item-type>
+        <label>Battery level</label>
+        <description>Battery level in %</description>
+        <state readOnly="true" pattern="%.1f %%" >
+        </state>
+    </channel-type>
+    <channel-type id="batAlert">
+        <item-type>Number</item-type>
+        <label>Low Battery</label>
+        <description>ON: Battery level is less than 20%</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="batVoltage">
+        <item-type>Number</item-type>
+        <label>Battery voltage</label>
+        <description>Battery voltage in V</description>
+        <state readOnly="true" pattern="%d V" >
+        </state>
+    </channel-type>
+
+    <channel-type id="timerAutoOn">
+        <item-type>Number</item-type>
+        <label>Auto ON timer</label>
+        <description>When Off - Turn On After xx seconds; 0 disables the timer</description>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="timerAutoOff">
+        <item-type>Number</item-type>
+        <label>Auto OFF timer</label>
+        <description>When ON - Turn On After xx seconds; 0 disables the timer</description>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="timerActive">
+        <item-type>Switch</item-type>
+        <label>Auto ON/OFF timer active</label>
+        <description>ON: A timer is active, OFF: no timer active</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+
+    <channel-type id="senseMotionTimer">
+        <item-type>Number</item-type>
+        <label>Motion Duration</label>
+        <description>Number of seconds to detect motion</description>
+        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="senseMotion">
+        <item-type>Switch</item-type>
+        <label>Motion detected</label>
+        <description>ON: Motion detected, OFF: No Motion</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="senseMotionLED">
+        <item-type>Switch</item-type>
+        <label>Motion LED</label>
+        <description>ON: LED indicates motion, OFF: LED will not light up</description>
+        <state min="0" step="1" pattern="%d" readOnly="false"></state>
+    </channel-type>
+    <channel-type id="senseCharger">
+        <item-type>Switch</item-type>
+        <label>Charging</label>
+        <description>ON: Device is charging, OFF: No charger connected</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="senseKey">
+        <item-type>String</item-type>
+        <label>IR Key to send</label>
+        <description>Send a defined key code</description>
+    </channel-type>
+ </thing:thing-descriptions>

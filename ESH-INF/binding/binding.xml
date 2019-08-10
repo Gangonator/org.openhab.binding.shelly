@@ -5,6 +5,6 @@
 
 	<name>Shelly Binding</name>
 	<description>This binding supports the Shelly series of devices.</description>
-	<author> Markus Michels</author>
+	<author>Markus Michels</author>
 
 </binding:binding>

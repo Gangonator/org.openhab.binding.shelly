@@ -1,4 +1,4 @@
-alpha6 is available
+beta1-pre is available
 
 - new: support for Shelly1-PM (verified)
 - new: Bulb+RGBW2 gets discovered and initialized, still working on control and status updates
@@ -174,7 +174,8 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
 |relay1    |output       |Switch   |r/w      |Controls the relay's output channel (on/off)                                     |
 |          |overpower    |Switch   |yes      |ON: The relay detected an overpower condition, output was turned OFF             |
-|          |trigger      |Trigger  |yes      |An OH trigger channel, see description below                                     |
+|          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device                            |
+|          |             |         |         |          the payload includes the event type and value as a J                   |
 |meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 
 ### Shelly 2 - relay mode thing-type: shelly2-relay)
@@ -186,12 +187,15 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 |          |autoOn       |Number   |r/w      |Relay #1: Sets a  timer to turn the device ON after every OFF command; in seconds|
 |          |autoOff      |Number   |r/w      |Relay #1: Sets a  timer to turn the device OFF after every ON command; in seconds|
 |          |timerActive  |Switch   |yes      |Relay #1: ON: An auto-on/off timer is active                                     |
+|          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device                            |
+|          |             |         |         |          the payload includes the event type and value as a J                   |
 |relay2    |output       |Switch   |r/w      |Relay #2: Controls the relay's output channel (on/off)                           |
 |          |overpower    |Switch   |yes      |Relay #2: ON: The relay detected an overpower condition, output was turned OFF   |
 |          |trigger      |Trigger  |yes      |Relay #2: An OH trigger channel, see description below                           |
 |          |autoOn       |Number   |r/w      |Relay #2: Sets a  timer to turn the device ON after every OFF command; in seconds|
 |          |autoOff      |Number   |r/w      |Relay #2: Sets a  timer to turn the device OFF after every ON command; in seconds|
 |          |timerActive  |Switch   |yes      |Relay #2: ON: An auto-on/off timer is active                                     |
+|          |event        |Trigger  |yes      |Relay #2: Triggers an event when posted by the device                            |
 |meter1    |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 |          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
@@ -203,11 +207,12 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|roller1   |turn         |Switch   |r/w      |ON: Turn roller into open mode, OFF:  Turn roller into close mode                |
+|roller1   |turn         |String   |r/w      |can be open/stop/close; on will be mapped to open, off to close                  |
 |          |position     |Number   |r/w      |Position of the roller, 0=open...100=closed; gets updated when the roller stopped|
 |          |direction    |String   |yes      |Last direction: open or close                                                    |
 |          |stopReason   |String   |yes      |Last stop reasons: normal, safety_switch or obstacle                             |
 |          |calibrating  |Switch   |yes      |ON: Roller is in calibration mode, OFF: normal mode (no calibration)             |
+|          |event        |Trigger  |yes      |Relay #1: Triggers an event when posted by the device, e,g, btn_up or btn_down   |
 |meter1    |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 |          |lastPower1   |Number   |yes      |Energy consumption in Watts for a round minute, 1 minute  ago                    |
 |          |lastPower2   |Number   |yes      |Energy consumption in Watts for a round minute, 2 minutes ago                    |
