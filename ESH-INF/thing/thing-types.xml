@@ -389,6 +389,7 @@
             <channel id="humidity" typeId="sensorHumidity" />
             <channel id="lux" typeId="sensorLux" />
             <channel id="motion" typeId="senseMotion" />
+            <channel id="charger" typeId="senseCharger" />
         </channels>
     </channel-group-type>
    <channel-group-type id="smokeSensor">
@@ -421,9 +422,6 @@
        <description>Sense Settings</description>
         <channels>
             <channel id="key" typeId="senseKey" />
-            <channel id="motionTimer" typeId="senseMotionTimer" />
-            <channel id="motionLED" typeId="senseMotionLED" />
-            <channel id="charger" typeId="senseCharger" />
         </channels>
     </channel-group-type>
 

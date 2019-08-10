@@ -289,17 +289,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
                     break;
-
-                case CHANNEL_SENSE_MOT_TIMER:
-                    logger.info("Setting Motion timer to {}", command.toString());
-                    Validate.isTrue(command instanceof DecimalType, "parameter must be of type DecimalType");
-                    api.setSenseSetting(SHELLY_SENSE_MOTION_TIMER, ((DecimalType) command).toString());
-                    break;
-                case CHANNEL_SENSE_MOT_LED:
-                    logger.info("Motion inlights the LED: {}", command.toString());
-                    Validate.isTrue(command instanceof OnOffType, "parameter must be of type OnOffType");
-                    api.setSenseSetting(SHELLY_SENSE_MOTION_LED, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
-                    break;
                 case CHANNEL_SENSE_KEY:
                     logger.info("Send key {}", command.toString());
                     api.sendIRKey(command.toString());
@@ -490,12 +479,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                         }
                         if (profile.isSense) {
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
-                            Validate.notNull(profile.settings.sensors, "profile.settings.sensors must not be null!");
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
-                                    getInteger(profile.settings.sensors.motion_duration));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(profile.settings.sensors.motion_led));
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_CHARGER, getBool(sdata.charger));
                         }
                     }
                 }
@@ -559,7 +544,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param parameters parameters from the event url
      * @param data       the html input data
      */
-    @SuppressWarnings("null")
     @Override
     public void onUpdateEvent(String deviceName, String deviceIndex, String eventClass, Map<String, String[]> parameters, String data) {
         if (thingName.equals(deviceName)) {

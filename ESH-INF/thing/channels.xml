@@ -330,24 +330,12 @@
         </state>
     </channel-type>
 
-    <channel-type id="senseMotionTimer">
-        <item-type>Number</item-type>
-        <label>Motion Timer</label>
-        <description>Number of seconds to detect motion</description>
-        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
-    </channel-type>
     <channel-type id="senseMotion">
         <item-type>Switch</item-type>
         <label>Motion detected</label>
         <description>ON: Motion detected, OFF: No Motion</description>
         <state readOnly="true">
         </state>
-    </channel-type>
-    <channel-type id="senseMotionLED">
-        <item-type>Switch</item-type>
-        <label>Motion LED</label>
-        <description>ON: LED indicates motion, OFF: LED will not light up</description>
-        <state min="0" step="1" pattern="%d" readOnly="false"></state>
     </channel-type>
     <channel-type id="senseCharger">
         <item-type>Switch</item-type>

@@ -125,11 +125,9 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_HUM           = "humidity";
     public static final String            CHANNEL_SENSOR_LUX           = "lux";
     public static final String            CHANNEL_SENSOR_MOTION        = "motion";
+    public static final String            CHANNEL_SENSOR_CHARGER       = "charger";
 
     public static final String            CHANNEL_GROUP_SENSE_CONTROL  = "control";
-    public static final String            CHANNEL_SENSE_CHARGER        = "charger";
-    public static final String            CHANNEL_SENSE_MOT_TIMER      = "motionTimer";
-    public static final String            CHANNEL_SENSE_MOT_LED        = "motionLED";
     public static final String            CHANNEL_SENSE_KEY            = "key";
 
     public static final String            CHANNEL_GROUP_BATTERY        = "battery";

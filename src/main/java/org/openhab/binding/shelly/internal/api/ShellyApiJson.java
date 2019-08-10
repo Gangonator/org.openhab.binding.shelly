@@ -199,12 +199,8 @@ public class ShellyApiJson {
         public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
         public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
 
-        public String                         light_sensor;   // Sense: sensor type
-        public ShellySenseSensors             sensors; // Sense: sensors
-        public Integer                        pir_motion_duration_time; // Sense: Set duration time in seconds for motion flag after motion detection.
-        public Boolean                        motion_led; // Sense: Whether LED light should indicate motion detected 1 or 0.
-
         public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
+        public String                         light_sensor;   // Sense: sensor type
     }
 
     public static final String SHELLY_API_MODE           = "mode";
@@ -215,9 +211,6 @@ public class ShellyApiJson {
 
     public static final String SHELLY_LED_STATUS_DISABLE = "led_status_disable";
     public static final String SHELLY_LED_POWER_DISABLE  = "led_power_disable";
-
-    public static final String SHELLY_SENSE_MOTION_LED   = "motion_led";  // Sense
-    public static final String SHELLY_SENSE_MOTION_TIMER = "pir_motion_duration_time"; // Sense
 
     public static class ShellySettingsAttributes {
         public String device_type; // Device model identifier
@@ -242,7 +235,6 @@ public class ShellyApiJson {
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
-        public ShellySenseSensors              sensors; // Sense: sensors
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
@@ -360,12 +352,6 @@ public class ShellyApiJson {
         public Integer sleep_mode_period; // Periodic update period in hours, between 1 and 24
     }
 
-    public class ShellySenseSensors {
-        public Integer motion_duration;
-        public Boolean motion_led;
-        public String  temperature_unit;
-    }
-
     public static final String SHELLY_TEMP_CELSIUS    = "C";
     public static final String SHELLY_TEMP_FAHRENHEIT = "F";
 
@@ -466,13 +452,4 @@ public class ShellyApiJson {
     public static final double  SATURATION_FACTOR       = 2.55;
     public static final double  GAIN_FACTOR             = SHELLY_MAX_GAIN / 100;
     public static final double  BRIGHTNESS_FACTOR       = SHELLY_MAX_BRIGHTNESS / 100;
-
-    public static class ShellySenseSettings {
-        // see https://shelly-api-docs.shelly.cloud/#shelly-sense-settings
-        public Double  pir_motion_duration_time; // Set duration time in seconds for motion flag after motion detection.
-        public Integer motion_led; // Whether LED light should indicate motion detected 1 or 0.
-        public String  temperature_units; // Temperature units C for Celsius and F for Fahrenheit
-        public Boolean schedule; // Whether schedule settings are active/inactive. Value is 1 or 0.
-        // ArrayList<ShellySettingsScheduleRules> schedule_rules;
-    }
 }
