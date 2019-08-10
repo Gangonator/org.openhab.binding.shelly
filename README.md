@@ -8,7 +8,7 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-beta 1 release notes
+beta 1-pre2 release notes
 + full support of RGBW2 (color + white mode)
 + support for Shelly 4 Pro
 + Support for Bulb and Sense is work in progress
