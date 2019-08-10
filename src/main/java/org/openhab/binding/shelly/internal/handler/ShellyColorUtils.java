@@ -142,7 +142,7 @@ public class ShellyColorUtils {
         value = value > max ? max.doubleValue() : value;
         Double percent = 0.0;
         if (range > 0) {
-            percent = new Double(Math.round(value * 100.0 / range));
+            percent = new Double(Math.round((value - min) / range * 100));
         }
         // logger.trace("Value converted from {} into {}%", value.intValue(), percent);
         return new PercentType(new BigDecimal(percent));
