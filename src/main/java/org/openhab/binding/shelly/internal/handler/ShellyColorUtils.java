@@ -3,6 +3,7 @@ package org.openhab.binding.shelly.internal.handler;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 
 import java.math.BigDecimal;
+import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -101,6 +102,33 @@ public class ShellyColorUtils {
     public HSBType toHSB() {
         // logger.trace("toHSB(): create HSB from {}/{}/{}", red, green, blue);
         return HSBType.fromRGB(red, green, blue);
+    }
+
+    public Integer[] fromRGBW(String rgbw) {
+        Integer values[] = new Integer[4];
+        values[0] = values[1] = values[2] = values[3] = -1;
+        try {
+            StringTokenizer st = new StringTokenizer(rgbw, ",");
+            int i = 0;
+            while (st.hasMoreElements()) {
+                values[i++] = Integer.parseInt((String) st.nextElement());
+            }
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Unable to convert fullColor value: " + rgbw + ", " + e.getMessage());
+        }
+        if (values[0] != -1) {
+            setRed(values[0]);
+        }
+        if (values[1] != -1) {
+            setGreen(values[1]);
+        }
+        if (values[2] != -1) {
+            setBlue(values[2]);
+        }
+        if (values[3] != -1) {
+            setWhite(values[3]);
+        }
+        return values;
     }
 
     private PercentType toPercent(Integer value) {

@@ -439,6 +439,7 @@ public class ShellyApiJson {
     public static final String  SHELLY_COLOR_RED        = "red";
     public static final String  SHELLY_COLOR_BLUE       = "blue";
     public static final String  SHELLY_COLOR_GREEN      = "green";
+    public static final String  SHELLY_COLOR_YELLOW     = "yellow";
     public static final String  SHELLY_COLOR_WHITE      = "white";
     public static final String  SHELLY_COLOR_GAIN       = "gain";
     public static final String  SHELLY_COLOR_BRIGHTNESS = "brightness";

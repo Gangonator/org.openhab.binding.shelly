@@ -96,7 +96,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                     updated = handleColorPicker(profile, lightId, col, command);
                     break;
                 case CHANNEL_COLOR_FULL:
-                    updated = handleFullColor(lightId, col, command);
+                    updated = handleFullColor(col, command);
                     break;
                 case CHANNEL_COLOR_RED:
                     col.setRed(setColor(lightId, SHELLY_COLOR_RED, command, SHELLY_MAX_COLOR));
@@ -216,14 +216,18 @@ public class ShellyHandlerLight extends ShellyHandler {
         return updated;
     }
 
-    private boolean handleFullColor(Integer lightId, ShellyColorUtils col, Command command) throws IOException, IllegalArgumentException {
-        String color = command.toString();
-        if (color.equals(SHELLY_COLOR_RED)) {
+    private boolean handleFullColor(ShellyColorUtils col, Command command) throws IOException, IllegalArgumentException {
+        String color = command.toString().toLowerCase();
+        if (color.contains(",")) {
+            col.fromRGBW(color);
+        } else if (color.equals(SHELLY_COLOR_RED)) {
             col.setRGBW(SHELLY_MAX_COLOR, 0, 0, 0);
         } else if (color.equals(SHELLY_COLOR_GREEN)) {
             col.setRGBW(0, SHELLY_MAX_COLOR, 0, 0);
         } else if (color.equals(SHELLY_COLOR_BLUE)) {
             col.setRGBW(0, 0, SHELLY_MAX_COLOR, 0);
+        } else if (color.equals(SHELLY_COLOR_YELLOW)) {
+            col.setRGBW(SHELLY_MAX_COLOR, SHELLY_MAX_COLOR, 0, 0);
         } else if (color.equals(SHELLY_COLOR_WHITE)) {
             col.setRGBW(0, 0, 0, SHELLY_MAX_COLOR);
         } else {
@@ -345,11 +349,13 @@ public class ShellyHandlerLight extends ShellyHandler {
     }
 
     private void setFullColor(String colorGroup, ShellyColorUtils col) {
-        if ((col.red == SHELLY_MAX_COLOR) && (col.green == 0) && (col.blue == 0) && (col.white == 0)) {
+        if ((col.red == SHELLY_MAX_COLOR) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
+            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_YELLOW);
+        } else if ((col.red == SHELLY_MAX_COLOR) && (col.green == 0) && (col.blue == 0)) {
             super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_RED);
-        } else if ((col.red == 0) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0) && (col.white == 0)) {
+        } else if ((col.red == 0) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
             super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_GREEN);
-        } else if ((col.red == 0) && (col.green == 0) && (col.blue == SHELLY_MAX_COLOR) && (col.white == 0)) {
+        } else if ((col.red == 0) && (col.green == 0) && (col.blue == SHELLY_MAX_COLOR)) {
             super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_BLUE);
         } else if ((col.red == 0) && (col.green == 0) && (col.blue == 0) && (col.white == SHELLY_MAX_COLOR)) {
             super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_WHITE);

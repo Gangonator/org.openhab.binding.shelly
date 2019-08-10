@@ -377,7 +377,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, getString(control.state));
                             if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
-                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(100 - getInteger(control.current_pos)));
                             }
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
