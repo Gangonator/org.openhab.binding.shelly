@@ -445,6 +445,8 @@ public class ShellyApiJson {
     public static final String  SHELLY_COLOR_TEMP       = "temp";
     public static final String  SHELLY_COLOR_EFFECT     = "effect";
 
+    public static final Integer SHELLY_MIN_ROLLER_POS   = 0;
+    public static final Integer SHELLY_MAX_ROLLER_POS   = 100;
     public static final Integer SHELLY_MIN_BRIGHTNESS   = 0;
     public static final Integer SHELLY_MAX_BRIGHTNESS   = 100;
     public static final int     SHELLY_MIN_GAIN         = 0;

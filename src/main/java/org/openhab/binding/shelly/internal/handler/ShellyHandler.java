@@ -227,8 +227,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     String turn = command.toString().toLowerCase();
                     if (turn.equalsIgnoreCase(SHELLY_API_ON)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_OPEN;
-                    }
-                    if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
+                    } else if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_CLOSE;
                     }
                     logger.info("Set roller turn mode to {}", turn);
@@ -261,7 +260,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             DecimalType d = (DecimalType) command;
                             position = d.intValue();
                         }
-                        validateRange("roller position", position, 0, 100);
+                        validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
+                        position = SHELLY_MAX_ROLLER_POS - position;  // invert from 0..100 to 100..0
                         logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
                         api.setRollerPos(rIndex, position);
                     }

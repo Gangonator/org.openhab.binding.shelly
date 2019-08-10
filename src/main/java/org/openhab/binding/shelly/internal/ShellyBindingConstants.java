@@ -146,6 +146,7 @@ public class ShellyBindingConstants {
     // Bulb/RGBW2 in color mode
     public static final String            CHANNEL_GROUP_COLOR_CONTROL  = "color";
     public static final String            CHANNEL_COLOR_PICKER         = "hsb";
+    public static final String            CHANNEL_COLOR_FULL           = "full";
     public static final String            CHANNEL_COLOR_RED            = "red";
     public static final String            CHANNEL_COLOR_GREEN          = "green";
     public static final String            CHANNEL_COLOR_BLUE           = "blue";
