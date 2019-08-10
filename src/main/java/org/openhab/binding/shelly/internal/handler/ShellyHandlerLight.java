@@ -78,9 +78,8 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
             switch (channelUID.getIdWithoutGroup()) {
                 default: // non-bulb commands will be handled by the generic handler
-                    super.lockUpdates = false;
                     super.handleCommand(channelUID, command);
-                    break;
+                    return;
 
                 case CHANNEL_LIGHT_COLOR_MODE:
                     logger.info("Select color mode {}", command.toString());
@@ -94,7 +93,8 @@ public class ShellyHandlerLight extends ShellyHandler {
                     break;
 
                 case CHANNEL_COLOR_PICKER:
-                    updated |= handleColorPicker(profile, lightId, col, command);
+                    handleColorPicker(profile, lightId, col, command);
+                    updated = true;
                     break;
                 case CHANNEL_COLOR_RED:
                     col.setRed(setColor(lightId, SHELLY_COLOR_RED, command, SHELLY_MAX_COLOR));
@@ -119,16 +119,14 @@ public class ShellyHandlerLight extends ShellyHandler {
                 case CHANNEL_COLOR_BRIGHTNESS:  // only in white mode
                     Integer value = -1;
                     if (command instanceof PercentType) {
-                        logger.info("Set brightness to {}%", ((PercentType) command).floatValue());
                         Float percent = ((PercentType) command).floatValue();
-                        value = new DecimalType(MIN_BRIGHTNESS + (MAX_BRIGHTNESS - MIN_BRIGHTNESS) * percent).intValue();
-                        logger.info("Converted color-temp {}% to {}K (from Percent to Integer)", percent, value);
-                        // col.setTemp(setColor(lightId, SHELLY_COLOR_TEMP, command, MIN_COLOR_TEMPERATURE, MAX_COLOR_TEMPERATURE));
+                        value = percent.intValue();  // 0..100% = 0..100
+                        logger.info("Set brightness to {}%/{}K", percent, value);
                     } else if (command instanceof DecimalType) {
                         value = ((DecimalType) command).intValue();
                         logger.info("Set color temp to {} (Integer)", value);
                     }
-                    // col.setBrightness(setColor(lightId, SHELLY_COLOR_BRIGHTNESS, command, SHELLY_MAX_BRIGHTNESS));
+                    validateRange("brightness", value, 0, 100);
                     col.setBrightness(value);
                     updated = true;
                     break;

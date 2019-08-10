@@ -105,6 +105,7 @@ public class ShellyHttpApi {
 
     public class ShellyDeviceProfile {
         public String               thingType;
+
         public String               settingsJson;
         public ShellySettingsGlobal settings;
 
@@ -147,6 +148,7 @@ public class ShellyHttpApi {
     private String              localIp     = "";
     private String              deviceIp    = "";
     private String              localPort   = OPENHAB_DEF_PORT;
+    public String               thingName;
 
     private ShellyDeviceProfile profile;
     private Gson                gson        = new Gson();
@@ -159,7 +161,7 @@ public class ShellyHttpApi {
         Map<String, String> env = System.getenv();
         String portEnv = env.get(OPENHAB_HTTP_PORT);
         localPort = (portEnv != null) ? portEnv : OPENHAB_DEF_PORT;
-
+        thingName = "";
     }
 
     public ShellySettingsDevice getDevInfo() throws IOException {
@@ -184,6 +186,7 @@ public class ShellyHttpApi {
         profile.hostname = profile.settings.device.hostname != null && !profile.settings.device.hostname.isEmpty()
                 ? profile.settings.device.hostname.toLowerCase()
                 : "shelly-" + profile.mac.toUpperCase().substring(6, 11);
+        thingName = profile.hostname;
         profile.mode = getString(profile.settings.mode) != null ? getString(profile.settings.mode).toLowerCase() : "";
         profile.hwRev = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.hw_revision) : "";
         profile.hwBatchId = profile.settings.hwinfo != null ? getString(profile.settings.hwinfo.batch_id.toString()) : "";
@@ -239,7 +242,7 @@ public class ShellyHttpApi {
     public void setEventURLs(String deviceName) throws IOException {
         if (profile.supportsActionUrls) {
             // set event URLs for Shelly2/4 Pro
-            logger.trace("Check/set Action event URLs for Relay or Roller for device {}", profile.hostname);
+            logger.trace("Check/set Action event URLs for Relay or Roller for device {}", thingName);
             int i = 0;
             for (ShellySettingsRelay relay : profile.settings.relays) {
                 logger.info("Current settings for relay[{}]: btn_on_url={}/btn_off_url={}, out_on_url={}, out_off_url={}", i,
@@ -413,17 +416,17 @@ public class ShellyHttpApi {
         String httpResponse = "ERROR";
         // boolean acquired = false;
         try {
-            logger.trace("HTTP GET for {}: {}", profile.hostname, url);
+            logger.trace("HTTP GET for {}: {}", thingName, url);
             // acquired = accessMutex.tryAcquire(2 * SHELLY_API_TIMEOUT, TimeUnit.MILLISECONDS);
             httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
             if (!httpResponse.startsWith("{") && !httpResponse.startsWith("[")) {
-                throw new IOException("ERROR from " + profile.hostname + ": Unexpected http resonse: " + httpResponse + ", url=" + url);
+                throw new IOException("ERROR from " + thingName + ": Unexpected http resonse: " + httpResponse + ", url=" + url);
             }
 
-            logger.trace("HTTP response from {}: {}", profile.hostname, httpResponse);
+            logger.trace("HTTP response from {}: {}", thingName, httpResponse);
             return httpResponse;
         } catch (IOException e) {
             throw new IOException(
