@@ -490,11 +490,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                         }
                         if (profile.isSense) {
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
-                                    getInteger(status.sensors.motion_duration));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(status.sensors.motion_led));
                             updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
+                            Validate.notNull(profile.settings.sensors, "profile.settings.sensors must not be null!");
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
+                                    getInteger(profile.settings.sensors.motion_duration));
+                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(profile.settings.sensors.motion_led));
                         }
                     }
                 }

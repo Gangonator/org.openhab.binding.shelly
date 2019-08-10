@@ -378,7 +378,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 parms.put(SHELLY_COLOR_WHITE, newCol.white.toString());
             }
         }
-        if ((profile.isBulb || !profile.inColor) && oldCol.temp != newCol.temp) {
+        if ((!profile.inColor) && oldCol.temp != newCol.temp) {
             logger.info("Setting color temp to {}", newCol.temp);
             parms.put(SHELLY_COLOR_TEMP, newCol.temp.toString());
         }
