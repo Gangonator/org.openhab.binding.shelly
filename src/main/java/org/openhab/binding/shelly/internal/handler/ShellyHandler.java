@@ -124,7 +124,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     private void initializeThing() throws IOException {
         // Get the thing global settings and initialize device capabilities
-        logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
+        logger.info("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
         lockUpdates = false;
@@ -547,10 +547,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     @Override
     public void onUpdateEvent(String deviceName, String deviceIndex, String eventClass, Map<String, String[]> parameters, String data) {
         if (thingName.equals(deviceName)) {
-            logger.debug("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
+            logger.info("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
                     parameters.toString());
             if (profile == null) {
-                logger.trace("Device {} is not yet initialized, event will trigger initialization", deviceName);
+                logger.info("Device {} is not yet initialized, event will trigger initialization", deviceName);
             }
 
             int i = 0;

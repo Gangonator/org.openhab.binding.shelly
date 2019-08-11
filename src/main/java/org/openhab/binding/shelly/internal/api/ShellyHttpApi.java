@@ -347,10 +347,10 @@ public class ShellyHttpApi {
     }
 
     public void setLightMode(String mode) throws IOException {
-        if (!profile.mode.equals(mode)) {
+        if (!mode.isEmpty() && !profile.mode.equals(mode)) {
+            setLightSetting(SHELLY_API_MODE, mode);
             profile.mode = mode;
             profile.inColor = profile.isLight && profile.mode.equalsIgnoreCase(SHELLY_MODE_COLOR);
-            setLightSetting(SHELLY_API_MODE, mode);
         }
     }
 

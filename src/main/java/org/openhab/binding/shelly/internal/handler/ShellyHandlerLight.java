@@ -149,10 +149,9 @@ public class ShellyHandlerLight extends ShellyHandler {
             }
 
             // check for switching color mode
-            if (!col.mode.equals(profile.mode)) {
+            if (!col.mode.isEmpty() && !col.mode.equals(oldCol.mode)) {
                 logger.info("Color mode changed from {} to {}, set new mode", oldCol.mode, col.mode);
                 api.setLightMode(col.mode);
-                profile.mode = col.mode;
             }
 
             // send changed colors to the device
