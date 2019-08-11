@@ -76,20 +76,22 @@ public class ShellyHandlerLight extends ShellyHandler {
             Validate.notNull(oldCol, "copy of oldCol must not be null");
 
             logger.debug("Execute light command {} on channel {}", command.toString(), channelUID.getAsString());
+            boolean update = true;
             switch (channelUID.getIdWithoutGroup()) {
                 default: // non-bulb commands will be handled by the generic handler
                     super.handleCommand(channelUID, command);
                     return;
 
-                case CHANNEL_LIGHT_COLOR_MODE:
-                    logger.info("Select color mode {}", command.toString());
-                    Validate.isTrue(command instanceof OnOffType, "Invalid value for color mode (ON or OFF): " + command.toString());
-                    col.setMode((OnOffType) command == OnOffType.ON ? SHELLY_MODE_COLOR : SHELLY_MODE_WHITE);
-                    break;
                 case CHANNEL_LIGHT_POWER:
                     logger.info("Switch light {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value for power (ON or OFF): {}", command.toString());
                     api.setLightParm(lightId, SHELLY_LIGHT_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    update = (OnOffType) command == OnOffType.ON;
+                    break;
+                case CHANNEL_LIGHT_COLOR_MODE:
+                    logger.info("Select color mode {}", command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value for color mode (ON or OFF): " + command.toString());
+                    col.setMode((OnOffType) command == OnOffType.ON ? SHELLY_MODE_COLOR : SHELLY_MODE_WHITE);
                     break;
                 case CHANNEL_COLOR_PICKER:
                     handleColorPicker(profile, lightId, col, command);
@@ -148,14 +150,16 @@ public class ShellyHandlerLight extends ShellyHandler {
                     break;
             }
 
-            // check for switching color mode
-            if (!col.mode.isEmpty() && !col.mode.equals(oldCol.mode)) {
-                logger.info("Color mode changed from {} to {}, set new mode", oldCol.mode, col.mode);
-                api.setLightMode(col.mode);
-            }
+            if (update) {
+                // check for switching color mode
+                if (profile.isBulb && !col.mode.isEmpty() && !col.mode.equals(oldCol.mode)) {
+                    logger.info("Color mode changed from {} to {}, set new mode", oldCol.mode, col.mode);
+                    api.setLightMode(col.mode);
+                }
 
-            // send changed colors to the device
-            sendColors(profile, lightId, oldCol, col);
+                // send changed colors to the device
+                sendColors(profile, lightId, oldCol, col);
+            }
 
             super.requestUpdates(1, true);  // always do a refresh after a command
         } catch (RuntimeException | IOException e) {
