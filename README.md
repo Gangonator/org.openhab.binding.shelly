@@ -8,8 +8,12 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-## SNAPSHOT release notes
+## Releases of this binding
 
+--- branches
+Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
+Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
+**Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
 
 ---
 
@@ -31,9 +35,9 @@ As always: feedback welcome
 ---
 
 Contibutors:
-@Igi: lot of testing around RGBW2 and in general!
+@Igi:     lot of testing around RGBW2 and in general!
 @mherbst: supported Bulb and Sense testing
-@hmerck: some initial work
+@hmerck:  some initial work
 
 Thanks guys supporting the community.
 
@@ -41,8 +45,6 @@ Thanks guys supporting the community.
 
 Please note:
 This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
-
-
 
 
 Looking for contribution: If you are familar with HTML and CSS you are welcome to contribute a nice HABpanel widget. ;-)
