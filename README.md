@@ -8,22 +8,8 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-## beta 1-pre2 release notes
-+ full support of RGBW2 (color + white mode,  verified) - thanks @Igi
-+ full support for Bulb (verified) - thanks @MHerbst
-+ full support for Sense (verified) - thanks @MHerbst
-+ full support for Shelly 4 Pro (verified)
-+ new channel fullColor (preset for Red, Green, Blue, Yellow, White or RGB value string)
-+ Settings refresh every minute to catch changes by the Web UI or the App
-+ refresh poller position for 30s to catch the new status when the roller stops moving
-+ trigger channels for relay and HT events
-+ channel calibrating gets filled, roller positioning will be blocked when calibration is active
-+ compute total power consumption in kw/h
-+ decimal numbers in the channel defintion for Watts etc.
-* adapt roller psotion: In OH it's 0..100 for Shelly 100..0 
-* fixed power meters for all devices
-* fixed refresh handling in several situations
-* fixed flipping switches (turn on in Paper UI, immediately flips back)
+## SNAPSHOT release notes
+
 
 ---
 
