@@ -125,11 +125,9 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_HUM           = "humidity";
     public static final String            CHANNEL_SENSOR_LUX           = "lux";
     public static final String            CHANNEL_SENSOR_MOTION        = "motion";
+    public static final String            CHANNEL_SENSOR_CHARGER       = "charger";
 
     public static final String            CHANNEL_GROUP_SENSE_CONTROL  = "control";
-    public static final String            CHANNEL_SENSE_CHARGER        = "charger";
-    public static final String            CHANNEL_SENSE_MOT_TIMER      = "motionTimer";
-    public static final String            CHANNEL_SENSE_MOT_LED        = "motionLED";
     public static final String            CHANNEL_SENSE_KEY            = "key";
 
     public static final String            CHANNEL_GROUP_BATTERY        = "battery";
@@ -146,6 +144,7 @@ public class ShellyBindingConstants {
     // Bulb/RGBW2 in color mode
     public static final String            CHANNEL_GROUP_COLOR_CONTROL  = "color";
     public static final String            CHANNEL_COLOR_PICKER         = "hsb";
+    public static final String            CHANNEL_COLOR_FULL           = "full";
     public static final String            CHANNEL_COLOR_RED            = "red";
     public static final String            CHANNEL_COLOR_GREEN          = "green";
     public static final String            CHANNEL_COLOR_BLUE           = "blue";

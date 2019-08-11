@@ -8,7 +8,7 @@
 		<label>Shelly1 (SHSW-1)</label>
 		<description>Shelly1 device with single relay</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="basicMeter">
@@ -22,7 +22,7 @@
         <label>Shelly1PM (SHSW-PM)</label>
         <description>Shelly1PM device with single relay and power meter</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">
@@ -142,7 +142,7 @@
         <label>Shelly Plug</label>
         <description>Shelly Plug device with relay and power meter</description>
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
             </channel-group>
             <channel-group id="meter" typeId="simpleMeter">
@@ -157,7 +157,7 @@
         <description>Shelly Plug-S with relay, meter and LED control</description>
 
         <channel-groups>
-            <channel-group id="relay1" typeId="relayChannel">
+            <channel-group id="relay" typeId="relayChannel">
                 <label>Plug</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">
@@ -317,7 +317,7 @@
    </channel-group-type>
    <channel-group-type id="rollerControl">
        <label>Roller Control</label>
-       <description>Controlling teh Shelly2 in roller mode</description>
+       <description>Controlling the roller mode</description>
         <channels>
             <channel id="turn" typeId="rollerTurn" />
             <channel id="position" typeId="rollerShutter" />
@@ -389,6 +389,7 @@
             <channel id="humidity" typeId="sensorHumidity" />
             <channel id="lux" typeId="sensorLux" />
             <channel id="motion" typeId="senseMotion" />
+            <channel id="charger" typeId="senseCharger" />
         </channels>
     </channel-group-type>
    <channel-group-type id="smokeSensor">
@@ -420,9 +421,6 @@
        <label>Sense Control</label>
        <description>Sense Settings</description>
         <channels>
-            <channel id="motionTimer" typeId="senseMotionTimer" />
-            <channel id="motionLED" typeId="senseMotionLED" />
-            <channel id="charger" typeId="senseCharger" />
             <channel id="key" typeId="senseKey" />
         </channels>
     </channel-group-type>
@@ -454,6 +452,7 @@
        <description>Light colors</description>
         <channels>
             <channel id="hsb" typeId="colorPicker" />
+            <channel id="full" typeId="colorFull" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />
@@ -467,6 +466,7 @@
        <description>Light colors</description>
         <channels>
             <channel id="hsb" typeId="colorPicker" />
+            <channel id="full" typeId="colorFull" />
             <channel id="red" typeId="colorRed" />
             <channel id="green" typeId="colorGreen" />
             <channel id="blue" typeId="colorBlue" />

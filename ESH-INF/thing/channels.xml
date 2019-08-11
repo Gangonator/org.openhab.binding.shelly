@@ -140,6 +140,20 @@
         <label>Color settings</label>
         <description>Use the color picker change all settings at once</description>
     </channel-type>
+    <channel-type id="colorFull">
+        <item-type>String</item-type>
+        <label>Full Color</label>
+        <description>Setting this channel sets the selected color to 255, all others to 0</description>
+        <state>
+            <options>
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+                <option value="white">White</option>
+            </options>
+        </state>
+    </channel-type>
     <channel-type id="colorRed">
         <item-type>Dimmer</item-type>
         <label>Red</label>
@@ -282,7 +296,7 @@
         </state>
     </channel-type>
     <channel-type id="batAlert">
-        <item-type>Number</item-type>
+        <item-type>Switch</item-type>
         <label>Low Battery</label>
         <description>ON: Battery level is less than 20%</description>
         <state readOnly="true">
@@ -316,12 +330,6 @@
         </state>
     </channel-type>
 
-    <channel-type id="senseMotionTimer">
-        <item-type>Number</item-type>
-        <label>Motion Duration</label>
-        <description>Number of seconds to detect motion</description>
-        <state min="0" step="1" pattern="%d sec" readOnly="false"></state>
-    </channel-type>
     <channel-type id="senseMotion">
         <item-type>Switch</item-type>
         <label>Motion detected</label>
@@ -329,15 +337,9 @@
         <state readOnly="true">
         </state>
     </channel-type>
-    <channel-type id="senseMotionLED">
-        <item-type>Switch</item-type>
-        <label>Motion LED</label>
-        <description>ON: LED indicates motion, OFF: LED will not light up</description>
-        <state min="0" step="1" pattern="%d" readOnly="false"></state>
-    </channel-type>
     <channel-type id="senseCharger">
         <item-type>Switch</item-type>
-        <label>Charging</label>
+        <label>Charger connected</label>
         <description>ON: Device is charging, OFF: No charger connected</description>
         <state readOnly="true">
         </state>

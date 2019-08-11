@@ -124,10 +124,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     private void initializeThing() throws IOException {
         // Get the thing global settings and initialize device capabilities
-        logger.debug("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
+        logger.info("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
         lockUpdates = false;
+
+        logger.info("Shelly Binding release: beta1 2019-08-10");
 
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
@@ -141,10 +143,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         Map<String, String> properties = getThing().getProperties();
         Validate.notNull(properties, "properties must not be null!");
-        thingName = properties.get(PROPERTY_SERVICE_NAME);
-        if (thingName == null) {
-            thingName = p.hostname;
-        }
+        thingName = properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : p.hostname;
         Validate.notNull(thingName, "thingName must not be null!");
 
         // update thing properties
@@ -229,8 +228,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     String turn = command.toString().toLowerCase();
                     if (turn.equalsIgnoreCase(SHELLY_API_ON)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_OPEN;
-                    }
-                    if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
+                    } else if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
                         turn = SHELLY_ALWD_ROLLER_TURN_CLOSE;
                     }
                     logger.info("Set roller turn mode to {}", turn);
@@ -263,8 +261,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             DecimalType d = (DecimalType) command;
                             position = d.intValue();
                         }
-                        Validate.isTrue(position == -1, "Invalid position requested: " + position.toString());
-                        validateRange("roller position", position, 0, 100);
+                        validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
+                        position = SHELLY_MAX_ROLLER_POS - position;  // invert from 0..100 to 100..0
                         logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
                         api.setRollerPos(rIndex, position);
                     }
@@ -289,17 +287,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Set POWER LED disabled to {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value type");
                     api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
-                    break;
-
-                case CHANNEL_SENSE_MOT_TIMER:
-                    logger.info("Setting Motion timer to {}", command.toString());
-                    Validate.isTrue(command instanceof DecimalType, "parameter must be of type DecimalType");
-                    api.setSenseSetting(SHELLY_SENSE_MOTION_TIMER, ((DecimalType) command).toString());
-                    break;
-                case CHANNEL_SENSE_MOT_LED:
-                    logger.info("Motion inlights the LED: {}", command.toString());
-                    Validate.isTrue(command instanceof OnOffType, "parameter must be of type OnOffType");
-                    api.setSenseSetting(SHELLY_SENSE_MOTION_LED, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
                     break;
                 case CHANNEL_SENSE_KEY:
                     logger.info("Send key {}", command.toString());
@@ -378,7 +365,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, getString(control.state));
                             if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
-                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(100 - getInteger(control.current_pos)));
                             }
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
@@ -491,17 +478,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                         }
                         if (profile.isSense) {
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_TIMER,
-                                    getInteger(profile.settings.pir_motion_duration_time));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_MOT_LED, getBool(profile.settings.motion_led));
-                            updateChannel(CHANNEL_GROUP_SENSE_CONTROL, CHANNEL_SENSE_CHARGER, getBool(sdata.charger));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_CHARGER, getBool(sdata.charger));
                         }
                     }
                 }
 
                 // update thing status from specific thing handlers
-                logger.trace("{}: Updating secondary status", thingName);
                 updateThingStatus();
 
                 // update some properties
@@ -560,14 +543,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param parameters parameters from the event url
      * @param data       the html input data
      */
-    @SuppressWarnings("null")
     @Override
     public void onUpdateEvent(String deviceName, String deviceIndex, String eventClass, Map<String, String[]> parameters, String data) {
         if (thingName.equals(deviceName)) {
-            logger.debug("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
+            logger.info("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
                     parameters.toString());
             if (profile == null) {
-                logger.trace("Device {} is not yet initialized, event will trigger initialization", deviceName);
+                logger.info("Device {} is not yet initialized, event will trigger initialization", deviceName);
             }
 
             int i = 0;
@@ -581,7 +563,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
             }
             payload = payload + "]}";
-            payload = payload + " ] }";
             if (eventClass.equals("relay") && profile.hasRelays) {
                 Integer rindex = Integer.parseInt(deviceIndex) + 1;
                 String channel = "relay" + rindex.toString() + "#event";
@@ -737,8 +718,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     protected void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max),
-                "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + "): " + value.toString());
+        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
     @Override
