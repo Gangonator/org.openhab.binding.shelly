@@ -129,7 +129,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         refreshSettings = false;
         lockUpdates = false;
 
-        logger.info("Shelly Binding release: beta1 2019-08-10");
+        logger.info("Shelly Binding release: beta1");
 
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",

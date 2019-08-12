@@ -67,14 +67,14 @@
 
     <channel-type id="rollerShutter">
         <item-type>Rollershutter</item-type>
-        <label>Roller Control (100=open)</label>
-        <description>Controls the roller: UP/STOP/DOWN or ON/OFF, or position where 100=open, 0=close)</description>
+        <label>Roller Control (0=open)</label>
+        <description>Controls the roller: UP/STOP/DOWN or ON/OFF, or position where 0=open, 100=closed)</description>
         <category>Blinds</category>
     </channel-type>
     <channel-type id="rollerPosition">
         <item-type>Dimmer</item-type>
-        <label>Roller Position (0=open)</label>
-        <description>Position the roller (0..100 in %, 0=open, 100=close)</description>
+        <label>Roller Position (100=open)</label>
+        <description>Position the roller (0..100 in %, 100=open, 0=closed)</description>
     </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>
