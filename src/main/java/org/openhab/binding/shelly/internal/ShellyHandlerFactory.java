@@ -53,7 +53,7 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
         Bundle bundle = this.getBundleContext().getBundle();
         Dictionary<String, String> d = bundle.getHeaders();
         Version v = bundle.getVersion();
-        logger.info("{} release: Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
+        logger.info("{} Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
                 bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000));
 
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
