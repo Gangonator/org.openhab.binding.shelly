@@ -4,6 +4,10 @@
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
     <config-description uri="thing-type:shelly:generic">
+            <parameter-group name="advancedOptions">
+                <label>Advanced Options</label>
+            </parameter-group>
+
             <parameter name="deviceIp" type="text" required="true">
                 <label>Device IP address</label>
                 <description>IP-Address of the Shelly device.</description>
@@ -18,11 +22,25 @@
                 <description>Password for http API access.</description>
                 <context>password</context>
             </parameter>
+
+            <parameter name="eventsRelayButton" type="boolean" required="false">
+                <label>Relay Button Events</label>
+                <description>True if the binding should register to get the Relay Buttons Events.</description>
+                <advanced>true</advanced>
+                <default>true</default>
+            </parameter>
+            <parameter name="eventsRelaySwitch" type="boolean" required="false">
+                <label>Relay Switch Events</label>
+                <description>True if the binding should register to get the Relay Switch Events.</description>
+                <advanced>true</advanced>
+                <default>true</default>
+            </parameter>
             <parameter name="updateInterval" type="integer" required="true">
                 <label>Update Interval</label>
                 <description>Interval in seconds to query an update from the device.</description>
                 <default>60</default>
                 <unitLabel>sec</unitLabel>
+                <advanced>true</advanced>
             </parameter>
         </config-description>
 
@@ -41,17 +59,24 @@
                 <description>Password for http API access.</description>
                 <context>password</context>
             </parameter>
+            <parameter name="lowBattery" type="integer" required="false">
+                <label>Low Battery</label>
+                <description>Threshold for the battery level, alert will be signed when battery level is below..</description>
+                <default>20</default>
+                <unitLabel>%</unitLabel>
+            </parameter>
             <parameter name="updateInterval" type="integer" required="true">
                 <label>Update Interval</label>
                 <description>Interval in seconds to query an update from the device.</description>
                 <default>3600</default>
                 <unitLabel>sec</unitLabel>
             </parameter>
-            <parameter name="lowBattery" type="integer" required="false">
-                <label>Low Battery</label>
-                <description>Threshold for the battery level, alert will be signed when battery level is below..</description>
-                <default>20</default>
-                <unitLabel>%</unitLabel>
+
+            <parameter name="eventsSensorReport" type="boolean" required="false">
+                <label>Sensor Events</label>
+                <description>True: Register event URL for sensor updates. When settings this to false the sensor will not notify the binding about changes!</description>
+                <advanced>true</advanced>
+                <default>true</default>
             </parameter>
         </config-description>
 

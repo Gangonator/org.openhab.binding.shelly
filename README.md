@@ -8,7 +8,21 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 
 ---
 
-## beta 1-pre2 release notes
+## Releases of this binding
+
+--- branches
+Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
+Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
+**Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
+
+### beta release notes (stable)
+* Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
++ Roller new channel "position" has the position based on 100=open, 0=closed (vs. control with   0=open and 100=closed, this could be used e.g. for a vertical slider in HABpanel)
++ new thing config options to enable/disable setting of relay event urls
+
+Please delete and re-discover all things!
+
+### beta 1-pre2 release notes
 + full support of RGBW2 (color + white mode,  verified) - thanks @Igi
 + full support for Bulb (verified) - thanks @MHerbst
 + full support for Sense (verified) - thanks @MHerbst
@@ -45,9 +59,9 @@ As always: feedback welcome
 ---
 
 Contibutors:
-@Igi: lot of testing around RGBW2 and in general!
+@Igi:     lot of testing around RGBW2 and in general!
 @mherbst: supported Bulb and Sense testing
-@hmerck: some initial work
+@hmerck:  some initial work
 
 Thanks guys supporting the community.
 
@@ -55,8 +69,6 @@ Thanks guys supporting the community.
 
 Please note:
 This is a beta release, it has bugs, requires manual install etc. Questions, feedback and contributions are welcome (e.g. improving this documentation).
-
-
 
 
 Looking for contribution: If you are familar with HTML and CSS you are welcome to contribute a nice HABpanel widget. ;-)

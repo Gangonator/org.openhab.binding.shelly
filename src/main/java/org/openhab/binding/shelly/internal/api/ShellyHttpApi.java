@@ -17,7 +17,6 @@ import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -144,20 +143,16 @@ public class ShellyHttpApi {
 
     }
 
-    private final Logger        logger      = LoggerFactory.getLogger(ShellyHandler.class);
-    private String              localIp     = "";
-    private String              deviceIp    = "";
-    private String              localPort   = OPENHAB_DEF_PORT;
-    public String               thingName;
+    private final Logger          logger    = LoggerFactory.getLogger(ShellyHandler.class);
+    protected ShellyConfiguration config;
+    private String                localPort = OPENHAB_DEF_PORT;
+    public String                 thingName;
 
-    private ShellyDeviceProfile profile;
-    private Gson                gson        = new Gson();
-
-    private Semaphore           accessMutex = new Semaphore(1);
+    private ShellyDeviceProfile   profile;
+    private Gson                  gson      = new Gson();
 
     public ShellyHttpApi(ShellyConfiguration config) {
-        this.deviceIp = config.deviceIp;
-        localIp = config.localIp;
+        this.config = config;
         Map<String, String> env = System.getenv();
         String portEnv = env.get(OPENHAB_HTTP_PORT);
         localPort = (portEnv != null) ? portEnv : OPENHAB_DEF_PORT;
@@ -288,12 +283,16 @@ public class ShellyHttpApi {
     }
 
     public void setRelayEventUrls(Integer relayIndex, String deviceName) throws IOException {
-        String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
+        String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
                 + relayIndex.toString();
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl));
-        request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_OFF, eventUrl));
+        if (config.eventsRelayButton) {
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
+        }
+        if (config.eventsRelaySwitch) {
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_ON, eventUrl));
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_SW_OFF, eventUrl));
+        }
     }
 
     public ShellyStatusSensor getSensorStatus() throws IOException {
@@ -307,11 +306,11 @@ public class ShellyHttpApi {
     }
 
     public void setSensorEventUrls(String deviceName) throws IOException {
-        if (profile.supportsSensorUrls) {
+        if (profile.supportsSensorUrls && config.eventsSensorReport) {
             // set event URL for HT (report_url)
             logger.trace("Check/set Sensor Reporting URL");
 
-            String eventUrl = "http://" + localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
+            String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
             String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, SHELLY_API_EVENTURL_REPORT, urlEncode(eventUrl));
             request(setUrl);
         }
@@ -420,12 +419,11 @@ public class ShellyHttpApi {
     *
     */
     public String request(String uri) throws IOException {
-        String url = "http://" + deviceIp + uri;
+        String url = "http://" + config.deviceIp + uri;
         String httpResponse = "ERROR";
         // boolean acquired = false;
         try {
             logger.trace("HTTP GET for {}: {}", thingName, url);
-            // acquired = accessMutex.tryAcquire(2 * SHELLY_API_TIMEOUT, TimeUnit.MILLISECONDS);
             httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
@@ -439,14 +437,7 @@ public class ShellyHttpApi {
         } catch (IOException e) {
             throw new IOException(
                     "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());
-        } // catch (InterruptedException e) {
-          // throw new IOException(
-          // "Shelly API call failed on url=" + url + ", response=" + httpResponse + ": " + e.getMessage() + " - " + e.getClass());
-          // } finally {
-          // if (acquired) {
-          // accessMutex.release();
-          // }
-          // }
+        }
     }
 
     private String buildEventUrl(Integer relayIndex, String parameter, String url) throws IOException {
