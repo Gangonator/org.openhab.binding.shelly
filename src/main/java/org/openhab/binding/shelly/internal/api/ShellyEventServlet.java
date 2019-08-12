@@ -111,7 +111,7 @@ public class ShellyEventServlet extends HttpServlet {
             // <ip address>:<remote port>/shelly/event/shellyrelay-XXXXXX/relay/n?xxxxx or
             // <ip address>:<remote port>/shelly/event/shellyrelay-XXXXXX/roller/n?xxxxx or
             // <ip address>:<remote port>/shelly/event/shellyht-XXXXXX/sensordata?hum=53,temp=26.50
-            deviceName = StringUtils.substringBetween(path, "/event/", "/");
+            deviceName = StringUtils.substringBetween(path, "/event/", "/").toLowerCase();
             if (path.contains("/relay/") || path.contains("/roller/") || path.contains("/light/")) {
                 index = StringUtils.substringAfterLast(path, "/");
                 type = StringUtils.substringBetween(path, deviceName + "/", "/" + index);

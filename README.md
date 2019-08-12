@@ -15,10 +15,14 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
 **Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
 
-### beta release notes (stable)
+### beta1 release notes (stable)
 * Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
 + Roller new channel "position" has the position based on 100=open, 0=closed (vs. control with   0=open and 100=closed, this could be used e.g. for a vertical slider in HABpanel)
 + new thing config options to enable/disable setting of relay event urls
++ output binding version and build timestamp into the logfile
+* fix: process roller command STOP
+* fix: recover HT when not available on initial thing initialization
+* fix: various problems in the xml definition fixed (duplicate entries)
 
 Please delete and re-discover all things!
 

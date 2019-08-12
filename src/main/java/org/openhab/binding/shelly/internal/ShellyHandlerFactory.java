@@ -9,6 +9,9 @@ package org.openhab.binding.shelly.internal;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Dictionary;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -23,6 +26,8 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.shelly.internal.handler.ShellyDeviceListener;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
 import org.openhab.binding.shelly.internal.handler.ShellyHandlerLight;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -45,6 +50,12 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        Bundle bundle = this.getBundleContext().getBundle();
+        Dictionary<String, String> d = bundle.getHeaders();
+        Version v = bundle.getVersion();
+        logger.info("{} release: Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
+                bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000));
+
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
@@ -92,6 +103,19 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
      */
     public void unregisterDeviceListener(ShellyDeviceListener listener) {
         this.deviceListeners.remove(listener);
+    }
+
+    public static String convertTimestamp(Long timestamp) {
+        Object o = timestamp;
+        if (o == null) {
+            return "";
+        }
+
+        Date date = new java.util.Date(timestamp * 1000L);
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
+        String result = sdf.format(date);
+        return !result.contains("1970-01-01") ? result : "n/a";
     }
 
     @Reference

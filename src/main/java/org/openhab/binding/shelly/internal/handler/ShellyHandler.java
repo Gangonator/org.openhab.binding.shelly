@@ -13,8 +13,6 @@ import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -117,6 +115,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 // even this initialization failed we start the status update
                 // the updateJob will then try to auto-initialize the thing
                 // in this case the thing stays in status INITIALIZING
+            } finally {
+                // start initialization even the initial request to get settings failed
+                if (statusJob == null || statusJob.isCancelled()) {
+                    statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
+                            UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
+                    Validate.notNull(statusJob, "statusJob must not be null");
+                    logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
+                            skipCount * UPDATE_STATUS_INTERVAL);
+                }
             }
 
         }, 2, TimeUnit.SECONDS);
@@ -128,8 +135,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
         lockUpdates = false;
-
-        logger.info("Shelly Binding release: beta1");
 
         ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
@@ -175,14 +180,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         profile = p; // all initialization done, so keep the profile
         requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
         logger.info("Thing {} successfully initialized.", thingName);
-
-        if (statusJob == null || statusJob.isCancelled()) {
-            statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
-                    UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
-            Validate.notNull(statusJob, "statusJob must not be null");
-            logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
-                    skipCount * UPDATE_STATUS_INTERVAL);
-        }
     }
 
     @SuppressWarnings("null")
@@ -233,7 +230,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
                         logger.info("Closing roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
-                    } else if ((command instanceof UpDownType) && StopMoveType.STOP.equals(command)) {
+                    } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
                         logger.info("Stop roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
                     } else {
@@ -300,16 +297,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     protected void updateStatus() {
         try {
+            skipUpdate++;
             if (lockUpdates) {
                 logger.trace("Update locked, try on next cycle");
                 return;
             }
-            if ((skipRefresh++ % refreshCount == 0) && (profile != null) && (!profile.hasBattery || profile.isSense)
+
+            if ((skipUpdate % refreshCount == 0) && (profile != null) && (!profile.hasBattery || profile.isSense)
                     && (getThing().getStatus() == ThingStatus.ONLINE)) {
                 refreshSettings = !profile.hasBattery || profile.isSense;
             }
 
-            if ((scheduledUpdates > 0) || (skipUpdate++ % skipCount == 0) || refreshSettings) {
+            if ((scheduledUpdates > 0) || (skipUpdate % skipCount == 0) || refreshSettings) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
@@ -397,7 +396,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                     updateChannel(groupName, CHANNEL_METER_LASTMIN2, getDouble(meter.counters[1]));
                                     updateChannel(groupName, CHANNEL_METER_LASTMIN3, getDouble(meter.counters[2]));
                                 }
-                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(getLong(meter.timestamp)));
+                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, ShellyHandlerFactory.convertTimestamp(getLong(meter.timestamp)));
                                 m++;
                             }
                         }
@@ -433,7 +432,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         totalWatts = totalWatts / (60.0 * 10000.0);
                         updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
                         updateChannel(groupName, CHANNEL_METER_TOTALWATTS, totalWatts);
-                        updateChannel(groupName, CHANNEL_METER_TIMESTAMP, convertTimestamp(timestamp));
+                        updateChannel(groupName, CHANNEL_METER_TIMESTAMP, ShellyHandlerFactory.convertTimestamp(timestamp));
                     }
                 }
 
@@ -458,7 +457,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, getString(sdata.tmp.units));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, getDouble(sdata.hum.value));
                         }
-                        if (getBool(sdata.lux.is_valid)) {
+                        if ((sdata.lux != null) && getBool(sdata.lux.is_valid)) {
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX, getDouble(sdata.lux.value));
                         }
                         if (sdata.bat != null) {
@@ -682,19 +681,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     protected static String mkChannelName(String group, String channel) {
         return group + "#" + channel;
-    }
-
-    protected static String convertTimestamp(Long timestamp) {
-        Object o = timestamp;
-        if (o == null) {
-            return "";
-        }
-
-        Date date = new java.util.Date(timestamp * 1000L);
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-        String result = sdf.format(date);
-        return !result.contains("1970-01-01") ? result : "n/a";
     }
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
