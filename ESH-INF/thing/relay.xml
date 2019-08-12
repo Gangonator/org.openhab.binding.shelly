@@ -276,14 +276,14 @@
 
     <channel-type id="rollerShutter">
         <item-type>Rollershutter</item-type>
-        <label>Roller position</label>
+        <label>Roller Control (0=open, 100=closed))</label>
         <description>Controls the roller</description>
         <category>Blinds</category>
     </channel-type>
     <channel-type id="rollerPosition">
         <item-type>Dimmer</item-type>
-        <label>Roller Position</label>
-        <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
+        <label>Roller Position (100=open, 0=closed)</label>
+        <description>Position the roller (100..0 in %, where 100%=open, 0%=closed)</description>
     </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>

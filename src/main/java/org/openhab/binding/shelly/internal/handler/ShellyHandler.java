@@ -222,20 +222,23 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 case CHANNEL_ROL_CONTROL_POS:
                 case CHANNEL_ROL_CONTROL_CONTROL:
                     logger.info("Roller command/position {}", command.toString());
+                    boolean isControl = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL);
+                    Integer position = -1;
                     if (((command instanceof UpDownType) && UpDownType.UP.equals(command)) ||
                             ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
                         logger.info("Open roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
+                        position = SHELLY_MAX_ROLLER_POS;
                     } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
                             ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
                         logger.info("Closing roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
+                        position = SHELLY_MIN_ROLLER_POS;
                     } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
                         logger.info("Stop roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
                     } else {
                         logger.info("Set roller to position {} (channel {}", command.toString(), channelUID.getIdWithoutGroup());
-                        Integer position = -1;
                         if (command instanceof PercentType) {
                             PercentType p = (PercentType) command;
                             position = p.intValue();
@@ -248,12 +251,19 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                         // take position from RollerShutter control and map to Shelly positon (OH: 0=closed, 100=open; Shelly 0=open, 100=closed)
                         // take position 1:1 from position channel
-                        position = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL) ? SHELLY_MAX_ROLLER_POS - position : position;
+                        position = isControl ? SHELLY_MAX_ROLLER_POS - position : position;
                         validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
                         logger.info("Changing roller position to {}", position);
                         api.setRollerPos(rIndex, position);
                     }
-
+                    if (position != -1) {
+                        // make sure both are in sync
+                        if (!isControl) {
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL, new PercentType(SHELLY_MAX_ROLLER_POS - position));
+                        } else {
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(position));
+                        }
+                    }
                     // request updates the next 30sec to update roller position after it stopped
                     requestUpdates(30 / UPDATE_STATUS_INTERVAL, false);
                     break;
