@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="shelly" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="shelly"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
-
 
     <channel-type id="output">
         <item-type>Switch</item-type>
@@ -67,26 +67,14 @@
 
     <channel-type id="rollerShutter">
         <item-type>Rollershutter</item-type>
-        <label>Roller position</label>
-        <description>Controls the roller</description>
+        <label>Roller Control (100=open)</label>
+        <description>Controls the roller: UP/STOP/DOWN or ON/OFF, or position where 100=open, 0=close)</description>
         <category>Blinds</category>
-    </channel-type>
-    <channel-type id="rollerTurn">
-        <item-type>String</item-type>
-        <label>Roller Control</label>
-        <description>Control the roller operation</description>
-        <state readOnly="false">
-            <options>
-                <option value="open">open</option>
-                <option value="stop">stop</option>
-                <option value="close">close</option>
-            </options>
-        </state>
     </channel-type>
     <channel-type id="rollerPosition">
         <item-type>Dimmer</item-type>
-        <label>Roller Position</label>
-        <description>Position the roller (0..100 in %, 0=open, 100=closed)</description>
+        <label>Roller Position (0=open)</label>
+        <description>Position the roller (0..100 in %, 0=open, 100=close)</description>
     </channel-type>
     <channel-type id="rollerStop">
         <item-type>String</item-type>
@@ -99,15 +87,7 @@
                 <option value="obstacle">obstacle detected</option>
             </options>
         </state>
-    </channel-type>
-    <channel-type id="rollerCalibrating">
-        <item-type>Switch</item-type>
-        <label>Calibrating</label>
-        <description>ON: Roller is calibrating</description>
-        <state readOnly="true">
-        </state>
-    </channel-type>
-    
+    </channel-type>    
     <channel-type id="rollerDirection">
         <item-type>String</item-type>
         <label>Last Roller Direction</label>

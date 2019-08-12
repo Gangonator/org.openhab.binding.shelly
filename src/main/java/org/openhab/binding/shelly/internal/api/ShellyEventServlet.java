@@ -100,7 +100,7 @@ public class ShellyEventServlet extends HttpServlet {
                 ipAddress = request.getRemoteAddr();
             }
             Map<String, String[]> parameters = request.getParameterMap();
-            logger.trace("CallbackServlet: {} Reqeust from {}:{}/{}?{}", request.getProtocol(), ipAddress, request.getRemotePort(), path,
+            logger.trace("CallbackServlet: {} Request from {}:{}/{}?{}", request.getProtocol(), ipAddress, request.getRemotePort(), path,
                     parameters.toString());
             if (!path.toLowerCase().startsWith(SHELLY_CALLBACK_URI) || !path.contains("/event/shelly")) {
                 logger.info("ERROR: CallbackServletreceived unknown request- path = {}, data={}", path, data);

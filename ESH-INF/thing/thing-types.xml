@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="shelly"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="shelly1">
-		<label>Shelly1 (SHSW-1)</label>
-		<description>Shelly1 device with single relay</description>
+    <thing-type id="shelly1">
+        <label>Shelly1 (SHSW-1)</label>
+        <description>Shelly1 device with single relay</description>
         <channel-groups>
             <channel-group id="relay" typeId="relayChannel">
                 <label>Relay</label>
@@ -17,7 +17,7 @@
         </channel-groups>
 
         <config-description-ref uri="thing-type:shelly:generic" />
-	</thing-type>
+    </thing-type>
     <thing-type id="shelly1pm">
         <label>Shelly1PM (SHSW-PM)</label>
         <description>Shelly1PM device with single relay and power meter</description>
@@ -32,7 +32,7 @@
 
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
-	
+    
     <thing-type id="shelly2-relay">
         <label>Shelly2 Relay (SHSW-21)</label>
         <description>Shelly2 device with two relays</description>
@@ -56,7 +56,7 @@
         <description>Shelly2 in Roller Mode</description>
 
         <channel-groups>
-            <channel-group id="roller1" typeId="rollerControl">
+            <channel-group id="roller" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">
@@ -93,7 +93,7 @@
         <description>Shelly2 in Roller Mode</description>
 
         <channel-groups>
-            <channel-group id="roller1" typeId="rollerControl">
+            <channel-group id="roller" typeId="rollerControl">
                 <label>Roller Control</label>
             </channel-group>
             <channel-group id="meter" typeId="meter">
@@ -319,11 +319,10 @@
        <label>Roller Control</label>
        <description>Controlling the roller mode</description>
         <channels>
-            <channel id="turn" typeId="rollerTurn" />
-            <channel id="position" typeId="rollerShutter" />
+            <channel id="control" typeId="rollerShutter" />
+            <channel id="rollerpos" typeId="rollerPosition" />
             <channel id="lastDirection" typeId="rollerDirection" />
             <channel id="stopReason" typeId="rollerStop" />
-            <channel id="calibrating" typeId="rollerCalibrating" />
             <channel id="event" typeId="eventTrigger" />
         </channels>
     </channel-group-type>

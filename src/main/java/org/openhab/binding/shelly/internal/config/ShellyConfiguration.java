@@ -17,13 +17,17 @@ public class ShellyConfiguration {
     /**
      * Sample configuration parameter. Replace with your own.
      */
-    public String localIp;
+    public String  localIp;
 
-    public String deviceIp;
-    public int    port           = 5684; // default port
-    public int    updateInterval = 15;
-    public float  lowBattery     = 20;
+    public String  deviceIp;
+    public int     port               = 5684; // default port
+    public int     updateInterval     = 15;
+    public float   lowBattery         = 20;
 
-    public String userId         = "";
-    public String password       = "";
+    public String  userId             = "";
+    public String  password           = "";
+
+    public boolean eventsRelayButton  = true;
+    public boolean eventsRelaySwitch  = true;
+    public boolean eventsSensorReport = true;
 }

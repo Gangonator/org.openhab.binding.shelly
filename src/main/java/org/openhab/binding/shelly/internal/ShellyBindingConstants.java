@@ -97,13 +97,12 @@ public class ShellyBindingConstants {
 
     // Roller
     public static final String            CHANNEL_GROUP_ROL_CONTROL    = "roller";
-    public static final String            CHANNEL_ROL_CONTROL_TURN     = "turn";
-    public static final String            CHANNEL_ROL_CONTROL_POS      = "position";
+    public static final String            CHANNEL_ROL_CONTROL_CONTROL  = "control";
+    public static final String            CHANNEL_ROL_CONTROL_POS      = "rollerpos";
     public static final String            CHANNEL_ROL_CONTROL_TIMER    = "timer";
     public static final String            CHANNEL_ROL_CONTROL_STOPR    = "stopReason";
     public static final String            CHANNEL_ROL_CONTROL_DIR      = "lastDirection";
     public static final String            CHANNEL_ROL_CONTROL_OVERT    = "overtemp";
-    public static final String            CHANNEL_ROL_CONTROL_CALIB    = "calibrating";
 
     // Power meter
     public static final String            CHANNEL_GROUP_METER          = "meter";

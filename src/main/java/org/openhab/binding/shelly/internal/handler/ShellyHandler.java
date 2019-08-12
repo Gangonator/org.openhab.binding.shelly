@@ -222,51 +222,43 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         logger.info("Shelly is in roller mode, channel command {} ignored", channelUID.toString());
                     }
                     break;
-                case CHANNEL_ROL_CONTROL_TURN:
-                    // The channel accepts open, stop, close
-                    // ON and OFF will be converted to open and close
-                    String turn = command.toString().toLowerCase();
-                    if (turn.equalsIgnoreCase(SHELLY_API_ON)) {
-                        turn = SHELLY_ALWD_ROLLER_TURN_OPEN;
-                    } else if (turn.equalsIgnoreCase(SHELLY_API_OFF)) {
-                        turn = SHELLY_ALWD_ROLLER_TURN_CLOSE;
-                    }
-                    logger.info("Set roller turn mode to {}", turn);
-                    api.setRollerTurn(rIndex, turn);
-                    break;
                 case CHANNEL_ROL_CONTROL_POS:
-                    ShellyControlRoller rStatus = api.getRollerStatus(rIndex);
-                    if (getBool(rStatus.calibrating)) {
-                        logger.info("Roller is in calibration mode, positioning blocked!");
-                        break;
-                    }
-
-                    logger.info("Setting roller to position {}", command.toString());
-                    if (command == StopMoveType.STOP) {
+                case CHANNEL_ROL_CONTROL_CONTROL:
+                    logger.info("Roller command/position {}", command.toString());
+                    if (((command instanceof UpDownType) && UpDownType.UP.equals(command)) ||
+                            ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
+                        logger.info("Open roller");
+                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
+                    } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
+                            ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
+                        logger.info("Closing roller");
+                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
+                    } else if ((command instanceof UpDownType) && StopMoveType.STOP.equals(command)) {
+                        logger.info("Stop roller");
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
-                    } else if (command instanceof UpDownType) {
-                        if (UpDownType.UP.equals(command)) {
-                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
-                        }
-                        if (UpDownType.DOWN.equals(command)) {
-                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
-                        }
                     } else {
+                        logger.info("Set roller to position {} (channel {}", command.toString(), channelUID.getIdWithoutGroup());
                         Integer position = -1;
                         if (command instanceof PercentType) {
                             PercentType p = (PercentType) command;
                             position = p.intValue();
-
                         } else if (command instanceof DecimalType) {
                             DecimalType d = (DecimalType) command;
                             position = d.intValue();
+                        } else {
+                            throw new IllegalArgumentException("Invalid value type for roller control/posiution" + command.getClass().toString());
                         }
+
+                        // take position from RollerShutter control and map to Shelly positon (OH: 0=closed, 100=open; Shelly 0=open, 100=closed)
+                        // take position 1:1 from position channel
+                        position = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL) ? SHELLY_MAX_ROLLER_POS - position : position;
                         validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
-                        position = SHELLY_MAX_ROLLER_POS - position;  // invert from 0..100 to 100..0
-                        logger.info("Changing position for roller from {} to {}", getInteger(rStatus.current_pos), position);
+                        logger.info("Changing roller position to {}", position);
                         api.setRollerPos(rIndex, position);
                     }
-                    requestUpdates(30 / UPDATE_STATUS_INTERVAL, false); // request updates the next 30sec to update roller position after it stopped
+
+                    // request updates the next 30sec to update roller position after it stopped
+                    requestUpdates(30 / UPDATE_STATUS_INTERVAL, false);
                     break;
                 case CHANNEL_TIMER_AUTOON:
                     logger.info("Set Auto-ON timer to {}", command.toString());
@@ -362,15 +354,17 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if (roller.is_valid) {
                             ShellyControlRoller control = api.getRollerStatus(i);
                             Integer relayIndex = i + 1;
-                            String groupName = CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_TURN, getString(control.state));
+                            String groupName = profile.numRollers == 1 ? CHANNEL_GROUP_ROL_CONTROL
+                                    : CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
+                            // updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL, getString(control.state));
                             if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
-                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(100 - getInteger(control.current_pos)));
+                                updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
+                                        new PercentType(SHELLY_MAX_ROLLER_POS - getInteger(control.current_pos)));
+                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
                             }
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getBool(control.overtemperature));
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_CALIB, getBool(control.calibrating));
 
                             i = i + 1;
                         }
@@ -728,6 +722,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (statusJob != null) {
                 statusJob.cancel(true);
                 statusJob = null;
+                logger.debug("Shelly statusJob topped");
             }
         } catch (Exception e) {
             logger.debug("Exception on dispose(): {} ({})", e.getMessage(), e.getClass());
