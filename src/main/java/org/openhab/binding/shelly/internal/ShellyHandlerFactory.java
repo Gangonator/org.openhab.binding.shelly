@@ -47,15 +47,18 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     private final Set<ShellyDeviceListener> deviceListeners            = new CopyOnWriteArraySet<>();
 
     private static final Set<ThingTypeUID>  SUPPORTED_THING_TYPES_UIDS = ShellyBindingConstants.SUPPORTED_THING_TYPES_UIDS;
+    private boolean                         initialized                = false;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        Bundle bundle = this.getBundleContext().getBundle();
-        Dictionary<String, String> d = bundle.getHeaders();
-        Version v = bundle.getVersion();
-        logger.info("{} Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
-                bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000));
-
+        if (!initialized) {
+            Bundle bundle = this.getBundleContext().getBundle();
+            Dictionary<String, String> d = bundle.getHeaders();
+            Version v = bundle.getVersion();
+            logger.info("{} Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
+                    bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000));
+            initialized = true;
+        }
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 

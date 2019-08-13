@@ -88,7 +88,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         super(thing);
         this.handlerFactory = handlerFactory;
         this.networkAddressService = networkAddressService;
-        thingName = this.getThing().getUID().getThingTypeId() + "-" + this.getThing().getUID().getId();
     }
 
     @Override
@@ -148,7 +147,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
         Map<String, String> properties = getThing().getProperties();
         Validate.notNull(properties, "properties must not be null!");
-        thingName = properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : p.hostname;
+        thingName = (properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : p.hostname);
+        thingName = thingName.toLowerCase();
         Validate.notNull(thingName, "thingName must not be null!");
 
         // update thing properties
@@ -322,6 +322,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
                 }
+                if (refreshSettings) {
+                    logger.debug("refresh settings");
+                }
 
                 // Get profile, if refreshSettings == true reload settings from device
                 profile = getProfile(refreshSettings);
@@ -333,7 +336,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // map status to channels
                 if (profile.hasRelays && !profile.isRoller) {
-                    logger.debug("{}: Updating relay(s)", thingName);
+                    logger.trace("{}: Updating {} relay(s)", thingName, profile.numRelays);
                     int i = 0;
                     ShellyStatusRelay rstatus = api.getRelayStatus(i);
                     if (rstatus != null) {
@@ -355,7 +358,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
                 if (profile.hasRelays && profile.isRoller && (status.rollers != null)) {
-                    logger.debug("{}: Updating {} rollers", thingName, profile.numRollers);
+                    logger.trace("{}: Updating {} rollers", thingName, profile.numRollers);
                     int i = 0;
                     for (ShellySettingsRoller roller : status.rollers) {
                         if (roller.is_valid) {
@@ -380,7 +383,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 if (profile.hasMeter && (status.meters != null)) {
                     if (!profile.isRoller) {
-                        logger.debug("{}: Updating {}/{} standard meters", thingName, profile.numMeters, status.meters.size());
+                        logger.trace("{}: Updating {} standard meters", thingName, profile.numMeters);
 
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;
@@ -489,7 +492,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 updateThingStatus();
 
                 // update some properties
-                logger.debug("{}: Updating thing properties", thingName);
+                logger.trace("{}: Updating thing properties", thingName);
                 updateProperties(profile, status);
 
                 // If status update was successful the thing must be online
