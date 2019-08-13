@@ -155,4 +155,8 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_GROUP_WHITE_CONTROL  = "white";
     public static final String            CHANNEL_COLOR_BRIGHTNESS     = "brightness";
     public static final String            CHANNEL_COLOR_TEMP           = "temperature";
+
+    // General
+    public static final String            CHANNEL_EVENT_TRIGGER        = "event";
+    public static final String            CHANNEL_GROUP_SEPARATOR      = "#";
 }

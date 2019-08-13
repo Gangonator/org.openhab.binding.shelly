@@ -313,20 +313,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 return;
             }
 
-            if ((skipUpdate % refreshCount == 0) && (profile != null) && (!profile.hasBattery || profile.isSense)
-                    && (getThing().getStatus() == ThingStatus.ONLINE)) {
-                refreshSettings = !profile.hasBattery || profile.isSense;
+            if ((skipUpdate % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
+                refreshSettings |= !profile.hasBattery;
             }
 
-            if ((scheduledUpdates > 0) || (skipUpdate % skipCount == 0) || refreshSettings) {
+            if (refreshSettings || (scheduledUpdates > 0) || (skipUpdate % skipCount == 0)) {
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
                 }
-                if (refreshSettings) {
-                    logger.debug("Refresh settings for device {}", thingName);
-                    profile = getProfile(true);
-                }
+
+                // Get profile, if refreshSettings == true reload settings from device
+                profile = getProfile(refreshSettings);
 
                 logger.trace("Updating status for device {}", thingName);
                 ShellySettingsStatus status;
@@ -547,16 +545,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param data       the html input data
      */
     @Override
-    public void onUpdateEvent(String deviceName, String deviceIndex, String eventClass, Map<String, String[]> parameters, String data) {
+    public void onEvent(String deviceName, String deviceIndex, String type, Map<String, String[]> parameters, String data) {
         if (thingName.equals(deviceName)) {
-            logger.info("Event received for device {}: class={}, index={}, parameters={}", deviceName, eventClass, deviceIndex,
+            logger.debug("Event received for device {}: class={}, index={}, parameters={}", deviceName, type, deviceIndex,
                     parameters.toString());
             if (profile == null) {
                 logger.info("Device {} is not yet initialized, event will trigger initialization", deviceName);
             }
 
             int i = 0;
-            String payload = "{\"device\":\"" + deviceName + "\", \"class\":\"" + eventClass + "\", \"index\":\"" + deviceIndex
+            String payload = "{\"device\":\"" + deviceName + "\", \"class\":\"" + type + "\", \"index\":\"" + deviceIndex
                     + "\",\"parameters\":[";
             for (String key : parameters.keySet()) {
                 if (i++ > 0) {
@@ -566,17 +564,23 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
             }
             payload = payload + "]}";
-            if (eventClass.equals("relay") && profile.hasRelays) {
-                Integer rindex = Integer.parseInt(deviceIndex) + 1;
-                String channel = "relay" + rindex.toString() + "#event";
-                logger.debug("Trigger relay event, channel {}, payload={}", channel, payload);
-                triggerChannel(channel, payload);
+
+            String channel = "";
+            Integer rindex = !deviceIndex.isEmpty() ? Integer.parseInt(deviceIndex) + 1 : -1;
+            if (type.equals(EVENT_TYPE_RELAY) && profile.hasRelays) {
+                channel = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rindex.toString();
             }
-            if (eventClass.equals("sensordata")) {
-                String channel = "sensor#event";
-                logger.debug("Trigger sensor event, channel {}, payload={}", channel, payload);
-                triggerChannel(channel, payload);
+            if (type.equals(EVENT_TYPE_ROLLER) && profile.hasRelays) {
+                channel = profile.numRollers == 1 ? CHANNEL_GROUP_ROL_CONTROL : CHANNEL_GROUP_ROL_CONTROL + rindex.toString();
             }
+            if (type.equals(EVENT_TYPE_SENSORDATA)) {
+                channel = CHANNEL_GROUP_SENSOR;
+            }
+            Validate.isTrue(!channel.isEmpty(), "Unsupported event class: " + type);
+
+            channel = channel + CHANNEL_GROUP_SEPARATOR + CHANNEL_EVENT_TRIGGER;
+            logger.debug("Trigger {} event, channel {}, payload={}", type, channel, payload);
+            triggerChannel(channel, payload);
 
             requestUpdates(scheduledUpdates > 0 ? 0 : 1, true);    // request update on next interval
         }
@@ -696,11 +700,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
         refreshSettings |= forceRefresh;
 
-        if (this.refreshSettings) {
+        if (refreshSettings) {
             logger.trace("Refresh settings for device {}", thingName);
             profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
             refreshSettings = false;
-            logger.debug("Refreshed settings for {}: {}", thingName, profile.settingsJson);
         }
 
         return profile;

@@ -85,13 +85,16 @@ public class ShellyHttpApi {
     public static final String SHELLY_ALWD_ROLLER_TURN_STOP     = "stop";
 
     public static final String SHELLY_CALLBACK_URI              = "/shelly/event";
-    public static final String SHELLY_SIMULATOR_URI             = "/shelly/simulator";
-    public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
-    public static final String CHARSET_UTF8                     = "utf-8";
+    public static final String EVENT_TYPE_RELAY                 = "relay";
+    public static final String EVENT_TYPE_ROLLER                = "roller";
+    public static final String EVENT_TYPE_SENSORDATA            = "sensordata";
+    public static final String EVENT_TYPE_LIGHT                 = "light";
 
     public static final String SHELLY_IR_CODET_STORED           = "stored";
     public static final String SHELLY_IR_CODET_PRONTO           = "pronto";
     public static final String SHELLY_IR_CODET_PRONTO_HEX       = "pronto_hex";
+
+    public static int          SHELLY_API_TIMEOUT               = 2500;
 
     public static final String OPENHAB_HTTP_PORT                = "OPENHAB_HTTP_PORT";
     public static final String OPENHAB_DEF_PORT                 = "8080";
@@ -100,7 +103,8 @@ public class ShellyHttpApi {
     public static final String HTTP_PUT                         = "PUT";
     public static final String HTTP_POST                        = "POST";
     public static final String HTTP_DELETE                      = "DELETE";
-    public static int          SHELLY_API_TIMEOUT               = 35000;
+    public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
+    public static final String CHARSET_UTF8                     = "utf-8";
 
     public class ShellyDeviceProfile {
         public String               thingType;
@@ -310,7 +314,7 @@ public class ShellyHttpApi {
             // set event URL for HT (report_url)
             logger.trace("Check/set Sensor Reporting URL");
 
-            String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/sensordata";
+            String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/" + EVENT_TYPE_SENSORDATA;
             String setUrl = MessageFormat.format(SHELLY_URL_SETTINGSSENSOR_SETURL, SHELLY_API_EVENTURL_REPORT, urlEncode(eventUrl));
             request(setUrl);
         }

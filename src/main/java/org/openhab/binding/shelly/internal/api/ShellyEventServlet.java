@@ -89,7 +89,7 @@ public class ShellyEventServlet extends HttpServlet {
     protected void service(@Nullable HttpServletRequest request, @Nullable HttpServletResponse resp)
             throws ServletException, IOException {
         String data = inputStreamToString(request);
-        String path = request.getRequestURI();
+        String path = request.getRequestURI().toLowerCase();
         String deviceName = "";
         String index = "";
         String type = "";
@@ -100,7 +100,7 @@ public class ShellyEventServlet extends HttpServlet {
                 ipAddress = request.getRemoteAddr();
             }
             Map<String, String[]> parameters = request.getParameterMap();
-            logger.trace("CallbackServlet: {} Request from {}:{}/{}?{}", request.getProtocol(), ipAddress, request.getRemotePort(), path,
+            logger.debug("CallbackServlet: {} Request from {}:{}{}?{}", request.getProtocol(), ipAddress, request.getRemotePort(), path,
                     parameters.toString());
             if (!path.toLowerCase().startsWith(SHELLY_CALLBACK_URI) || !path.contains("/event/shelly")) {
                 logger.info("ERROR: CallbackServletreceived unknown request- path = {}, data={}", path, data);
@@ -112,14 +112,15 @@ public class ShellyEventServlet extends HttpServlet {
             // <ip address>:<remote port>/shelly/event/shellyrelay-XXXXXX/roller/n?xxxxx or
             // <ip address>:<remote port>/shelly/event/shellyht-XXXXXX/sensordata?hum=53,temp=26.50
             deviceName = StringUtils.substringBetween(path, "/event/", "/").toLowerCase();
-            if (path.contains("/relay/") || path.contains("/roller/") || path.contains("/light/")) {
-                index = StringUtils.substringAfterLast(path, "/");
+            if (path.contains("/" + EVENT_TYPE_RELAY + "/") || path.contains("/" + EVENT_TYPE_ROLLER + "/")) {
+                index = StringUtils.substringAfterLast(path, "/").toLowerCase();
                 type = StringUtils.substringBetween(path, deviceName + "/", "/" + index);
             } else {
                 index = "";
-                type = StringUtils.substringAfterLast(path, "/");
+                type = StringUtils.substringAfterLast(path, "/").toLowerCase();
             }
-            handlerFactory.onUpdateEvent(deviceName, index, type, parameters, data);
+            logger.trace("Process event of type type={} for device {}, index={}", type, deviceName, index);
+            handlerFactory.onEvent(deviceName, index, type, parameters, data);
 
         } catch (RuntimeException e) {
             logger.info("ERROR: Exception processing callback: {} ({}), path={}, data='{}'; deviceName={}, index={}, type={}, parameters={}",
