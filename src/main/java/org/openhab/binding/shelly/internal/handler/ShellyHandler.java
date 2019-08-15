@@ -224,16 +224,25 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Roller command/position {}", command.toString());
                     boolean isControl = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL);
                     Integer position = -1;
-                    if (((command instanceof UpDownType) && UpDownType.UP.equals(command)) ||
-                            ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
-                        logger.info("{}: Open roller", thingName);
-                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
-                        position = SHELLY_MAX_ROLLER_POS;
-                    } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
-                            ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
-                        logger.info("{}: Closing roller", thingName);
-                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
-                        position = SHELLY_MIN_ROLLER_POS;
+
+                    if (command instanceof UpDownType) {
+                        ShellyControlRoller rstatus = api.getRollerStatus(rIndex);
+                        if (!getString(rstatus.state).isEmpty() && !getString(rstatus.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) {
+                            logger.info("{}: Roller is already moving, ignore command {}", thingName, command.toString());
+                            requestUpdates(1, false);
+                            break;
+                        }
+                        if (UpDownType.UP.equals(command)) {
+                            logger.info("{}: Open roller", thingName);
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
+                            position = SHELLY_MAX_ROLLER_POS;
+
+                        } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
+                                ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
+                            logger.info("{}: Closing roller", thingName);
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
+                            position = SHELLY_MIN_ROLLER_POS;
+                        }
                     } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
                         logger.info("{}: Stop roller", thingName);
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
@@ -492,7 +501,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 updateThingStatus();
 
                 // update some properties
-                logger.trace("{}: Updating thing properties", thingName);
                 updateProperties(profile, status);
 
                 // If status update was successful the thing must be online
@@ -694,6 +702,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
          */
 
         updateProperties(properties);
+        logger.trace("{}: Properties updated", thingName);
     }
 
     protected static String mkChannelName(String group, String channel) {
