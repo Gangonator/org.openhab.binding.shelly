@@ -226,16 +226,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     Integer position = -1;
                     if (((command instanceof UpDownType) && UpDownType.UP.equals(command)) ||
                             ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
-                        logger.info("Open roller");
+                        logger.info("{}: Open roller", thingName);
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
                         position = SHELLY_MAX_ROLLER_POS;
                     } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
                             ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
-                        logger.info("Closing roller");
+                        logger.info("{}: Closing roller", thingName);
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
                         position = SHELLY_MIN_ROLLER_POS;
                     } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
-                        logger.info("Stop roller");
+                        logger.info("{}: Stop roller", thingName);
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
                     } else {
                         logger.info("Set roller to position {} (channel {}", command.toString(), channelUID.getIdWithoutGroup());
@@ -253,7 +253,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         // take position 1:1 from position channel
                         position = isControl ? SHELLY_MAX_ROLLER_POS - position : position;
                         validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
-                        logger.info("Changing roller position to {}", position);
+                        logger.info("{}: Changing roller position to {}", thingName, position);
                         api.setRollerPos(rIndex, position);
                     }
                     if (position != -1) {
@@ -265,7 +265,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         }
                     }
                     // request updates the next 30sec to update roller position after it stopped
-                    requestUpdates(30 / UPDATE_STATUS_INTERVAL, false);
+                    requestUpdates(45 / UPDATE_STATUS_INTERVAL, false);
                     break;
                 case CHANNEL_TIMER_AUTOON:
                     logger.info("Set Auto-ON timer to {}", command.toString());
