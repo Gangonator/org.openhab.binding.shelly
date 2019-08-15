@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2010-2018 by the respective copyright holders.
+ *
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
@@ -6,8 +13,14 @@ import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
+/**
+ * The {@link ShellyColorUtils} provides some utility functions around RGBW handling.
+ *
+ * @author Markus Michels
+ */
 public class ShellyColorUtils {
 
     // private final Logger logger = LoggerFactory.getLogger(ShellyColorUtils.class);
@@ -26,6 +39,7 @@ public class ShellyColorUtils {
         setTemp(col.temp);
     }
 
+    OnOffType   power        = OnOffType.OFF;
     String      mode         = "";
     Integer     red          = 0;
     Integer     green        = 0;

@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2010-2018 by the respective copyright holders.
+ *
+ * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
@@ -27,6 +34,13 @@ import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * The {@link ShellyHandlerLight} handles light (bulb+rgbw2) specific commands and status. All other commands will be routet of the generic thing
+ * handler.
+ *
+ * @author Markus Michels - Completely refactored
+ */
 
 public class ShellyHandlerLight extends ShellyHandler {
     private final Logger           logger        = LoggerFactory.getLogger(ShellyHandler.class);
@@ -86,6 +100,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                     logger.info("Switch light {}", command.toString());
                     Validate.isTrue(command instanceof OnOffType, "Invalid value for power (ON or OFF): {}", command.toString());
                     api.setLightParm(lightId, SHELLY_LIGHT_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    col.power = (OnOffType) command;
                     update = (OnOffType) command == OnOffType.ON;
                     break;
                 case CHANNEL_LIGHT_COLOR_MODE:
@@ -94,7 +109,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                     col.setMode((OnOffType) command == OnOffType.ON ? SHELLY_MODE_COLOR : SHELLY_MODE_WHITE);
                     break;
                 case CHANNEL_COLOR_PICKER:
-                    handleColorPicker(profile, lightId, col, command);
+                    update = handleColorPicker(profile, lightId, col, command);
                     break;
                 case CHANNEL_COLOR_FULL:
                     handleFullColor(col, command);
@@ -198,6 +213,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         } else if (command instanceof OnOffType) {
             logger.info("Switch light {}", command);
             api.setLightParm(lightId, SHELLY_LIGHT_TURN, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+            col.power = (OnOffType) command;
         } else if (command instanceof IncreaseDecreaseType) {
             if (!profile.inColor) {
                 logger.info("{} brightness by {}", command.toString(), SHELLY_DIM_STEPSIZE);
@@ -276,15 +292,16 @@ public class ShellyHandlerLight extends ShellyHandler {
                 super.updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
             }
 
+            ShellyColorUtils col = getCurrentColors(lightId);
+            Validate.notNull(col);
+            col.power = getBool(light.ison) ? OnOffType.ON : OnOffType.OFF;
+
             // Channel control/timer
             // ShellyStatusLightChannel light = status.lights.get(i);
             super.updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
             super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
             super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
             super.updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
-
-            ShellyColorUtils col = getCurrentColors(lightId);
-            Validate.notNull(col);
 
             if (profile.inColor || profile.isBulb) {
                 logger.trace("update color settings");
@@ -374,7 +391,7 @@ public class ShellyHandlerLight extends ShellyHandler {
         if (profile.inColor) {
             if ((oldCol.red != newCol.red) || (oldCol.green != newCol.green) || (oldCol.blue != newCol.blue) || (oldCol.white != newCol.white)) {
                 logger.info("Setting RGBW to {}/{}/{}/{}", newCol.red, newCol.green, newCol.blue, newCol.white);
-                parms.put(SHELLY_LIGHT_TURN, SHELLY_API_ON);
+                parms.put(SHELLY_LIGHT_TURN, newCol.brightness > 0 ? SHELLY_API_ON : SHELLY_API_OFF);
                 parms.put(SHELLY_COLOR_RED, newCol.red.toString());
                 parms.put(SHELLY_COLOR_GREEN, newCol.green.toString());
                 parms.put(SHELLY_COLOR_BLUE, newCol.blue.toString());

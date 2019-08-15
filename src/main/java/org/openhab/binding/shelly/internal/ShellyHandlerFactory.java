@@ -47,7 +47,7 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     private final Set<ShellyDeviceListener> deviceListeners            = new CopyOnWriteArraySet<>();
 
     private static final Set<ThingTypeUID>  SUPPORTED_THING_TYPES_UIDS = ShellyBindingConstants.SUPPORTED_THING_TYPES_UIDS;
-    private boolean                         initialized                = false;
+    private static boolean                  initialized                = false;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
