@@ -5,7 +5,7 @@
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.openhab.binding.shelly.internal.config;
+package org.openhab.binding.shelly.internal;
 
 /**
  * The {@link ShellyConfiguration} class contains fields mapping thing configuration parameters.
@@ -21,7 +21,7 @@ public class ShellyConfiguration {
 
     public String  deviceIp;
     public int     port               = 5684; // default port
-    public int     updateInterval     = 15;
+    public int     updateInterval     = 60;
     public float   lowBattery         = 20;
 
     public String  userId             = "";

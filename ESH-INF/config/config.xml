@@ -8,11 +8,6 @@
                 <label>Advanced Options</label>
             </parameter-group>
 
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-                <context>network-address</context>
-            </parameter>
             <parameter name="userId" type="text" required="false">
                 <label>UserID</label>
                 <description>UserID for http API access.</description>
@@ -21,6 +16,11 @@
                 <label>Password</label>
                 <description>Password for http API access.</description>
                 <context>password</context>
+            </parameter>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+                <context>network-address</context>
             </parameter>
 
             <parameter name="eventsRelayButton" type="boolean" required="false">
@@ -45,11 +45,6 @@
         </config-description>
 
    <config-description uri="thing-type:shelly:battery">
-            <parameter name="deviceIp" type="text" required="true">
-                <label>Device IP address</label>
-                <description>IP-Address of the Shelly device.</description>
-                <context>network-address</context>
-            </parameter>
             <parameter name="userId" type="text" required="false">
                 <label>UserID</label>
                 <description>UserID for http API access.</description>
@@ -58,6 +53,11 @@
                 <label>Password</label>
                 <description>Password for http API access.</description>
                 <context>password</context>
+            </parameter>
+            <parameter name="deviceIp" type="text" required="true">
+                <label>Device IP address</label>
+                <description>IP-Address of the Shelly device.</description>
+                <context>network-address</context>
             </parameter>
             <parameter name="lowBattery" type="integer" required="false">
                 <label>Low Battery</label>

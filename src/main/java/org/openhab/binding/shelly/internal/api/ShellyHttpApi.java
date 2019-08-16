@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
+import org.openhab.binding.shelly.internal.ShellyConfiguration;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.SellySendKeyList;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
@@ -33,7 +34,6 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatu
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
-import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -420,11 +420,19 @@ public class ShellyHttpApi {
     }
 
     /**
-    *
-    */
+     * Submit GET request and return response, check for invalid responses
+     *
+     * @param uri: URI (e.g. "/settings")
+     */
     public String request(String uri) throws IOException {
-        String url = "http://" + config.deviceIp + uri;
         String httpResponse = "ERROR";
+        String url = "http://";
+        if (!config.userId.isEmpty()) {
+            // include credentials for basic auth
+            url = url + config.userId + ":" + config.password + "@";
+        }
+        url = url + config.deviceIp + uri;
+
         // boolean acquired = false;
         try {
             logger.trace("HTTP GET for {}: {}", thingName, url);
@@ -432,6 +440,9 @@ public class ShellyHttpApi {
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
+            if (httpResponse.contains("401 Unauthorized")) {
+                throw new IOException("Access denied for device " + thingName + ", set/correct userid and password in the thing config");
+            }
             if (!httpResponse.startsWith("{") && !httpResponse.startsWith("[")) {
                 throw new IOException("ERROR from " + thingName + ": Unexpected http resonse: " + httpResponse + ", url=" + url);
             }

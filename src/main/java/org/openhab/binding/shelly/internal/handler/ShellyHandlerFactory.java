@@ -5,7 +5,7 @@
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.openhab.binding.shelly.internal;
+package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 
@@ -23,9 +23,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.openhab.binding.shelly.internal.handler.ShellyDeviceListener;
-import org.openhab.binding.shelly.internal.handler.ShellyHandler;
-import org.openhab.binding.shelly.internal.handler.ShellyHandlerLight;
+import org.openhab.binding.shelly.internal.ShellyBindingConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.osgi.service.component.annotations.Component;

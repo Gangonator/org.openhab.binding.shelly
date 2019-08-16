@@ -35,7 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
+import org.openhab.binding.shelly.internal.ShellyConfiguration;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
@@ -46,7 +46,6 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
-import org.openhab.binding.shelly.internal.config.ShellyConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +107,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         // Example for background initialization:
         scheduler.schedule(() -> {
             try {
+                logger.info("Device config: ipAddress={}, http user/password={}/{}, update interval={}, low battery threshold={}%",
+                        config.deviceIp, config.userId, config.password.isEmpty() ? "" : "***", config.updateInterval, config.lowBattery);
                 initializeThing();
             } catch (RuntimeException | IOException e) {
                 logger.info("Unable to initialize thing {}: {}, retrying later", getThing().getLabel(), e.getMessage());
@@ -330,9 +331,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
-                }
-                if (refreshSettings) {
-                    logger.debug("refresh settings");
                 }
 
                 // Get profile, if refreshSettings == true reload settings from device

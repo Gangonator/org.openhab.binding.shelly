@@ -16,11 +16,13 @@ Latest **stable** release (master):     https://github.com/markus7017/org.openha
 **Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
 
 ### beta1 release notes (stable)
-* Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
-+ Roller new channel "position" has the position based on 100=open, 0=closed (vs. control with   0=open and 100=closed, this could be used e.g. for a vertical slider in HABpanel)
++ Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
++ Roller new channel "rollerpos" has the position based on 100=open, 0=closed (vs. "control" with 0=open and 100=closed, e.g. for a vertical slider in HABpanel)
 + new thing config options to enable/disable setting of relay event urls
 + output binding version and build timestamp into the logfile
-* fix: process roller command STOP
++ ignore UP/DOWN command while roller is moving
+* fix: process roller command STOP again
+* fix: don't turn light back on after set color with OnOffType.OFF
 * fix: recover HT when not available on initial thing initialization
 * fix: various problems in the xml definition fixed (duplicate entries)
 
@@ -206,8 +208,8 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
-|roller1   |turn         |String   |r/w      |can be open/stop/close; on will be mapped to open, off to close                  |
-|          |position     |Number   |r/w      |Position of the roller, 0=open...100=closed; gets updated when the roller stopped|
+|roller    |control      |String   |r/w      |can be open (0%), stop, or close (100%); could also handle ON (open) and OFF (close) |
+|          |rollerpos     |Number   |r/w     |Roller position: 100=open...0=closed; gets updated when the roller stopped       {
 |          |direction    |String   |yes      |Last direction: open or close                                                    |
 |          |stopReason   |String   |yes      |Last stop reasons: normal, safety_switch or obstacle                             |
 |          |calibrating  |Switch   |yes      |ON: Roller is in calibration mode, OFF: normal mode (no calibration)             |
