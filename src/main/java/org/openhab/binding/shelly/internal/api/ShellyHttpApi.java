@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -103,6 +104,8 @@ public class ShellyHttpApi {
     public static final String HTTP_PUT                         = "PUT";
     public static final String HTTP_POST                        = "POST";
     public static final String HTTP_DELETE                      = "DELETE";
+    public static final String HTTP_HEADER_AUTH                 = "Authorization";
+    public static final String HTTP_AUTH_TYPE_BASIC             = "Basic";
     public static final String CONTENT_TYPE_XML                 = "text/xml; charset=UTF-8";
     public static final String CHARSET_UTF8                     = "utf-8";
 
@@ -426,17 +429,18 @@ public class ShellyHttpApi {
      */
     public String request(String uri) throws IOException {
         String httpResponse = "ERROR";
-        String url = "http://";
-        if (!config.userId.isEmpty()) {
-            // include credentials for basic auth
-            url = url + config.userId + ":" + config.password + "@";
-        }
-        url = url + config.deviceIp + uri;
-
+        String url = "http://" + config.deviceIp + uri;
         // boolean acquired = false;
         try {
             logger.trace("HTTP GET for {}: {}", thingName, url);
-            httpResponse = HttpUtil.executeUrl(HTTP_GET, url, SHELLY_API_TIMEOUT);
+
+            Properties headers = new Properties();
+            if (!config.userId.isEmpty()) {
+                String value = config.userId + ":" + config.password;
+                headers.put(HTTP_HEADER_AUTH, HTTP_AUTH_TYPE_BASIC + " " + Base64.getEncoder().encodeToString(value.getBytes()));
+            }
+
+            httpResponse = HttpUtil.executeUrl(HTTP_GET, url, headers, null, "", SHELLY_API_TIMEOUT);
             Validate.notNull(httpResponse, "httpResponse must not be null");
             // all api responses are returning the result in Json format. If we are getting something else it must
             // be an error message, e.g. http result code
