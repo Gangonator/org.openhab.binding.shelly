@@ -15,11 +15,13 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
 **Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
 
-### beta1 release notes (stable)
+### 2.4.1 release notes (stable)
 + Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
 + Roller new channel "rollerpos" has the position based on 100=open, 0=closed (vs. "control" with 0=open and 100=closed, e.g. for a vertical slider in HABpanel)
 + new thing config options to enable/disable setting of relay event urls
 + output binding version and build timestamp into the logfile
++ support for basic auth added (handled userid/password protected device)
++ config options on the binding and the thing level for basic http auth
 + ignore UP/DOWN command while roller is moving
 * fix: process roller command STOP again
 * fix: don't turn light back on after set color with OnOffType.OFF
@@ -91,18 +93,17 @@ Looking for contribution: If you are familar with HTML and CSS you are welcome t
 | shelly1pm        | Shelly Single Relay Switch with integrated Power Meter | fully supported                                          |
 | shelly2-relay    | Shelly Double Relay Switch (Shelly2 and Shelly2.5)     | fully supported                                          |
 | shelly2-roller   | Shelly2 in Roller Mode (Shelly2 and Shelly2.5)         | fully supported                                          |
-| shellyht         | Shelly Sensor (temp+humidity)                          | fully supported, recovery handling needs to be optimized |
+| shellyht         | Shelly Sensor (temp+humidity)                          | needs to be verified                                     |
 | shellyplug-s     | Shelly Plug                                            | fully supported                                          |
 | shellyplug       | Shelly Plug                                            | fully supported                                          |
 | shellyrgbw2      | Shelly RGB Controller                                  | fully supported                                          |
-| shellybulb       | Shelly Bulb in Color or WHite Mode                     | work-in-progress                                         |
-| shellysense      | Shelly Motion and IR Controller                        | work-in-progress                                         |
-| shelly4pro       | Shelly 4x Relay Switch                                 | should get discovered, but no special handling yet       |
+| shellybulb       | Shelly Bulb in Color or WHite Mode                     | fully supported                                          |
+| shellysense      | Shelly Motion and IR Controller                        | fully supported                                          |
+| shelly4pro       | Shelly 4x Relay Switch                                 | fully supported                                          |
 | shellysmoke      | Shelly Sensor (temp+humidity)                          | should get discovered, but no special handling yet       |
 
 Feedback is welcome any time. Leave some comments in the forum.
 
-Please let me know if you could support implementation and testing for Shelly RGBW2, 4 Pro, Bulb, Sense. 
 Please send a PM to markus7017 If you encounter errors and include a TRACE log.
 
 
@@ -142,19 +143,29 @@ As described above the binding will be installed by copying the jar into the add
 
 ## Discovery
 
-### General
 The binding uses mDNS to discovery the Shelly devices. They periodically announce their presence, which can be used by the binding to find them on the local network and fetch their IP address. The binding will then use the Shelly http api to discover device capabilities, read status and control the device. In addition event callbacks will be used to support battery powered devices.
+
+If you are using password protected Shelly devices you need to configure userid and password. You could configure these settings in two ways
+1. Global Default: Go to PaperUI:Configuration:Addons:Shelly Binding and edit the configuration. Those will be used when now settings are given on the thing level.
+2. Edit the thing configuration. 
 
 Important: The IP address shouldn't change after the device is added as a new thing in openHAB. This could be achieved by
 - assigning a static IP address or
 - use DHCP and setup the router to assign always the same ip address to the device
 You need to re-discover the device if there is a reason why the ip address changed.
 
-New devices could be discovered an added to the openHAB system by using Paper UI's Inbox. Running a manual discovery should show up all devices on your local network.
+New devices could be discovered an added to the openHAB system by using Paper UI's Inbox. Running a manual discovery should show up all devices on your local network. 
 
 There seems to be an issue between OH mDNS implementation and Shelly so that initially the binding is not able to catch the thing’s ip address (in this case the event reports 0.0.0.0 as ip address - this will be ignored) or devices don’t show up all the time. To fix this you need to run the manual discovery multiple times until you see all your devices. Make sure to wakeup battery powered devices (press the button inside the device) so they show up on the network.
 
 ## Binding Configuration
+
+The binding has some global configuration options. Go to PaperUI:Configuration:Addons:Shelly Binding to edit those.
+
+| Parameter      |Description                                                    |Mandantory|Default                                         |
+|----------------|---------------------------------------------------------------|----------|------------------------------------------------|
+| defaultUserId  |Default userid for http authentication when not set in thing   |    no    |admin                                           |
+| defaultPassword|Default password for http authentication when not set in thing |    no    |adnub                                           |
 
 
 ### Thing Configuration
@@ -162,10 +173,10 @@ There seems to be an issue between OH mDNS implementation and Shelly so that ini
 | Parameter      |Description                                                 |Mandantory|Default                                            |
 |----------------|------------------------------------------------------------|----------|---------------------------------------------------|
 | deviceIp       |IP address of the Shelly device, usually auto-discovered    |    yes   |none                                               |
-| updateInterval |Interval for the background status check in seconds.        |    no    |1h for battery powered devices, 60s for all others |
 | userId         |The userid used for http authentication*                    |    no    |none                                               |
 | password       |Password for http authentication*                           |    no    |none                                               |
 | lowBattery     |Threshold for battery level. Set alert when level is below. |    no    |20 (=20%), only for battery powered devices        |
+| updateInterval |Interval for the background status check in seconds.        |    no    |1h for battery powered devices, 60s for all others |
 
 ## Channels
 
