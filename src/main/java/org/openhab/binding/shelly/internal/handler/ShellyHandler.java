@@ -35,7 +35,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.shelly.internal.ShellyConfiguration;
+import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
@@ -46,6 +46,8 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
+import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
+import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,42 +58,50 @@ import org.slf4j.LoggerFactory;
  * @author Markus Michels - Completely refactored
  */
 public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListener {
-    private final Logger                logger           = LoggerFactory.getLogger(ShellyHandler.class);
+    private final Logger                 logger           = LoggerFactory.getLogger(ShellyHandler.class);
 
-    private final NetworkAddressService networkAddressService;
-    private final ShellyHandlerFactory  handlerFactory;
-    private ShellyConfiguration         config;
-    private ShellyHttpApi               api;
-    private ShellyDeviceProfile         profile;
+    private final NetworkAddressService  networkAddressService;
+    private final ShellyHandlerFactory   handlerFactory;
+    private ShellyThingConfiguration     config;
+    private ShellyHttpApi                api;
+    private ShellyDeviceProfile          profile;
 
-    private ScheduledFuture<?>          statusJob;
-    private int                         skipUpdate       = 0;
-    private int                         scheduledUpdates = 0;
-    private int                         skipCount        = UPDATE_SKIP_COUNT;
-    private int                         skipRefresh      = 0;
-    private int                         refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
-    private boolean                     refreshSettings  = false;
-    private boolean                     channelCache     = false;
-    protected boolean                   lockUpdates      = false;
+    private ScheduledFuture<?>           statusJob;
+    private int                          skipUpdate       = 0;
+    private int                          scheduledUpdates = 0;
+    private int                          skipCount        = UPDATE_SKIP_COUNT;
+    private int                          skipRefresh      = 0;
+    private int                          refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
+    private boolean                      refreshSettings  = false;
+    private boolean                      channelCache     = false;
+    protected boolean                    lockUpdates      = false;
 
-    private String                      thingName        = "";
-    private Map<String, Object>         channelData      = new HashMap<>();
+    private String                       thingName        = "";
+    private Map<String, Object>          channelData      = new HashMap<>();
+    protected ShellyBindingConfiguration bindingConfig    = new ShellyBindingConfiguration();
 
     /**
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
      * @param networkAddressService instance of NetworkAddressService to get access to the OH default ip settings
      */
     @SuppressWarnings("deprecation")
-    public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory,
+    public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory, ShellyBindingConfiguration bindingConfig,
             NetworkAddressService networkAddressService) {
         super(thing);
         this.handlerFactory = handlerFactory;
+        this.bindingConfig = bindingConfig;
         this.networkAddressService = networkAddressService;
     }
 
     @Override
     public void initialize() {
-        config = getConfigAs(ShellyConfiguration.class);
+        config = getConfigAs(ShellyThingConfiguration.class);
+        config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
+        if (config.userId.isEmpty() && !bindingConfig.defaultUserId.isEmpty()) {
+            config.userId = bindingConfig.defaultUserId;
+            config.password = bindingConfig.defaultPassword;
+            logger.debug("Using binding default userId");
+        }
         if (config.updateInterval == 0) {
             config.updateInterval = UPDATE_STATUS_INTERVAL * UPDATE_SKIP_COUNT;
         }
@@ -100,7 +110,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }
         skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
 
-        config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
         handlerFactory.registerDeviceListener(this);
         api = new ShellyHttpApi(config);
 
@@ -305,8 +314,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
             requestUpdates(1, true);  // request an update and force a refresh of the settings
         } catch (RuntimeException | IOException e) {
-            logger.info("ERROR: Unable to process command for channel {}: {} ({})",
-                    channelUID.toString(), e.getMessage(), e.getClass());
+            if (e.getMessage().contains("401 Unauthorized")) {
+                logger.warn(
+                        "Device {} ({}) reported 'Access defined' (userid/password mismatch). Set userid/password for the thing or in the binding config",
+                        thingName, config.deviceIp);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                        "Access denied, set userid/password for the thing or in the binding confi");
+            } else {
+                logger.info("ERROR: Unable to process command for channel {}: {} ({})",
+                        channelUID.toString(), e.getMessage(), e.getClass());
+            }
         } finally {
             lockUpdates = false;
         }
@@ -328,7 +345,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
 
             if (refreshSettings || (scheduledUpdates > 0) || (skipUpdate % skipCount == 0)) {
-                if ((profile == null) || (getThing().getStatus() == ThingStatus.OFFLINE)) {
+                if ((profile == null) || ((getThing().getStatus() == ThingStatus.OFFLINE)
+                        && (getThing().getStatusInfo().getStatusDetail() != ThingStatusDetail.CONFIGURATION_ERROR))) {
                     logger.info("Status update triggered thing initialization for device {}", thingName);
                     initializeThing();  // may fire an exception if initialization failed
                 }

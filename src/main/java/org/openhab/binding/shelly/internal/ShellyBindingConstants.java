@@ -59,11 +59,11 @@ public class ShellyBindingConstants {
     public static final int               UPDATE_MIN_DELAY             = 15; // update every x triggers or when a key was pressed
     public static final int               UPDATE_SETTINGS_INTERVAL     = 60; // check for updates every x sec
 
-    // List of all Configuration Properties
+    // Thing Configuration Properties
     public static final String            CONFIG_DEVICEIP              = "deviceIp";
+    public static final String            CONFIG_HTTP_USERID           = "userId";
+    public static final String            CONFIG_HTTP_PASSWORD         = "password";
     public static final String            CONFIG_UPDATE_INTERVAL       = "updateInterval";
-    public static final String            CONFIG_UPDATE_HTTP_USER      = "userId";
-    public static final String            CONFIG_UPDATE_HTTP_PWD       = "password";
 
     public static final String            PROPERTY_SERVICE_NAME        = "serviceName";
     public static final String            PROPERTY_HWREV               = "hwardwareRev";

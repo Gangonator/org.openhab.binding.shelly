@@ -5,7 +5,7 @@
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.openhab.binding.shelly.internal.handler;
+package org.openhab.binding.shelly.internal;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.commons.lang.Validate;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -23,9 +24,14 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.openhab.binding.shelly.internal.ShellyBindingConstants;
+import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
+import org.openhab.binding.shelly.internal.handler.ShellyDeviceListener;
+import org.openhab.binding.shelly.internal.handler.ShellyHandler;
+import org.openhab.binding.shelly.internal.handler.ShellyHandlerLight;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -46,6 +52,22 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID>  SUPPORTED_THING_TYPES_UIDS = ShellyBindingConstants.SUPPORTED_THING_TYPES_UIDS;
     private static boolean                  initialized                = false;
+    ShellyBindingConfiguration              bindingConfig              = new ShellyBindingConfiguration();
+
+    /**
+     * Activate the bundle: save properties
+     *
+     * @param componentContext
+     * @param configProperties set of properties from cfg (use same names as in
+     *                         thing config)
+     */
+    @Activate
+    protected void activate(ComponentContext componentContext, Map<String, Object> configProperties) {
+        super.activate(componentContext);
+        logger.debug("Activate Shelly HandlerFactory");
+        Validate.notNull(configProperties);
+        bindingConfig.updateFromProperties(configProperties);
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -68,11 +90,11 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
                 thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR.getId())
                 || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE.getId())) {
             logger.debug("Create new thing using ShellyHandlerLight");
-            return new ShellyHandlerLight(thing, this, networkAddressService);
+            return new ShellyHandlerLight(thing, this, bindingConfig, networkAddressService);
         }
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             logger.debug("Create new thing using ShellyHandlerGeneric");
-            return new ShellyHandler(thing, this, networkAddressService);
+            return new ShellyHandler(thing, this, bindingConfig, networkAddressService);
         }
 
         return null;
@@ -118,6 +140,10 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
         sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
         String result = sdf.format(date);
         return !result.contains("1970-01-01") ? result : "n/a";
+    }
+
+    public ShellyBindingConfiguration getBindingConfig() {
+        return bindingConfig;
     }
 
     @Reference

@@ -19,16 +19,25 @@ import java.util.Set;
 import javax.jmdns.ServiceInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.shelly.internal.ShellyConfiguration;
+import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
+import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
+import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +49,12 @@ import org.slf4j.LoggerFactory;
 @Component(service = MDNSDiscoveryParticipant.class, immediate = true)
 public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
-    private final Logger        logger       = LoggerFactory.getLogger(ShellyDiscoveryParticipant.class);
-    private ShellyHttpApi       api;
+    private final Logger               logger         = LoggerFactory.getLogger(ShellyDiscoveryParticipant.class);
+    private ShellyBindingConfiguration bindingConfig  = new ShellyBindingConfiguration();
+    private ShellyHandlerFactory       handlerFactory = null;
+    private ShellyHttpApi              api;
 
-    private static final String SERVICE_TYPE = "_http._tcp.local.";
+    private static final String        SERVICE_TYPE   = "_http._tcp.local.";
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
@@ -53,6 +64,23 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     @Override
     public String getServiceType() {
         return SERVICE_TYPE;
+    }
+
+    /**
+     * Called at the service activation.
+     *
+     * @param componentContext
+     */
+    @Activate
+    protected void activate(ComponentContext componentContext) {
+        logger.debug("Discoverxy service activated");
+        bindingConfig.updateFromProperties(componentContext.getProperties());
+    }
+
+    @Modified
+    protected void modified(ComponentContext componentContext) {
+        logger.info("Binding config refreshed");
+        bindingConfig.updateFromProperties(componentContext.getProperties());
     }
 
     @Override
@@ -70,23 +98,42 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
         logger.info("Shelly device discovered: IP-Adress={}, name={}", address, name);
         try {
-            ShellyConfiguration config = new ShellyConfiguration();
+            ShellyThingConfiguration config = new ShellyThingConfiguration();
+            if (handlerFactory != null) {
+                bindingConfig = handlerFactory.getBindingConfig();
+            }
             config.deviceIp = address;
-            ShellyHttpApi api = new ShellyHttpApi(config);
+            config.userId = bindingConfig.defaultUserId;
+            config.password = bindingConfig.defaultPassword;
 
             // Get device settings
+            ShellyHttpApi api = new ShellyHttpApi(config);
             String thingType = StringUtils.substringBeforeLast(name, "-");
-            ShellyDeviceProfile profile = api.getDeviceProfile(thingType);
-            logger.debug("Shelly settings : {}", profile.settingsJson);
-            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode.isEmpty() ? "n/a" : profile.mode);
-
             Map<String, Object> properties = new HashMap<>(5);
             properties.put(PROPERTY_VENDOR, "Shelly");
             properties.put(CONFIG_DEVICEIP, address);
+            addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
+
+            ShellyDeviceProfile profile = null;
+            try {
+                profile = api.getDeviceProfile(thingType);
+            } catch (IOException e) {
+                if (e.getMessage().contains("401 Unauthorized")) {
+                    logger.warn("Device {} ({}) reported 'Access defined' (userid/password mismatch).", name, address);
+                    logger.info("You could set a default userid and passowrd in the binding config and re-discover devices");
+                    logger.info("or you need to disable device protection (userid/password) in the Shelly App for device discovery.");
+                    logger.info("Once the device is discoverd you could set the userid/password and re-enable device protection in the Shelly App.");
+                } else {
+                    logger.warn("Device discovery failed for device {}, IP {}: {} ({})", name, address, e.getMessage(), e.getClass());
+                }
+            }
+            Validate.notNull(profile, "Unable to get device profile: ");
+
+            logger.debug("Shelly settings : {}", profile.settingsJson);
+            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode.isEmpty() ? "n/a" : profile.mode);
             properties.put(PROPERTY_MODEL_ID, profile.thingType);
             properties.put(PROPERTY_MAC_ADDRESS, profile.mac);
             properties.put(PROPERTY_FIRMWARE_VERSION, profile.fwVersion + "/" + profile.fwDate + "(" + profile.fwId + ")");
-            addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
             addProperty(properties, PROPERTY_HWREV, profile.hwRev);
             addProperty(properties, PROPERTY_HWBATCH, profile.hwBatchId);
             addProperty(properties, PROPERTY_MODE, profile.mode);
@@ -94,7 +141,6 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             addProperty(properties, PROPERTY_NUM_RELAYS, profile.numRelays.toString());
             addProperty(properties, PROPERTY_NUM_ROLLERS, profile.numRollers.toString());
             addProperty(properties, PROPERTY_NUM_METER, profile.numMeters.toString());
-
             if (profile.settings.light_sensor != null) {
                 addProperty(properties, PROPERTY_LIGHT_SENSOR, profile.settings.light_sensor);
 
@@ -104,8 +150,8 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
             return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
                     .withRepresentationProperty(name).build();
-        } catch (RuntimeException | IOException e) {
-            logger.error("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, service.getName(), e.getMessage(),
+        } catch (RuntimeException e) {
+            logger.warn("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, service.getName(), e.getMessage(),
                     e.getClass());
         }
 
@@ -182,5 +228,16 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         logger.info("Unsupported Shelly Device discovered: {} (mode {})", name, mode);
         return null;
 
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void setShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
+        this.handlerFactory = handlerFactory;
+        logger.debug("Discovery: HandlerFactory bound");
+    }
+
+    public void unsetShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
+        this.handlerFactory = null;
+        logger.debug("Discovery: HandlerFactory unbound");
     }
 }

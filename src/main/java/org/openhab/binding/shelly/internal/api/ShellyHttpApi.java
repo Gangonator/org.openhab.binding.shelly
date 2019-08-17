@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
 import org.openhab.binding.shelly.internal.ShellyBindingConstants;
-import org.openhab.binding.shelly.internal.ShellyConfiguration;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.SellySendKeyList;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySenseKeyCode;
@@ -35,6 +34,7 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatu
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
+import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
 import org.openhab.binding.shelly.internal.handler.ShellyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,14 +151,14 @@ public class ShellyHttpApi {
     }
 
     private final Logger          logger    = LoggerFactory.getLogger(ShellyHandler.class);
-    protected ShellyConfiguration config;
+    protected ShellyThingConfiguration config;
     private String                localPort = OPENHAB_DEF_PORT;
     public String                 thingName;
 
     private ShellyDeviceProfile   profile;
     private Gson                  gson      = new Gson();
 
-    public ShellyHttpApi(ShellyConfiguration config) {
+    public ShellyHttpApi(ShellyThingConfiguration config) {
         this.config = config;
         Map<String, String> env = System.getenv();
         String portEnv = env.get(OPENHAB_HTTP_PORT);
