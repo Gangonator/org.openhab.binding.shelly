@@ -14,7 +14,7 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
 Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
 
-### 2.4.2-SNAPSHOT release notes (stable)
+### 2.4.2-SNAPSHOT release notes (beta)
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
 + Create special device (shelly-protected) when device is password protected
