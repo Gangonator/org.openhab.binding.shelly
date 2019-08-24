@@ -16,9 +16,8 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 
 ### 2.4.2-SNAPSHOT release notes (stable)
 + Support for Shelly Flood
-+ Support for Shelly EM (primiraly)
-+ Update thing properties incl. update status on thing initialization
-* better support on discovery for password protected devices
++ Support for Shelly EM (primarily)
++ Create special device (shelly-protected) when device is password protected
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
 
 ### 2.4.1 release notes (stable)
