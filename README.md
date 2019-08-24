@@ -11,9 +11,15 @@ Check  https://community.openhab.org/t/shelly-binding/56862/65 for more informat
 ## Releases of this binding
 
 --- branches
-Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
-**Previous** releases beta1:            https://github.com/markus7017/org.openhab.binding.shelly/tree/beta1
+Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
+
+### 2.4.2-SNAPSHOT release notes (stable)
++ Support for Shelly Flood
++ Support for Shelly EM (primiraly)
++ Update thing properties incl. update status on thing initialization
+* better support on discovery for password protected devices
+* channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
 
 ### 2.4.1 release notes (stable)
 + Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"

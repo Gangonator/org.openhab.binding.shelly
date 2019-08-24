@@ -37,6 +37,21 @@
         <config-description-ref uri="thing-type:shelly:battery" />
     </thing-type>
  
+     <thing-type id="shellyflood">
+        <label>Shelly Flood (SHWT-1)</label>
+        <description>Shelly Flood sensor device (battery powered)</description>
+
+        <channel-groups>
+            <channel-group id="sensors" typeId="floodSensor">
+                <label>Sensor Data</label>
+            </channel-group>
+            <channel-group id="battery" typeId="batteryStatus">
+                <label>Battery Status</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:battery" />
+    </thing-type>
  
      <thing-type id="shellysense">
         <label>Shelly Sense</label>
@@ -65,7 +80,8 @@
         <channels>
             <channel id="temperature" typeId="sensorTemp" />
             <channel id="tempUnit" typeId="sensorTempUnit" />
-            <channel id="humidity" typeId="sensorHumidity" />
+            <channel id="flood" typeId="sensorFlood" />
+            <channel id="rainMode" typeId="sensorRainMode" />
             <channel id="event" typeId="eventTrigger" />
         </channels>
    </channel-group-type>
@@ -141,6 +157,20 @@
         <label>Humidity</label>
         <description>Relative humidity in % (0..100%)</description>
         <state readOnly="true" pattern="%.2f %%" >
+        </state>
+    </channel-type>
+    <channel-type id="sensorFlood">
+        <item-type>Switch</item-type>
+        <label>Flood Alarm</label>
+        <description>TRUE: Indicates flood condition / water detected</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+    <channel-type id="sensorRainMode">
+        <item-type>Switch</item-type>
+        <label>Rain Mode</label>
+        <description>TRUE: Sensor is in Rain Mode</description>
+        <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="sensorLux">

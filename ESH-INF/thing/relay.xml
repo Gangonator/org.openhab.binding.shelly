@@ -34,6 +34,21 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
     
+    <thing-type id="shellyem">
+        <label>ShellyEM</label>
+        <description>ShellyEM device with single relay and power meter</description>
+        <channel-groups>
+            <channel-group id="relay" typeId="relayChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="meter" typeId="emeter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
+
     <thing-type id="shelly2-relay">
         <label>Shelly2 Relay (SHSW-21)</label>
         <description>Shelly2 device with two relays</description>
@@ -206,18 +221,28 @@
             <channel id="lastPower1" typeId="lastPower1" />
             <channel id="lastPower2" typeId="lastPower2" />
             <channel id="lastPower3" typeId="lastPower3" />
-            <channel id="totalWatts" typeId="meterTotal" />
+            <channel id="totalKWH" typeId="meterTotal" />
             <channel id="timestamp" typeId="meterTimestamp" />
         </channels>
     </channel-group-type>
-   <channel-group-type id="basicMeter">
+    <channel-group-type id="emeter">
+       <label>Power Meter</label>
+       <description>Power consumption for the relay</description>
+        <channels>
+            <channel id="totalKWH" typeId="meterTotal" />
+            <channel id="returnedKWH" typeId="meterReturned" />
+            <channel id="reactiveWatts" typeId="meterReactive" />
+            <channel id="voltage" typeId="meterVoltage" />
+        </channels>
+    </channel-group-type>
+    <channel-group-type id="basicMeter">
        <label>Power Meter</label>
        <description>Power consumption</description>
         <channels>
             <channel id="currentWatts" typeId="meterWatts" />
         </channels>
-   </channel-group-type>
-   <channel-group-type id="simpleMeter">
+    </channel-group-type>
+    <channel-group-type id="simpleMeter">
        <label>Power Meter</label>
        <description>Power consumption</description>
         <channels>
@@ -226,7 +251,7 @@
         </channels>
     </channel-group-type>
 
-   <channel-group-type id="ledControl">
+    <channel-group-type id="ledControl">
        <label>LED control</label>
        <description>Control the LEDs</description>
         <channels>
@@ -339,9 +364,23 @@
     </channel-type>
    <channel-type id="meterTotal">
         <item-type>Number</item-type>
-        <label>Total Energy (kw/h)</label>
+        <label>Total Energy</label>
         <description>Total power consumption in kw/h</description>
         <state readOnly="true" pattern="%.5f kw/h" >
+        </state>
+    </channel-type>
+   <channel-type id="meterReturned">
+        <item-type>Number</item-type>
+        <label>Total Returned Energy (kw/h)</label>
+        <description>Total returned energy in kw/h</description>
+        <state readOnly="true" pattern="%.5f kw/h" >
+        </state>
+    </channel-type>
+   <channel-type id="meterVoltage">
+        <item-type>Number</item-type>
+        <label>Voltage</label>
+        <description>RMS voltage, Volts   </description>
+        <state readOnly="true" pattern="%.3f V" >
         </state>
     </channel-type>
    <channel-type id="meterTimestamp">

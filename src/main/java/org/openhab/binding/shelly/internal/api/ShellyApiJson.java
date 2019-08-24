@@ -126,8 +126,8 @@ public class ShellyApiJson {
 
     public static final String SHELLY_API_EVENTURL_BTN_ON  = "btn_on_url";
     public static final String SHELLY_API_EVENTURL_BTN_OFF = "btn_off_url";
-    public static final String SHELLY_API_EVENTURL_SW_ON   = "out_on_url";
-    public static final String SHELLY_API_EVENTURL_SW_OFF  = "out_off_url";
+    public static final String SHELLY_API_EVENTURL_OUT_ON  = "out_on_url";
+    public static final String SHELLY_API_EVENTURL_OUT_OFF = "out_off_url";
     public static final String SHELLY_API_EVENTURL_REPORT  = "report_url";
 
     public static class ShellySettingsRoller {
@@ -165,6 +165,16 @@ public class ShellyApiJson {
         public Long     timestamp;
     }
 
+    public static class ShellySettingsEMeter {   // ShellyEM meter
+        public Boolean is_valid;        // Whether the associated meter is functioning properly
+        public Double  power;           // Instantaneous power, Watts
+        public Double  reactive;        // Instantaneous reactive power, Watts
+        public Double  voltage;         // RMS voltage, Volts
+        public Double  total;           // Total consumed energy, Wh
+        public Double  total_returned;  // Total returned energy, Wh
+        public Long    timestamp;
+    }
+
     public static class ShellySettingsUpdate {
         public String  status;
         public Boolean has_update;
@@ -174,33 +184,33 @@ public class ShellyApiJson {
 
     public static class ShellySettingsGlobal {
         // https://shelly-api-docs.shelly.cloud/#shelly1pm-settings
-        public ShellySettingsDevice           device;
-        public ShellySettingsWiFiAp           wifi_ap;
-        public ShellySettingsWiFiNetwork      wifi_sta;
-        public ShellySettingsWiFiNetwork      wifi_sta1;
-        public ShellySettingsMqtt             mqtt;
-        public ShellySettingsSntp             sntp;
-        public ShellySettingsLogin            login;
-        public String                         pin_code;
-        public Boolean                        coiot_execute_enable;
-        public String                         name;
-        public String                         fw;
-        ShellySettingsBuildInfo               build_info;
-        ShellyStatusCloud                     cloud;
-        public String                         timezone;
-        public Double                         lat;
-        public Double                         lng;
-        public Boolean                        tzautodetect;
-        public String                         time;
-        public ShellySettingsHwInfo           hwinfo;
-        public String                         mode;
-        public Double                         max_power;
-        public ArrayList<ShellySettingsRelay> relays;
-        public Boolean                        led_status_disable; // PlugS only Disable LED indication for network status
-        public Boolean                        led_power_disable;  // PlugS only Disable LED indication for network status
-
-        public String                         reset; // Submitting a non-empty value will reset settings for the output to factory defaults.
-        public String                         light_sensor;   // Sense: sensor type
+        public ShellySettingsDevice            device;
+        public ShellySettingsWiFiAp            wifi_ap;
+        public ShellySettingsWiFiNetwork       wifi_sta;
+        public ShellySettingsWiFiNetwork       wifi_sta1;
+        public ShellySettingsMqtt              mqtt;
+        public ShellySettingsSntp              sntp;
+        public ShellySettingsLogin             login;
+        public String                          pin_code;
+        public Boolean                         coiot_execute_enable;
+        public String                          name;
+        public String                          fw;
+        ShellySettingsBuildInfo                build_info;
+        ShellyStatusCloud                      cloud;
+        public String                          timezone;
+        public Double                          lat;
+        public Double                          lng;
+        public Boolean                         tzautodetect;
+        public String                          time;
+        public ShellySettingsHwInfo            hwinfo;
+        public String                          mode;
+        public Double                          max_power;
+        public ArrayList<ShellySettingsRelay>  relays;
+        public ArrayList<ShellySettingsEMeter> emeters;
+        public Boolean                         led_status_disable;  // PlugS only Disable LED indication for network status
+        public Boolean                         led_power_disable;   // PlugS only Disable LED indication for network status
+        public String                          light_sensor;        // Sense: sensor type
+        public Boolean                         rain_sensor;         // Flood: true=in rain mode
     }
 
     public static final String SHELLY_API_MODE           = "mode";
@@ -235,6 +245,7 @@ public class ShellyApiJson {
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
+        public ArrayList<ShellySettingsEMeter> emeters;
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
@@ -340,10 +351,13 @@ public class ShellyApiJson {
         public _lux     lux;
         public _bat     bat;
 
-        public Boolean  motion;
-        public Boolean  charger;
+        public Boolean  flood;         // Shelly Flood: true = flood condition detected
+        public Boolean  rain_sensor;   // Shelly Flood: true=in rain mode
 
-        public String[] act_reasons; // HT/Smoke: list of reasons which woke up the device
+        public Boolean  motion;        // Shelly Sense: true=motion detected
+        public Boolean  charger;       // Shelly Sense: true=charger connected
+
+        public String[] act_reasons;   // HT/Smoke/Flood: list of reasons which woke up the device
     }
 
     public static class ShellySettingsSmoke {

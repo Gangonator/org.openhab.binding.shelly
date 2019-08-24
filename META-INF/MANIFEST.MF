@@ -9,27 +9,28 @@ Bundle-SymbolicName: org.openhab.binding.shelly;singleton:=true
 Bundle-Vendor: openHAB
 Bundle-Version: 2.4.0.qualifier
 Import-Package: 
+ com.google.gson,
+ javax.jmdns,
  javax.servlet,
  javax.servlet.http,
- javax.jmdns,
+ javax.ws.rs;version="2.0.1",
+ org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.mdns,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.net,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.util,
- org.eclipse.smarthome.core.net,
- org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.config.discovery,
- org.eclipse.smarthome.config.discovery.mdns,
  org.eclipse.smarthome.io.net.http,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.osgi.service.http,
- org.slf4j,
- org.apache.commons.lang,
- com.google.gson
+ org.slf4j
 Service-Component: OSGI-INF/*.xml

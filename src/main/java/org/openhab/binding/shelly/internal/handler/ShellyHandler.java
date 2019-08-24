@@ -7,6 +7,7 @@
 
 package org.openhab.binding.shelly.internal.handler;
 
+import static org.eclipse.smarthome.core.thing.Thing.*;
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
@@ -37,6 +38,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsEMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
@@ -66,11 +68,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private ShellyHttpApi                api;
     private ShellyDeviceProfile          profile;
 
-    private ScheduledFuture<?>           statusJob;
+    private ScheduledFuture<?>           statusJob        = null;;
     private int                          skipUpdate       = 0;
     private int                          scheduledUpdates = 0;
     private int                          skipCount        = UPDATE_SKIP_COUNT;
-    private int                          skipRefresh      = 0;
     private int                          refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
     private boolean                      refreshSettings  = false;
     private boolean                      channelCache     = false;
@@ -84,7 +85,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
      * @param networkAddressService instance of NetworkAddressService to get access to the OH default ip settings
      */
-    @SuppressWarnings("deprecation")
     public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory, ShellyBindingConfiguration bindingConfig,
             NetworkAddressService networkAddressService) {
         super(thing);
@@ -95,6 +95,40 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     @Override
     public void initialize() {
+
+        // Example for background initialization:
+        scheduler.schedule(() -> {
+            try {
+                initializeThingConfig();
+                logger.info("Device config: ipAddress={}, http user/password={}/{}, update interval={}, low battery threshold={}%",
+                        config.deviceIp, config.userId.isEmpty() ? "<non>" : config.userId, config.password.isEmpty() ? "<none>" : "***",
+                        config.updateInterval, config.lowBattery);
+                handlerFactory.registerDeviceListener(this);
+                initializeThing();
+            } catch (RuntimeException | IOException e) {
+                if (e.getMessage().contains(HTTP_401_UNAUTHORIZED)) {
+                    logger.warn("Device {} ({}) reported 'Access defined' (userid/password mismatch)", thingName, config.deviceIp);
+                    logger.info("You could set a default userid and passowrd in the binding config and re-discover devices");
+                    logger.info("or you need to disable device protection (userid/password) in the Shelly App for device discovery.");
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                            "Access denied, set userid/password for the thing or in the thing config");
+                } else {
+                    logger.info("Unable to initialize thing {}: {} ({}), retrying later", getThing().getLabel(), e.getMessage(), e.getClass());
+
+                }
+            } finally {
+                // even this initialization failed we start the status update
+                // the updateJob will then try to auto-initialize the thing
+                // in this case the thing stays in status INITIALIZING
+                if (getThing().getStatus() != ThingStatus.OFFLINE) {
+                    startUpdateJob();
+                }
+            }
+
+        }, 2, TimeUnit.SECONDS);
+    }
+
+    protected void initializeThingConfig() {
         config = getConfigAs(ShellyThingConfiguration.class);
         config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
         if (config.userId.isEmpty() && !bindingConfig.defaultUserId.isEmpty()) {
@@ -109,64 +143,46 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             config.updateInterval = UPDATE_MIN_DELAY / UPDATE_STATUS_INTERVAL;
         }
         skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
+    }
 
-        handlerFactory.registerDeviceListener(this);
-        api = new ShellyHttpApi(config);
-
-        // Example for background initialization:
-        scheduler.schedule(() -> {
-            try {
-                logger.info("Device config: ipAddress={}, http user/password={}/{}, update interval={}, low battery threshold={}%",
-                        config.deviceIp, config.userId, config.password.isEmpty() ? "" : "***", config.updateInterval, config.lowBattery);
-                initializeThing();
-            } catch (RuntimeException | IOException e) {
-                logger.info("Unable to initialize thing {}: {}, retrying later", getThing().getLabel(), e.getMessage());
-                // even this initialization failed we start the status update
-                // the updateJob will then try to auto-initialize the thing
-                // in this case the thing stays in status INITIALIZING
-            } finally {
-                // start initialization even the initial request to get settings failed
-                if (statusJob == null || statusJob.isCancelled()) {
-                    statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
-                            UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
-                    Validate.notNull(statusJob, "statusJob must not be null");
-                    logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
-                            skipCount * UPDATE_STATUS_INTERVAL);
-                }
-            }
-
-        }, 2, TimeUnit.SECONDS);
+    @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
+        super.handleConfigurationUpdate(configurationParameters);
+        logger.info("Thing config for device {} updated.", thingName);
+        refreshSettings = true;  // force re-initialization
+        initializeThingConfig();
+        startUpdateJob();
     }
 
     private void initializeThing() throws IOException {
         // Get the thing global settings and initialize device capabilities
-        logger.info("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
         channelData = new HashMap<>();  // clear any cached channels
         refreshSettings = false;
         lockUpdates = false;
 
-        ShellyDeviceProfile p = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
-        logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({}); Thing Type={}",
-                p.hostname, p.settings.device.type, p.hwRev, p.hwBatchId,
-                p.fwVersion, p.fwDate, p.fwId, p.thingType);
-        logger.debug(
-                "Device {}: has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke Sensor: {}, has is Sense: {}, Meter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
-                p.hostname, p.hasRelays, p.isRoller, p.isPlugS, p.isLight, p.isSensor, p.isSense, p.hasMeter, p.hasBattery, p.hasLed, p.numRelays,
-                p.numRollers, p.numMeters);
-        logger.debug("Shelly settings info for {} : {}", thingName, p.settingsJson);
-
+        logger.info("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
+        api = new ShellyHttpApi(config);
+        ShellyDeviceProfile tmpPrf = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         Map<String, String> properties = getThing().getProperties();
         Validate.notNull(properties, "properties must not be null!");
-        thingName = (properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : p.hostname);
-        thingName = thingName.toLowerCase();
+        thingName = (properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : tmpPrf.hostname).toLowerCase();
         Validate.notNull(thingName, "thingName must not be null!");
+
+        logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({})",
+                tmpPrf.hostname, tmpPrf.deviceType, tmpPrf.hwRev, tmpPrf.hwBatchId, tmpPrf.fwVersion, tmpPrf.fwDate, tmpPrf.fwId);
+        logger.debug("Shelly settings info for {} : {}", thingName, tmpPrf.settingsJson);
+        logger.debug(
+                "Device {}: has relays: {}, is roller: {}, is Plug S: {},  is Bulb/RGBW2: {}, is HT/Smoke/Flood Sensor: {}, has is Sense: {}, Meter: {}, EMeter: {}, has Battery: {}, has LEDs: {}, numRelays={}, numRoller={}, numMeter={}",
+                tmpPrf.hostname, tmpPrf.hasRelays, tmpPrf.isRoller, tmpPrf.isPlugS, tmpPrf.isLight, tmpPrf.isSensor, tmpPrf.isSense, tmpPrf.hasMeter,
+                tmpPrf.isEMeter, tmpPrf.hasBattery, tmpPrf.hasLed,
+                tmpPrf.numRelays, tmpPrf.numRollers, tmpPrf.numMeters);
 
         // update thing properties
         ShellySettingsStatus status = api.gerStatus();
-        updateProperties(p, status);
-        if (p.fwVersion.compareTo(SHELLY_API_MIN_FWVERSION) < 0) {
+        updateProperties(tmpPrf, status);
+        if (tmpPrf.fwVersion.compareTo(SHELLY_API_MIN_FWVERSION) < 0) {
             logger.info("WARNING: Firmware of device {} too old, installed: {}/{} ({}), minimal {} is recommended",
-                    thingName, p.fwVersion, p.fwDate, p.fwId, SHELLY_API_MIN_FWVERSION);
+                    thingName, tmpPrf.fwVersion, tmpPrf.fwDate, tmpPrf.fwId, SHELLY_API_MIN_FWVERSION);
             logger.info(
                     "The binding was tested with Version 1.5+ only. Older versions might work, but doesn't support all features or lead into technical issues.");
             logger.info("You should consider to upgrade the device to v1.5.0 or newer!");
@@ -176,18 +192,18 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     status.update.new_version);
         }
 
-        String reqMode = StringUtils.substringAfter(p.thingType, "-");
-        if (p.thingType.contains("-") && !p.mode.equals(reqMode)) {
-            logger.info("Thing is not in {} mode, going offline. May run discovery to find the thing for the requested mode.");
+        String reqMode = StringUtils.substringAfter(thingName, "-");
+        if (thingName.contains("-") && !tmpPrf.mode.equals(reqMode)) {
+            logger.info("Thing is not in {} mode, going offline. May run discovery to find the thing for the requested mode.", reqMode);
         }
 
         api.setEventURLs(thingName);
 
-        if (p.isSense) {
-            logger.info("Sense stored key list loaded, {} entries.", p.irCodes.size());
+        if (tmpPrf.isSense) {
+            logger.info("Sense stored key list loaded, {} entries.", tmpPrf.irCodes.size());
         }
 
-        profile = p; // all initialization done, so keep the profile
+        profile = tmpPrf; // all initialization done, so keep the profile
         requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
         logger.info("Thing {} successfully initialized.", thingName);
     }
@@ -196,15 +212,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         try {
+            if (command instanceof RefreshType) {
+                // TODO: handle data refresh
+                return;
+            }
+
             if (profile == null) {
                 logger.info("Thing not yet initialized, command {} triggers initialization", command.toString());
                 initializeThing();
             } else {
                 profile = getProfile(false);
-            }
-            if (command instanceof RefreshType) {
-                // TODO: handle data refresh
-                return;
             }
 
             // Process command
@@ -314,12 +331,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
             requestUpdates(1, true);  // request an update and force a refresh of the settings
         } catch (RuntimeException | IOException e) {
-            if (e.getMessage().contains("401 Unauthorized")) {
+            if (e.getMessage().contains(HTTP_401_UNAUTHORIZED)) {
                 logger.warn(
                         "Device {} ({}) reported 'Access defined' (userid/password mismatch). Set userid/password for the thing or in the binding config",
                         thingName, config.deviceIp);
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Access denied, set userid/password for the thing or in the binding confi");
+                        "Access denied, set userid/password for the thing or in the binding config");
             } else {
                 logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                         channelUID.toString(), e.getMessage(), e.getClass());
@@ -406,34 +423,58 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     }
                 }
 
-                if (profile.hasMeter && (status.meters != null)) {
+                if (profile.hasMeter && ((status.meters != null) || (status.emeters != null))) {
                     if (!profile.isRoller) {
-                        logger.trace("{}: Updating {} standard meters", thingName, profile.numMeters);
+                        logger.trace("{}: Updating {} {}meters", thingName, !profile.isEMeter ? "standard" : "e-", profile.numMeters);
 
                         // In Relay mode we map eacher meter to the matching channel group
                         int m = 0;
-                        for (ShellySettingsMeter meter : status.meters) {
-                            Integer meterIndex = m + 1;
-                            if (meter.is_valid || profile.isLight) {   // RGBW2-white doesn't report das flag correctly in white mode
-                                String groupName = "";
-                                if (profile.numMeters > 1) {
-                                    groupName = CHANNEL_GROUP_METER + meterIndex.toString();
-                                } else {
-                                    groupName = CHANNEL_GROUP_METER;
+                        if (!profile.isEMeter) {
+                            for (ShellySettingsMeter meter : status.meters) {
+                                Integer meterIndex = m + 1;
+                                if (meter.is_valid || profile.isLight) {   // RGBW2-white doesn't report das flag correctly in white mode
+                                    String groupName = "";
+                                    if (profile.numMeters > 1) {
+                                        groupName = CHANNEL_GROUP_METER + meterIndex.toString();
+                                    } else {
+                                        groupName = CHANNEL_GROUP_METER;
+                                    }
+                                    updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
+                                    if (meter.total != null) {
+                                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, getDouble(meter.total) / (60.0 * 1000.0));  // convert
+                                                                                                                                     // Watt/Min to
+                                                                                                                                     // kw/h
+                                    }
+                                    if (meter.counters != null) {
+                                        updateChannel(groupName, CHANNEL_METER_LASTMIN1, getDouble(meter.counters[0]));
+                                        updateChannel(groupName, CHANNEL_METER_LASTMIN2, getDouble(meter.counters[1]));
+                                        updateChannel(groupName, CHANNEL_METER_LASTMIN3, getDouble(meter.counters[2]));
+                                    }
+                                    updateChannel(groupName, CHANNEL_METER_TIMESTAMP,
+                                            ShellyHandlerFactory.convertTimestamp(getLong(meter.timestamp)));
+                                    m++;
                                 }
-                                updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
-                                if (meter.total != null) {
-                                    Double kwh = getDouble(meter.total); // Watt/Min
-                                    kwh = kwh / (60.0 * 1000.0);  // convert Watt/Min to kw/h
-                                    updateChannel(groupName, CHANNEL_METER_TOTALWATTS, kwh);
+                            }
+                        } else {
+                            for (ShellySettingsEMeter emeter : status.emeters) {
+                                Integer meterIndex = m + 1;
+                                if (emeter.is_valid) {
+                                    String groupName = "";
+                                    if (profile.numMeters > 1) {
+                                        groupName = CHANNEL_GROUP_METER + meterIndex.toString();
+                                    } else {
+                                        groupName = CHANNEL_GROUP_METER;
+                                    }
+                                    if (emeter.is_valid) {
+                                        // convert Watt/Hour tok w/h
+                                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(emeter.power));
+                                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, getDouble(emeter.total) / 1000);
+                                        updateChannel(groupName, CHANNEL_EMETER_TOTALRET, getDouble(emeter.total_returned) / 1000);
+                                        updateChannel(groupName, CHANNEL_EMETER_REACTWATTS, getDouble(emeter.reactive));
+                                        updateChannel(groupName, CHANNEL_EMETER_VOLTAGE, getDouble(emeter.voltage));
+                                    }
+                                    m++;
                                 }
-                                if (meter.counters != null) {
-                                    updateChannel(groupName, CHANNEL_METER_LASTMIN1, getDouble(meter.counters[0]));
-                                    updateChannel(groupName, CHANNEL_METER_LASTMIN2, getDouble(meter.counters[1]));
-                                    updateChannel(groupName, CHANNEL_METER_LASTMIN3, getDouble(meter.counters[2]));
-                                }
-                                updateChannel(groupName, CHANNEL_METER_TIMESTAMP, ShellyHandlerFactory.convertTimestamp(getLong(meter.timestamp)));
-                                m++;
                             }
                         }
                     } else {
@@ -467,7 +508,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         // convert totalWatts into kw/h
                         totalWatts = totalWatts / (60.0 * 10000.0);
                         updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
-                        updateChannel(groupName, CHANNEL_METER_TOTALWATTS, totalWatts);
+                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, totalWatts);
                         updateChannel(groupName, CHANNEL_METER_TIMESTAMP, ShellyHandlerFactory.convertTimestamp(timestamp));
                     }
                 }
@@ -496,6 +537,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         if ((sdata.lux != null) && getBool(sdata.lux.is_valid)) {
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX, getDouble(sdata.lux.value));
                         }
+                        if (sdata.flood != null) {
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_FLOOD, getDouble(sdata.flood));
+                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_RAIN_MODE, getDouble(sdata.rain_sensor));
+                        }
                         if (sdata.bat != null) {
                             logger.trace("{}: Updating battery", thingName);
                             updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
@@ -504,11 +549,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             if (sdata.bat.value != null) {  // no update for Sense
                                 updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
                             }
-
                         }
                         if (profile.isSense) {
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_CHARGER, getBool(sdata.charger));
+                        }
+                        if (sdata.act_reasons != null) {
+                            logger.debug("Last activate reasons: {}", sdata.act_reasons.toString());
                         }
                     }
                 }
@@ -530,8 +577,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.debug("{} more updates requested", scheduledUpdates);
                 }
                 if (!channelCache && (scheduledUpdates == 0)) {
-                    // logger.debug("Enabling channel cache for device {}", thingName);
-                    // channelCache = true;
+                    logger.debug("Enabling channel cache for device {}", thingName);
+                    channelCache = true;
                 }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
@@ -546,7 +593,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             } else {
                 logger.debug("Unable to update status for thing {}: {} ({})", getThing().getLabel(), e.getMessage(), e.getClass());
             }
-            if (profile != null && !profile.isSensor) {
+            if (e.getMessage().contains(HTTP_401_UNAUTHORIZED) || (profile != null && !profile.isSensor)) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             }
         } catch (RuntimeException e) {
@@ -610,6 +657,16 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             triggerChannel(channel, payload);
 
             requestUpdates(scheduledUpdates > 0 ? 0 : 1, true);    // request update on next interval
+        }
+    }
+
+    protected void startUpdateJob() {
+        if ((statusJob == null || statusJob.isCancelled())) {
+            statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
+                    UPDATE_STATUS_INTERVAL, TimeUnit.SECONDS);
+            Validate.notNull(statusJob, "statusJob must not be null");
+            logger.debug("Update status job started, interval={}*{}={}sec.", skipCount, UPDATE_STATUS_INTERVAL,
+                    skipCount * UPDATE_STATUS_INTERVAL);
         }
     }
 
@@ -696,29 +753,55 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     protected void updateProperties(ShellyDeviceProfile profile, ShellySettingsStatus status) {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put(PROPERTY_MODE, profile.mode);
-        properties.put(PROPERTY_TIME, status.time);
-        properties.put(PROPERTY_UPTIME, status.uptime.toString() + "sec");
+        Map<String, Object> properties = fillDeviceProperties(profile);
+
+        // add status properties
+        Validate.notNull(status, "updateProperties(): status must not be null!");
+        properties.put(PROPERTY_TIME, getString(status.time));
+        properties.put(PROPERTY_UPTIME, status.uptime != null ? status.uptime.toString() + "sec" : "n/a");
         if (status.wifi_sta != null) {
             properties.put(PROPERTY_WIFI_NETW, getString(status.wifi_sta.ssid));
             properties.put(PROPERTY_WIFI_RSSI, getInteger(status.wifi_sta.rssi).toString());
             properties.put(PROPERTY_WIFI_IP, getString(status.wifi_sta.ip));
         }
-        properties.put(PROPERTY_UPDATE_STATUS, status.update.status);
-        properties.put(PROPERTY_UPDATE_AVAILABLE, status.update.has_update ? "yes" : "no");
-        properties.put(PROPERTY_UPDATE_CURR_VERS, status.update.old_version);
-        properties.put(PROPERTY_UPDATE_NEWV_ERS, status.update.new_version);
-        if (profile.settings.max_power != null) {
-            properties.put(PROPERTY_MAX_POWER, getDouble(profile.settings.max_power).toString());
+        if (status.update != null) {
+            properties.put(PROPERTY_UPDATE_STATUS, getString(status.update.status));
+            properties.put(PROPERTY_UPDATE_AVAILABLE, getBool(status.update.has_update) ? "yes" : "no");
+            properties.put(PROPERTY_UPDATE_CURR_VERS, getString(status.update.old_version));
+            properties.put(PROPERTY_UPDATE_NEW_VERS, getString(status.update.new_version));
         }
-        /*
-         * if (profile.settings.dcpower != null) { Double maxPower = getDouble(profile.settings.dcpower); properties.put("dcPower",
-         * maxPower.toString()); }
-         */
 
-        updateProperties(properties);
+        Map<String, String> thingProperties = new HashMap<String, String>();
+        for (Map.Entry<String, Object> property : properties.entrySet()) {
+            thingProperties.put(property.getKey(), (String) property.getValue());
+        }
+        updateProperties(thingProperties);
         logger.trace("{}: Properties updated", thingName);
+    }
+
+    public static Map<String, Object> fillDeviceProperties(ShellyDeviceProfile profile) {
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PROPERTY_VENDOR, VENDOR);
+
+        if (profile != null) {
+            properties.put(PROPERTY_HOSTNAME, profile.hostname);
+            properties.put(PROPERTY_MAC_ADDRESS, profile.mac);
+            properties.put(PROPERTY_FIRMWARE_VERSION, profile.fwVersion + "/" + profile.fwDate + "(" + profile.fwId + ")");
+            properties.put(PROPERTY_HWREV, profile.hwRev);
+            properties.put(PROPERTY_HWBATCH, profile.hwBatchId);
+            properties.put(PROPERTY_DEV_MODE, profile.mode);
+            properties.put(PROPERTY_NUM_RELAYS, profile.numRelays.toString());
+            properties.put(PROPERTY_NUM_ROLLERS, profile.numRollers.toString());
+            properties.put(PROPERTY_NUM_METER, profile.numMeters.toString());
+            if (profile.settings.light_sensor != null) {
+                properties.put(PROPERTY_LIGHT_SENSOR, profile.settings.light_sensor);
+
+            }
+            if (profile.settings.max_power != null) {
+                properties.put(PROPERTY_MAX_POWER, getDouble(profile.settings.max_power).toString());
+            }
+        }
+        return properties;
     }
 
     protected static String mkChannelName(String group, String channel) {
@@ -749,7 +832,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (statusJob != null) {
                 statusJob.cancel(true);
                 statusJob = null;
-                logger.debug("Shelly statusJob topped");
+                logger.debug("Shelly statusJob stopped");
             }
         } catch (Exception e) {
             logger.debug("Exception on dispose(): {} ({})", e.getMessage(), e.getClass());

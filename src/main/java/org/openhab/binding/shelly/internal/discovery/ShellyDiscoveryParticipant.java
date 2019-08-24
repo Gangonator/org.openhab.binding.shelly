@@ -7,9 +7,10 @@
 
 package org.openhab.binding.shelly.internal.discovery;
 
-import static org.eclipse.smarthome.core.thing.Thing.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_MODEL_ID;
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
+import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.HTTP_401_UNAUTHORIZED;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
 import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
+import org.openhab.binding.shelly.internal.handler.ShellyHandler;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -89,15 +91,24 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return null;
         }
 
-        String name = service.getName().toLowerCase();
-        String address = StringUtils.substringBetween(service.toString(), "/", ":80");
-        if (address == null) {
-            logger.warn("Discovered Shelly device {} doesn't have an IP address, service-info={}", name, service);
-            return null;
-        }
+        String address = "";
+        String name = "";
+        String mode = "";
+        String model = "unknown";
+        String thingType = "";
+        ThingUID thingUID = null;
+        ShellyDeviceProfile profile = null;
+        Map<String, Object> properties = new HashMap<String, Object>();
 
-        logger.info("Shelly device discovered: IP-Adress={}, name={}", address, name);
         try {
+            name = service.getName().toLowerCase();
+            address = StringUtils.substringBetween(service.toString(), "/", ":80");
+            if (address == null) {
+                logger.warn("Discovered Shelly device {} doesn't have an IP address, service-info={}", name, service);
+                return null;
+            }
+            logger.info("Shelly device discovered: IP-Adress={}, name={}", address, name);
+
             ShellyThingConfiguration config = new ShellyThingConfiguration();
             if (handlerFactory != null) {
                 bindingConfig = handlerFactory.getBindingConfig();
@@ -108,53 +119,48 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
             // Get device settings
             ShellyHttpApi api = new ShellyHttpApi(config);
-            String thingType = StringUtils.substringBeforeLast(name, "-");
-            Map<String, Object> properties = new HashMap<>(5);
-            properties.put(PROPERTY_VENDOR, "Shelly");
-            properties.put(CONFIG_DEVICEIP, address);
-            addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
+            thingType = StringUtils.substringBeforeLast(name, "-");
 
-            ShellyDeviceProfile profile = null;
             try {
                 profile = api.getDeviceProfile(thingType);
+                logger.debug("Shelly settings : {}", profile.settingsJson);
+                Validate.notNull(profile, "Unable to get device profile: ");
+                model = profile.settings.device.type;
+                mode = profile.mode;
+
+                properties = ShellyHandler.fillDeviceProperties(profile);
+                logger.trace("name={}, thingType={}, deviceType={}, mode={}", name, thingType, profile.deviceType,
+                        mode.isEmpty() ? "<standard>" : mode);
             } catch (IOException e) {
-                if (e.getMessage().contains("401 Unauthorized")) {
+                if (e.getMessage().contains(HTTP_401_UNAUTHORIZED)) {
                     logger.warn("Device {} ({}) reported 'Access defined' (userid/password mismatch).", name, address);
                     logger.info("You could set a default userid and passowrd in the binding config and re-discover devices");
                     logger.info("or you need to disable device protection (userid/password) in the Shelly App for device discovery.");
                     logger.info("Once the device is discoverd you could set the userid/password and re-enable device protection in the Shelly App.");
+                    name = (name + "-" + address).replace('.', '-');
+                    thingUID = new ThingUID(THING_TYPE_SHELLYPROTECTED, name);
                 } else {
                     logger.warn("Device discovery failed for device {}, IP {}: {} ({})", name, address, e.getMessage(), e.getClass());
                 }
             }
-            Validate.notNull(profile, "Unable to get device profile: ");
 
-            logger.debug("Shelly settings : {}", profile.settingsJson);
-            logger.trace("name={}, thingType={}, mode={}", name, profile.thingType, profile.mode.isEmpty() ? "n/a" : profile.mode);
-            properties.put(PROPERTY_MODEL_ID, profile.thingType);
-            properties.put(PROPERTY_MAC_ADDRESS, profile.mac);
-            properties.put(PROPERTY_FIRMWARE_VERSION, profile.fwVersion + "/" + profile.fwDate + "(" + profile.fwId + ")");
-            addProperty(properties, PROPERTY_HWREV, profile.hwRev);
-            addProperty(properties, PROPERTY_HWBATCH, profile.hwBatchId);
-            addProperty(properties, PROPERTY_MODE, profile.mode);
-            addProperty(properties, PROPERTY_HOSTNAME, profile.hostname);
-            addProperty(properties, PROPERTY_NUM_RELAYS, profile.numRelays.toString());
-            addProperty(properties, PROPERTY_NUM_ROLLERS, profile.numRollers.toString());
-            addProperty(properties, PROPERTY_NUM_METER, profile.numMeters.toString());
-            if (profile.settings.light_sensor != null) {
-                addProperty(properties, PROPERTY_LIGHT_SENSOR, profile.settings.light_sensor);
-
+            if (thingUID == null) {
+                // get thing type from device name
+                thingUID = this.getThingUID(name, mode);
             }
+            Validate.notNull(thingUID, "Discovery: thingUID must not be null!");
 
-            ThingUID thingUID = this.getThingUID(name, profile.mode);
+            addProperty(properties, PROPERTY_MODEL_ID, model);
+            addProperty(properties, PROPERTY_THINGTYPE, thingType);
+            addProperty(properties, CONFIG_DEVICEIP, address);
+            addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
+
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
-            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(service.getName())
-                    .withRepresentationProperty(name).build();
+            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(name).withRepresentationProperty(name).build();
         } catch (RuntimeException e) {
-            logger.warn("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, service.getName(), e.getMessage(),
+            logger.warn("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, name, e.getMessage(),
                     e.getClass());
         }
-
         return null;
     }
 
@@ -175,6 +181,9 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
         if (name.startsWith("shelly1pm")) {
             return new ThingUID(THING_TYPE_SHELLY1PM, devid);
+        }
+        if (name.startsWith("shellyem")) {
+            return new ThingUID(THING_TYPE_SHELLY1EM, devid);
         }
         if (name.startsWith("shelly1")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);
@@ -215,6 +224,9 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         }
         if (name.startsWith("shellysmoke")) {
             return new ThingUID(THING_TYPE_SHELLYSMOKE, devid);
+        }
+        if (name.startsWith("shellyflood")) {
+            return new ThingUID(THING_TYPE_SHELLYFLOOD, devid);
         }
         if (name.startsWith("shellyrgbw2")) {
             if (mode.equals(SHELLY_MODE_COLOR)) {

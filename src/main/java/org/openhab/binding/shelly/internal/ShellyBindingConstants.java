@@ -23,11 +23,12 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class ShellyBindingConstants {
 
-    private static final String           BINDING_ID                   = "shelly";
+    public static final String            VENDOR                       = "Shelly";
+    public static final String            BINDING_ID                   = "shelly";
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID      THING_TYPE_SHELLY1           = new ThingTypeUID(BINDING_ID, "shelly1");
-    public static final ThingTypeUID      THING_TYPE_SHELLY1PM         = new ThingTypeUID(BINDING_ID, "shelly1pm");
+    public static final ThingTypeUID      THING_TYPE_SHELLY1PM         = new ThingTypeUID(BINDING_ID, "shellypm");
     public static final ThingTypeUID      THING_TYPE_SHELLY1EM         = new ThingTypeUID(BINDING_ID, "shelly1em");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY     = new ThingTypeUID(BINDING_ID, "shelly2-relay");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER    = new ThingTypeUID(BINDING_ID, "shelly2-roller");
@@ -44,6 +45,7 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYEYE         = new ThingTypeUID(BINDING_ID, "shellyseye");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_COLOR = new ThingTypeUID(BINDING_ID, "shellyrgbw2-color");
     public static final ThingTypeUID      THING_TYPE_SHELLYRGBW2_WHITE = new ThingTypeUID(BINDING_ID, "shellyrgbw2-white");
+    public static final ThingTypeUID      THING_TYPE_SHELLYPROTECTED   = new ThingTypeUID(BINDING_ID, "shelly-protected");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS   = Collections
             .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM, THING_TYPE_SHELLY1EM,
@@ -66,10 +68,11 @@ public class ShellyBindingConstants {
     public static final String            CONFIG_UPDATE_INTERVAL       = "updateInterval";
 
     public static final String            PROPERTY_SERVICE_NAME        = "serviceName";
-    public static final String            PROPERTY_HWREV               = "hwardwareRev";
-    public static final String            PROPERTY_HWBATCH             = "hardwareBatch";
-    public static final String            PROPERTY_MODE                = "deviceMode";
+    public static final String            PROPERTY_THINGTYPE           = "thingType";
     public static final String            PROPERTY_HOSTNAME            = "hostname";
+    public static final String            PROPERTY_HWBATCH             = "hardwareBatch";
+    public static final String            PROPERTY_DEV_MODE            = "deviceMode";
+    public static final String            PROPERTY_HWREV               = "devHwRev";
     public static final String            PROPERTY_NUM_RELAYS          = "numberRelays";
     public static final String            PROPERTY_NUM_ROLLERS         = "numberRollers";
     public static final String            PROPERTY_NUM_METER           = "numberMeters";
@@ -81,9 +84,9 @@ public class ShellyBindingConstants {
     public static final String            PROPERTY_UPDATE_STATUS       = "updateStatus";
     public static final String            PROPERTY_UPDATE_AVAILABLE    = "updateAvailable";
     public static final String            PROPERTY_UPDATE_CURR_VERS    = "updateCurrentVersion";
-    public static final String            PROPERTY_UPDATE_NEWV_ERS     = "updateNewVersion";
+    public static final String            PROPERTY_UPDATE_NEW_VERS     = "updateNewVersion";
     public static final String            PROPERTY_MAX_POWER           = "maxPower";
-    public static final String            PROPERTY_LIGHT_SENSOR        = "lightSensor";
+    public static final String            PROPERTY_LIGHT_SENSOR        = "sensorLight";
 
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL  = "relay";
@@ -111,7 +114,10 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_METER_LASTMIN1       = "lastPower1";
     public static final String            CHANNEL_METER_LASTMIN2       = "lastPower2";
     public static final String            CHANNEL_METER_LASTMIN3       = "lastPower3";
-    public static final String            CHANNEL_METER_TOTALWATTS     = "totalWatts";
+    public static final String            CHANNEL_METER_TOTALKWH       = "totalKWH";
+    public static final String            CHANNEL_EMETER_TOTALRET      = "returnedKWH";
+    public static final String            CHANNEL_EMETER_REACTWATTS    = "reactWatts";
+    public static final String            CHANNEL_EMETER_VOLTAGE       = "voltage";
     public static final String            CHANNEL_METER_TIMESTAMP      = "timestamp";
 
     public static final String            CHANNEL_GROUP_LED_CONTROL    = "led";
@@ -123,6 +129,8 @@ public class ShellyBindingConstants {
     public static final String            CHANNEL_SENSOR_TUNIT         = "tempUnit";
     public static final String            CHANNEL_SENSOR_HUM           = "humidity";
     public static final String            CHANNEL_SENSOR_LUX           = "lux";
+    public static final String            CHANNEL_SENSOR_FLOOD         = "flood";
+    public static final String            CHANNEL_RAIN_MODE            = "rainMode";
     public static final String            CHANNEL_SENSOR_MOTION        = "motion";
     public static final String            CHANNEL_SENSOR_CHARGER       = "charger";
 
