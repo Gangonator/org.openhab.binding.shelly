@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * The {@link ShellyHandlerLight} handles light (bulb+rgbw2) specific commands and status. All other commands will be routet of the generic thing
  * handler.
  *
- * @author Markus Michels - Completely refactored
+ * @author Markus Michels - Initial contribution
  */
 
 public class ShellyHandlerLight extends ShellyHandler {

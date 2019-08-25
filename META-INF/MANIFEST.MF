@@ -13,7 +13,6 @@ Import-Package:
  javax.jmdns,
  javax.servlet,
  javax.servlet.http,
- javax.ws.rs;version="2.0.1",
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,

@@ -76,8 +76,9 @@ public class ShellyBindingConstants {
     public static final String            PROPERTY_NUM_RELAYS          = "numberRelays";
     public static final String            PROPERTY_NUM_ROLLERS         = "numberRollers";
     public static final String            PROPERTY_NUM_METER           = "numberMeters";
-    public static final String            PROPERTY_TIME                = "time";
-    public static final String            PROPERTY_UPTIME              = "uptime";
+    public static final String            PROPERTY_TIME                = "deviceTime";
+    public static final String            PROPERTY_UPTIME              = "deviceUptime";
+    public static final String            PROPERTY_LAST_ACTIVE         = "lastActive";
     public static final String            PROPERTY_WIFI_NETW           = "wifiNetwork";
     public static final String            PROPERTY_WIFI_RSSI           = "wifiRSSI";
     public static final String            PROPERTY_WIFI_IP             = "networkIP";

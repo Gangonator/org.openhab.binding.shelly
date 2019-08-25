@@ -151,7 +151,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             Validate.notNull(thingUID, "Discovery: thingUID must not be null!");
 
             addProperty(properties, PROPERTY_MODEL_ID, model);
-            addProperty(properties, PROPERTY_THINGTYPE, thingType);
+            addProperty(properties, PROPERTY_THINGTYPE, thingUID.getId());
             addProperty(properties, CONFIG_DEVICEIP, address);
             addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
 

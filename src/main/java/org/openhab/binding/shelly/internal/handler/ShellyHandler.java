@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * va get * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
  * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -149,9 +149,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
         super.handleConfigurationUpdate(configurationParameters);
         logger.info("Thing config for device {} updated.", thingName);
-        refreshSettings = true;  // force re-initialization
         initializeThingConfig();
         startUpdateJob();
+        refreshSettings = true;  // force re-initialization
     }
 
     private void initializeThing() throws IOException {
@@ -160,13 +160,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         refreshSettings = false;
         lockUpdates = false;
 
-        logger.info("Start initializing thing {}, ip address {}", getThing().getLabel(), config.deviceIp);
-        api = new ShellyHttpApi(config);
-        ShellyDeviceProfile tmpPrf = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         Map<String, String> properties = getThing().getProperties();
         Validate.notNull(properties, "properties must not be null!");
-        thingName = (properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME) : tmpPrf.hostname).toLowerCase();
-        Validate.notNull(thingName, "thingName must not be null!");
+        thingName = properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME).toLowerCase() : "";
+        logger.info("Start initializing thing {}, ip address {}", thingName, config.deviceIp);
+
+        api = new ShellyHttpApi(config);
+        ShellyDeviceProfile tmpPrf = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+        thingName = (!thingName.isEmpty() ? thingName : tmpPrf.hostname).toLowerCase();
+        Validate.isTrue(!thingName.isEmpty(), "initializeThing(): thingName must not be empty!");
 
         logger.info("Initializing device {}, type {}, Hardware: Rev: {}, batch {}; Firmware: {} / {} ({})",
                 tmpPrf.hostname, tmpPrf.deviceType, tmpPrf.hwRev, tmpPrf.hwBatchId, tmpPrf.fwVersion, tmpPrf.fwDate, tmpPrf.fwId);
@@ -191,21 +193,30 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.info("INFO: New firmware available for this device: current version: {}, new version: {}", status.update.old_version,
                     status.update.new_version);
         }
-
-        String reqMode = StringUtils.substringAfter(thingName, "-");
-        if (thingName.contains("-") && !tmpPrf.mode.equals(reqMode)) {
-            logger.info("Thing is not in {} mode, going offline. May run discovery to find the thing for the requested mode.", reqMode);
-        }
-
-        api.setEventURLs(thingName);
-
         if (tmpPrf.isSense) {
             logger.info("Sense stored key list loaded, {} entries.", tmpPrf.irCodes.size());
         }
 
+        refreshCount = !tmpPrf.hasBattery ? refreshCount = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL : skipCount;
+
+        // register event urls
+        api.setEventURLs(thingName);
+
         profile = tmpPrf; // all initialization done, so keep the profile
-        requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
-        logger.info("Thing {} successfully initialized.", thingName);
+
+        // Validate device mode
+        String thingType = getThing().getThingTypeUID().getId();
+        String reqMode = thingType.contains("-") ? StringUtils.substringAfter(thingType, "-") : "";
+        if (!reqMode.isEmpty() && !tmpPrf.mode.equals(reqMode)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "Thing is in mode " + profile.mode + ", required is " + reqMode
+                            + " - going offline. Re-run discovery to find the thing for the requested mode.");
+        } else {
+
+            requestUpdates(3, false); // request 3 updates in a row (during the furst 2+3*3 sec)
+            logger.info("Thing {} successfully initialized.", thingName);
+            updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
+        }
     }
 
     @SuppressWarnings("null")
@@ -571,15 +582,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     logger.info("Thing {}({}) is now online", getThing().getLabel(), thingName);
                     updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
                 }
-
-                if (scheduledUpdates > 0) {
-                    --scheduledUpdates;
-                    logger.debug("{} more updates requested", scheduledUpdates);
-                }
-                if (!channelCache && (scheduledUpdates == 0)) {
-                    logger.debug("Enabling channel cache for device {}", thingName);
-                    channelCache = true;
-                }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount, skipCount);
             }
@@ -589,7 +591,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             // http call failed: go offline except for battery devices, which might be in sleep mode
             // once the next update is successful the device goes back online
             if (e.getMessage().contains("Timeout")) {
-                logger.info("Thing {} not reachable, update canceled!", getThing().getLabel());
+                logger.info("Thing {} not reachable, update canceled ({} skips, {} scheduledUpdates)!", thingName, skipCount, scheduledUpdates);
             } else {
                 logger.debug("Unable to update status for thing {}: {} ({})", getThing().getLabel(), e.getMessage(), e.getClass());
             }
@@ -598,6 +600,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             }
         } catch (RuntimeException e) {
             logger.debug("Unable to update status for thing {}: {} ({})", getThing().getLabel(), e.getMessage(), e.getClass());
+        } finally {
+            if (scheduledUpdates > 0) {
+                --scheduledUpdates;
+                logger.debug("{} more updates requested", scheduledUpdates);
+            }
+            if (!channelCache && (scheduledUpdates == 0)) {
+                logger.debug("Enabling channel cache for device {}", thingName);
+                channelCache = true;
+            }
         }
 
     }
@@ -620,7 +631,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      */
     @Override
     public void onEvent(String deviceName, String deviceIndex, String type, Map<String, String[]> parameters, String data) {
-        if (thingName.equals(deviceName)) {
+        if (thingName.equalsIgnoreCase(deviceName)) {
             logger.debug("Event received for device {}: class={}, index={}, parameters={}", deviceName, type, deviceIndex,
                     parameters.toString());
             if (profile == null) {
@@ -656,7 +667,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.debug("Trigger {} event, channel {}, payload={}", type, channel, payload);
             triggerChannel(channel, payload);
 
-            requestUpdates(scheduledUpdates > 0 ? 0 : 1, true);    // request update on next interval
+            requestUpdates(scheduledUpdates < 3 ? 1 : 0, true);    // request update on next interval
         }
     }
 
@@ -809,14 +820,15 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
-        refreshSettings |= forceRefresh;
-
-        if (refreshSettings) {
-            logger.trace("Refresh settings for device {}", thingName);
-            profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+        try {
+            refreshSettings |= forceRefresh;
+            if (refreshSettings) {
+                logger.debug("Refresh settings for device {}", thingName);
+                profile = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
+            }
+        } finally {
             refreshSettings = false;
         }
-
         return profile;
 
     }

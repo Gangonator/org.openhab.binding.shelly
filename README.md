@@ -15,12 +15,15 @@ Latest **stable** release (master):     https://github.com/markus7017/org.openha
 Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
 
 ### 2.4.2-SNAPSHOT release notes (beta)
+
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
 + Create special device (shelly-protected) when device is password protected
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
+* fixed update scheduling on exceptions (e.g. HT not reachable)
 
 ### 2.4.1 release notes (stable)
+
 + Roller: Shutter control channel is now "control", channel "turn"  are removed (use control instead) as well as and "calibration"
 + Roller new channel "rollerpos" has the position based on 100=open, 0=closed (vs. "control" with 0=open and 100=closed, e.g. for a vertical slider in HABpanel)
 + new thing config options to enable/disable setting of relay event urls
@@ -36,6 +39,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 Please delete and re-discover all things!
 
 ### beta 1-pre2 release notes
+
 + full support of RGBW2 (color + white mode,  verified) - thanks @Igi
 + full support for Bulb (verified) - thanks @MHerbst
 + full support for Sense (verified) - thanks @MHerbst
@@ -55,6 +59,7 @@ Please delete and re-discover all things!
 ---
 
 Before installing this as an update:
+
 - delete all Shelly things in PaperUI: Inbox and Configuration.Things
 - stop OH
 - make sure the JSON DB files have no left-overs on Shelly definitions, delete the entries
@@ -62,6 +67,7 @@ Before installing this as an update:
 - maybe empty your log
 
 general:
+
 - copy the jar into you OH's Inbox folder.
 - start OH, wait until initialized
 - run the thing discovery from the Inbox
@@ -246,6 +252,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. Refer to Shelly 2 channe
 The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make sense to differ power consumption for the roller moving up vs. moving down. For this the binding aggregates the power consumption of both relays and includes the values in "meter1". See channel description for Shelly 2 in roller mode.
 
 ### Shelly4 Pro
+
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
 |relay1    |             |         |         |See group relay1 for Shelly 2                                                    |
@@ -277,6 +284,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |          |powerLed     |Switch   |r/w      |ON: Power LED is disabled, OFF: LED enabled                                      |
 
 ### Shelly HT (thing-type: shellyht)
+
 |Group     |Channel      |Type     |read-only|Desciption                                                             |
 |----------|-------------|---------|---------|-----------------------------------------------------------------------|
 |sensors   |temperature  |Number   |yes      |Temperature, unit is reported by tempUnit                              |
@@ -288,6 +296,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 
 
 ### Shelly Bulb (thing-type: shellybulb)
+
 |Group     |Channel      |Type     |read-only|Desciption                                                             |
 |----------|-------------|---------|---------|-----------------------------------------------------------------------|
 |control   |power        |Switch   |r/w      |Switch light ON/OFF                                                    |
@@ -315,6 +324,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 
 
 ### Shelly RGBW2 in Color Mode
+
 |Group     |Channel      |Type     |read-only|Desciption                                                             |
 |----------|-------------|---------|---------|-----------------------------------------------------------------------|
 |control   |power        |Switch   |r/w      |Switch light ON/OFF                                                    |
@@ -334,6 +344,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                     |
 
 ### Shelly RGBW2 in White Mode
+
 |control   |autoOn       |Number   |r/w      |Sets a  timer to turn the device ON after every OFF command; in seconds|
 |          |autoOff      |Number   |r/w      |Sets a  timer to turn the device OFF after every ON command; in seconds|
 |          |timerActive  |Switch   |yes      |ON: An auto-on/off timer is active                                     |
@@ -355,6 +366,7 @@ The current firmware doesn't support the timestamp report for the meters. In thi
 
 
 ### Shelly Sense
+
 |Group     |Channel      |Type     |read-only|Desciption                                                             |
 |----------|-------------|---------|---------|-----------------------------------------------------------------------|
 |control   |key          |String   |r/w      |Send a IR key to the sense. There a 3 different types supported        |
