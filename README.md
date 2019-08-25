@@ -4,7 +4,7 @@
 This openHAB 2 Binding implements control for the Shelly series of devices. This includes sending commands to the devices as well as reding the device status and sensor data.
 
 Author: Markus Michels (markus7017)
-Check  https://community.openhab.org/t/shelly-binding/56862/65 for more information, questions and contributing ideas. Any comment is welcome!
+Check  https://community.openhab.org/t/shelly-binding/56862/213 for more information, questions and contributing ideas. Any comment is welcome!
 
 ---
 
@@ -19,6 +19,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
 + Create special device (shelly-protected) when device is password protected
+
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
 * fixed update scheduling on exceptions (e.g. HT not reachable)
 
@@ -31,6 +32,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 + support for basic auth added (handled userid/password protected device)
 + config options on the binding and the thing level for basic http auth
 + ignore UP/DOWN command while roller is moving
+
 * fix: process roller command STOP again
 * fix: don't turn light back on after set color with OnOffType.OFF
 * fix: recover HT when not available on initial thing initialization
@@ -51,38 +53,38 @@ Please delete and re-discover all things!
 + channel calibrating gets filled, roller positioning will be blocked when calibration is active
 + compute total power consumption in kw/h
 + decimal numbers in the channel defintion for Watts etc.
+
 * adapt roller psotion: In OH it's 0..100 for Shelly 100..0 
 * fixed power meters for all devices
 * fixed refresh handling in several situations
 * fixed flipping switches (turn on in Paper UI, immediately flips back)
 
----
+## Installation
 
-Before installing this as an update:
+### Before installing a new build
 
-- delete all Shelly things in PaperUI: Inbox and Configuration.Things
+- delete all Shelly things in PaperUI:Configuration:Things and PaperUI:Inbox
 - stop OH
 - make sure the JSON DB files have no left-overs on Shelly definitions, delete the entries
 - run "openhab-cli clean-cache"
 - maybe empty your log
 
-general:
+### General installation
 
 - copy the jar into you OH's Inbox folder.
 - start OH, wait until initialized
 - run the thing discovery from the Inbox
 
-Check the README, it's not yet complete, but already describes most of the channels.
-As always: feedback welcome
 
 ---
 
-Contibutors:
+## Hall of Frame - Contibutors
+
 @Igi:     lot of testing around RGBW2 and in general!
 @mherbst: supported Bulb and Sense testing
-@hmerck:  some initial work
+@hmerck:  concept, testing, supporting on coap implementation
 
-Thanks guys supporting the community.
+Thanks guys for supporting the community.
 
 ---
 
@@ -137,6 +139,7 @@ For now the binding doesn't support the http authentication. This is on the list
 The binding is work in progress. You have to expect bugs etc. and each version might be incompatible to the existing thing defintion, which means no backware compatibility.
 
 Channel definitions are subject to change with any alpha or beta release. Please make sure to **delete all Shelly things before updating*** the binding and clean out the JSON DB:
+
 - delete all Shelly things from PaperUI's Inbox and Thing list
 - stop OH
 - run openhab-cli clean-cache
@@ -157,12 +160,15 @@ As described above the binding will be installed by copying the jar into the add
 The binding uses mDNS to discovery the Shelly devices. They periodically announce their presence, which can be used by the binding to find them on the local network and fetch their IP address. The binding will then use the Shelly http api to discover device capabilities, read status and control the device. In addition event callbacks will be used to support battery powered devices.
 
 If you are using password protected Shelly devices you need to configure userid and password. You could configure these settings in two ways
+
 1. Global Default: Go to PaperUI:Configuration:Addons:Shelly Binding and edit the configuration. Those will be used when now settings are given on the thing level.
 2. Edit the thing configuration. 
 
 Important: The IP address shouldn't change after the device is added as a new thing in openHAB. This could be achieved by
+
 - assigning a static IP address or
 - use DHCP and setup the router to assign always the same ip address to the device
+
 You need to re-discover the device if there is a reason why the ip address changed.
 
 New devices could be discovered an added to the openHAB system by using Paper UI's Inbox. Running a manual discovery should show up all devices on your local network. 
@@ -265,6 +271,7 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter4    |             |         |         |See group meter1 for Shelly 2                                                    |
 
 ### Shelly Plug-S (thing-type: shellyplug-s)
+
 |Group     |Channel      |Type     |read-only|Desciption                                                                       |
 |----------|-------------|---------|---------|---------------------------------------------------------------------------------|
 |relay     |output       |Switch   |r/w      |Relay #1: Controls the relay's output channel (on/off)                           |
@@ -389,6 +396,7 @@ The current firmware doesn't support the timestamp report for the meters. In thi
 ### Other devices
 
 The thing definiton fo the following devices is primarily. If you have one of those devices send a PM to marks7017 and we could work on the implementation/testing.
+
 - thing-type: shellysmoke
 - thing-type: shellysense
 - thing-type: shellyplug

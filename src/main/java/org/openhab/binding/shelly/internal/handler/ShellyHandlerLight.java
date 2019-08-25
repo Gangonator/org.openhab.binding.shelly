@@ -1,10 +1,15 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which
- * accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
@@ -44,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ShellyHandlerLight extends ShellyHandler {
-    private final Logger           logger        = LoggerFactory.getLogger(ShellyHandler.class);
+    private final Logger           logger        = LoggerFactory.getLogger(ShellyHandlerLight.class);
     private ShellyHttpApi          api;
 
     Map<Integer, ShellyColorUtils> channelColors = new HashMap<Integer, ShellyColorUtils>();
@@ -356,7 +361,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             logger.debug("Value for {} is a number: {}", colorName, value);
         } else if (command instanceof OnOffType) {
             value = ((OnOffType) command).equals(OnOffType.ON) ? SHELLY_MAX_COLOR : SHELLY_MIN_COLOR;
-            logger.debug("Value for {} of type OnOff was converted to", colorName, value);
+            logger.debug("Value for {} of type OnOff was converted to {}", colorName, value);
         } else {
             throw new IllegalArgumentException("Invalid value type for " + colorName + ": " + value.toString() + " / type " + value.getClass());
         }
@@ -390,7 +395,8 @@ public class ShellyHandlerLight extends ShellyHandler {
         logger.info("New color settings for channel {}: RGB {}/{}/{}, white={}, gain={}, brightness={}, color-temp={}",
                 channelId, newCol.red, newCol.green, newCol.blue, newCol.white, newCol.gain, newCol.brightness, newCol.temp);
         if (profile.inColor) {
-            if ((oldCol.red != newCol.red) || (oldCol.green != newCol.green) || (oldCol.blue != newCol.blue) || (oldCol.white != newCol.white)) {
+            if (!oldCol.red.equals(newCol.red) || !oldCol.green.equals(newCol.green) || !oldCol.blue.equals(newCol.blue)
+                    || !oldCol.white.equals(newCol.white)) {
                 logger.info("Setting RGBW to {}/{}/{}/{}", newCol.red, newCol.green, newCol.blue, newCol.white);
                 parms.put(SHELLY_LIGHT_TURN, newCol.brightness > 0 ? SHELLY_API_ON : SHELLY_API_OFF);
                 parms.put(SHELLY_COLOR_RED, newCol.red.toString());
@@ -399,7 +405,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 parms.put(SHELLY_COLOR_WHITE, newCol.white.toString());
             }
         }
-        if ((!profile.inColor) && oldCol.temp != newCol.temp) {
+        if ((!profile.inColor) && !oldCol.temp.equals(newCol.temp)) {
             logger.info("Setting color temp to {}", newCol.temp);
             parms.put(SHELLY_COLOR_TEMP, newCol.temp.toString());
         }
