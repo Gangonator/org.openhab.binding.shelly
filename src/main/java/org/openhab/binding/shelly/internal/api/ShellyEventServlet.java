@@ -128,18 +128,9 @@ public class ShellyEventServlet extends HttpServlet {
             logger.info("ERROR: Exception processing callback: {} ({}), path={}, data='{}'; deviceName={}, index={}, type={}, parameters={}",
                     e.getMessage(), e.getClass(), path, data, deviceName, index, type, request.getParameterMap().toString());
         } finally {
-            setHeaders(resp);
+            resp.setCharacterEncoding(CHARSET_UTF8);
             resp.getWriter().write("");
         }
-    }
-
-    private void setHeaders(HttpServletResponse response) {
-        response.setCharacterEncoding(CHARSET_UTF8);
-        // response.setHeader("Access-Control-Allow-Origin", "*");
-        // response.setHeader("Access-Control-Allow-Methods", "POST");
-        // response.setHeader("Access-Control-Max-Age", "3600");
-        // response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With,
-        // Content-Type, Accept");
     }
 
     @SuppressWarnings("resource")
@@ -152,22 +143,22 @@ public class ShellyEventServlet extends HttpServlet {
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
         this.handlerFactory = handlerFactory;
-        logger.debug("HandlerFactory bound");
+        logger.debug("Shelly Binding: HandlerFactory bound");
     }
 
     public void unsetShellyHandlerFactory(ShellyHandlerFactory handlerFactory) {
         this.handlerFactory = null;
-        logger.debug("HandlerFactory unbound");
+        logger.debug("Shelly Binding: HandlerFactory unbound");
     }
 
     @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
-        logger.debug("httpService bound");
+        logger.debug("Shelly Binding: httpService bound");
     }
 
     public void unsetHttpService(HttpService httpService) {
         this.httpService = null;
-        logger.debug("httpService unbound");
+        logger.debug("Shelly Binding: httpService unbound");
     }
 }

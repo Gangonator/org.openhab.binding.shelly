@@ -80,14 +80,22 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
      */
     @Activate
     protected void activate(ComponentContext componentContext) {
-        logger.debug("Discoverxy service activated");
-        bindingConfig.updateFromProperties(componentContext.getProperties());
+        try {
+            logger.debug("Discoverxy service activated");
+            bindingConfig.updateFromProperties(componentContext.getProperties());
+        } catch (RuntimeException e) {
+            logger.warn("Exception on ShellyDiscoveryParticipant(): {} ({})", e.getClass(), e.getMessage());
+        }
     }
 
     @Modified
     protected void modified(ComponentContext componentContext) {
-        logger.info("Binding config refreshed");
-        bindingConfig.updateFromProperties(componentContext.getProperties());
+        try {
+            logger.info("Binding config refreshed");
+            bindingConfig.updateFromProperties(componentContext.getProperties());
+        } catch (RuntimeException e) {
+            logger.warn("Exception on ShellyDiscoveryParticipant.modified(): {} ({})", e.getClass(), e.getMessage());
+        }
     }
 
     @Override

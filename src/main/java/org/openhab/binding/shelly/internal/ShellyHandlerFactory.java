@@ -68,38 +68,71 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
      */
     @Activate
     protected void activate(ComponentContext componentContext, Map<String, Object> configProperties) {
-        super.activate(componentContext);
-        logger.debug("Activate Shelly HandlerFactory");
-        Validate.notNull(configProperties);
-        bindingConfig.updateFromProperties(configProperties);
+        try {
+            super.activate(componentContext);
+
+            try {
+                if (!initialized) {
+                    Bundle bundle = this.getBundleContext().getBundle();
+                    Validate.notNull(bundle, "bundleContext must not be null!");
+                    Dictionary<String, String> d = bundle.getHeaders();
+                    Version v = bundle.getVersion();
+                    Validate.notNull(d, "bundleg.getHeaders() must not be null!");
+                    Validate.notNull(v, "bundleg.getVersion() must not be null!");
+                    String name = d.get("Bundle-Name");
+                    Validate.notNull(name, "bundle name must not be empty!");
+                    String state = "";
+                    switch (bundle.getState()) {
+                        case Bundle.ACTIVE:
+                            state = "ACTIVE";
+                            break;
+                        case Bundle.INSTALLED:
+                            state = "INSTALLED";
+                            break;
+                        case Bundle.RESOLVED:
+                            state = "RESOLVED";
+                            break;
+                        default:
+                            state = new Integer(bundle.getState()).toString();
+                    }
+                    logger.info("{} Version {}.{}.{} (state={}, {}.jar, build {} UTC, location={})", name, v.getMajor(), v.getMinor(), v.getMicro(),
+                            state, bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000), bundle.getLocation());
+                }
+            } catch (RuntimeException e) {
+
+            } finally {
+                initialized = true;
+            }
+
+            logger.debug("Activate Shelly HandlerFactory");
+            Validate.notNull(configProperties);
+            bindingConfig.updateFromProperties(configProperties);
+        } catch (RuntimeException e) {
+            logger.debug("Shelly Binding: Exception in ShellyHandlerFactory.activate(): {} - {}", e.getMessage(), e.getClass());
+        }
     }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        if (!initialized) {
-            Bundle bundle = this.getBundleContext().getBundle();
-            Dictionary<String, String> d = bundle.getHeaders();
-            Version v = bundle.getVersion();
-            logger.info("{} Version {}.{}.{} ({}.jar, {})", d.get("Bundle-Name"), v.getMajor(), v.getMinor(), v.getMicro(),
-                    bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000));
-            initialized = true;
-        }
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
     protected @Nullable ThingHandler createHandler(Thing thing) {
-        ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-
-        if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB.getId()) ||
-                thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR.getId())
-                || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE.getId())) {
-            logger.debug("Create new thing using ShellyHandlerLight");
-            return new ShellyHandlerLight(thing, this, bindingConfig, networkAddressService);
-        }
-        if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
-            logger.debug("Create new thing using ShellyHandlerGeneric");
-            return new ShellyHandler(thing, this, bindingConfig, networkAddressService);
+        try {
+            ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+            if (thingTypeUID.getId().equals(THING_TYPE_SHELLYBULB.getId()) ||
+                    thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_COLOR.getId())
+                    || thingTypeUID.getId().equals(THING_TYPE_SHELLYRGBW2_WHITE.getId())) {
+                logger.debug("Create new thing using ShellyHandlerLight");
+                return new ShellyHandlerLight(thing, this, bindingConfig, networkAddressService);
+            }
+            if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
+                logger.debug("Create new thing using ShellyHandlerGeneric");
+                return new ShellyHandler(thing, this, bindingConfig, networkAddressService);
+            }
+        } catch (RuntimeException e) {
+            logger.debug("Shelly Binding: Exception in ShellyHandlerFactory.createHandler(): {} - {}", e.getMessage(), e.getClass());
         }
 
         return null;
@@ -135,16 +168,19 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
     }
 
     public static String convertTimestamp(Long timestamp) {
-        Object o = timestamp;
-        if (o == null) {
-            return "";
+        try {
+            Object o = timestamp;
+            if (o != null) {
+                Date date = new java.util.Date(timestamp * 1000L);
+                SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
+                String result = sdf.format(date);
+                return !result.contains("1970-01-01") ? result : "n/a";
+            }
+        } catch (RuntimeException e) {
+            // logger.debug("Shelly Binding: Exception in ShellyHandlerFactory.createHandler(): {} - {}", e.getMessage(), e.getClass());
         }
-
-        Date date = new java.util.Date(timestamp * 1000L);
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-        String result = sdf.format(date);
-        return !result.contains("1970-01-01") ? result : "n/a";
+        return "";
     }
 
     public ShellyBindingConfiguration getBindingConfig() {

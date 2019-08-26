@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusLightChannel;
-import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
 import org.slf4j.Logger;
@@ -50,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 public class ShellyHandlerLight extends ShellyHandler {
     private final Logger           logger        = LoggerFactory.getLogger(ShellyHandlerLight.class);
-    private ShellyHttpApi          api;
 
     Map<Integer, ShellyColorUtils> channelColors = new HashMap<Integer, ShellyColorUtils>();
 
@@ -68,7 +66,6 @@ public class ShellyHandlerLight extends ShellyHandler {
     public void initialize() {
         logger.debug("Thing is using class {}", this.getClass());
         super.initialize();
-        api = super.getShellyApi();
     }
 
     @Override
@@ -80,15 +77,13 @@ public class ShellyHandlerLight extends ShellyHandler {
                 return;
             }
 
-            super.lockUpdates = true;
+            lockUpdates = true;
 
             String groupName = channelUID.getGroupId();
             Integer lightId = getLightIdFromGroup(groupName);
             logger.info("Execute command {} on channel {}, lightId={}", command.toString(), channelUID.getAsString(), lightId);
 
-            ShellyDeviceProfile profile = super.getProfile(false);
             Validate.notNull(profile, "DeviceProfile must not be null, thing not initialized");
-
             ShellyColorUtils oldCol = getCurrentColors(lightId);
             Validate.notNull(oldCol, "oldCol must not be null");
             oldCol.mode = profile.mode;
@@ -182,12 +177,12 @@ public class ShellyHandlerLight extends ShellyHandler {
                 sendColors(profile, lightId, oldCol, col);
             }
 
-            super.requestUpdates(1, true);  // always do a refresh after a command
+            requestUpdates(1, true);  // always do a refresh after a command
         } catch (RuntimeException | IOException e) {
             logger.info("ERROR: Unable to process command for channel {}: {} ({})",
                     channelUID.toString(), e.getMessage(), e.getClass());
         } finally {
-            super.lockUpdates = false;
+            lockUpdates = false;
         }
 
     }
@@ -275,7 +270,6 @@ public class ShellyHandlerLight extends ShellyHandler {
     @Override
     public void updateThingStatus() throws IOException {
 
-        ShellyDeviceProfile profile = super.getProfile(false);
         Validate.notNull(profile, "updateThingStatus(): profile must not be null!");
         Validate.isTrue(profile.isLight, "ERROR: Device " + profile.hostname + " is not a light. but class ShellyHandlerLight is called!");
 
@@ -295,7 +289,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             // The bulb has a combined channel set for color or white mode
             // The RGBW2 uses 2 different thing types: color=1 channel, white=4 channel
             if (profile.isBulb) {
-                super.updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
             }
 
             ShellyColorUtils col = getCurrentColors(lightId);
@@ -304,10 +298,10 @@ public class ShellyHandlerLight extends ShellyHandler {
 
             // Channel control/timer
             // ShellyStatusLightChannel light = status.lights.get(i);
-            super.updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
-            super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
-            super.updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
-            super.updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
+            updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
+            updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
+            updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
+            updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
 
             if (profile.inColor || profile.isBulb) {
                 logger.trace("update color settings");
@@ -318,27 +312,27 @@ public class ShellyHandlerLight extends ShellyHandler {
                 String colorGroup = CHANNEL_GROUP_COLOR_CONTROL;
                 logger.trace("Update channels for {}: RGBW={}/{}/{}, in %:{}%/{}%/{}%, white={}%, gain={}%", colorGroup,
                         col.red, col.green, col.blue, col.percentRed, col.percentGreen, col.percentBlue, col.percentWhite, col.percentGain);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
+                updateChannel(colorGroup, CHANNEL_COLOR_RED, col.percentRed);
+                updateChannel(colorGroup, CHANNEL_COLOR_GREEN, col.percentGreen);
+                updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
+                updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
+                updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
+                updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
                 setFullColor(colorGroup, col);
 
                 logger.trace("update {}.color picker", colorGroup);
-                super.updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+                updateChannel(colorGroup, CHANNEL_COLOR_PICKER, col.toHSB());
             }
             if (!profile.inColor || profile.isBulb) {
                 String whiteGroup = buildWhiteGroupName(profile, channelId);
                 logger.trace("update white settings for {}.{}", whiteGroup, channelId);
                 col.setBrightness(getInteger(light.brightness));
-                super.updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
+                updateChannel(whiteGroup, CHANNEL_COLOR_BRIGHTNESS, col.percentBrightness);
                 if (profile.isBulb) {
                     col.setTemp(getInteger(light.temp));
-                    super.updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
+                    updateChannel(whiteGroup, CHANNEL_COLOR_TEMP, col.percentTemp);
                     logger.trace("update {}.color picker", whiteGroup);
-                    super.updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
+                    updateChannel(whiteGroup, CHANNEL_COLOR_PICKER, col.toHSB());
                 }
             }
 
@@ -375,15 +369,15 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private void setFullColor(String colorGroup, ShellyColorUtils col) {
         if ((col.red == SHELLY_MAX_COLOR) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
-            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_YELLOW);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_YELLOW);
         } else if ((col.red == SHELLY_MAX_COLOR) && (col.green == 0) && (col.blue == 0)) {
-            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_RED);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_RED);
         } else if ((col.red == 0) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
-            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_GREEN);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_GREEN);
         } else if ((col.red == 0) && (col.green == 0) && (col.blue == SHELLY_MAX_COLOR)) {
-            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_BLUE);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_BLUE);
         } else if ((col.red == 0) && (col.green == 0) && (col.blue == 0) && (col.white == SHELLY_MAX_COLOR)) {
-            super.updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_WHITE);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_WHITE);
         }
     }
 
@@ -463,11 +457,6 @@ public class ShellyHandlerLight extends ShellyHandler {
     private static String buildWhiteGroupName(ShellyDeviceProfile profile, Integer channelId) {
         return profile.isBulb && !profile.inColor ? CHANNEL_GROUP_WHITE_CONTROL
                 : CHANNEL_GROUP_LIGHT_CHANNEL + channelId.toString();
-    }
-
-    @Override
-    protected void validateRange(String name, Integer value, Integer min, Integer max) throws IllegalArgumentException {
-        super.validateRange(name, value, min, max);
     }
 
 }

@@ -171,8 +171,10 @@ public class ShellyHttpApi {
     private Gson                       gson      = new Gson();
 
     public ShellyHttpApi(ShellyThingConfiguration config) {
+        Validate.notNull(config, "Shelly Http Api: Config must not be null!");
         this.config = config;
         Map<String, String> env = System.getenv();
+        Validate.notNull(env, "getenv() must not return null!");
         String portEnv = env.get(OPENHAB_HTTP_PORT);
         localPort = (portEnv != null) ? portEnv : OPENHAB_DEF_PORT;
         thingName = "";
