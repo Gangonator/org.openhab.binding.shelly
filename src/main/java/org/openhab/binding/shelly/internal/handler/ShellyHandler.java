@@ -55,6 +55,7 @@ import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
 import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
+import org.openhab.binding.shelly.internal.nocoap.ShellyCoapListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +72,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     protected final ShellyHandlerFactory  handlerFactory;
     protected ShellyThingConfiguration    config;
     protected ShellyHttpApi               api;
+    private ShellyCoapListener            coap;
     protected ShellyDeviceProfile         profile;
 
     private ScheduledFuture<?>            statusJob        = null;;
@@ -149,6 +151,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             config.updateInterval = UPDATE_MIN_DELAY / UPDATE_STATUS_INTERVAL;
         }
         skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
+
+        if (coap != null) {
+            coap.stop();
+        }
+        coap = new ShellyCoapListener(config);
+        coap.start();
     }
 
     @Override
@@ -605,7 +613,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 --scheduledUpdates;
                 logger.debug("{}: {} more updates requested", thingName, scheduledUpdates);
             }
-            if (!channelCache && (scheduledUpdates == 0)) {
+            if (!channelCache && (skipCount > refreshCount)) {
                 logger.debug("{}: Enabling channel cache", thingName);
                 channelCache = true;
             }
