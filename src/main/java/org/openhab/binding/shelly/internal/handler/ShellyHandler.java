@@ -672,7 +672,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.debug("Trigger {} event, channel {}, payload={}", type, channel, payload);
             triggerChannel(channel, payload);
 
-            requestUpdates(scheduledUpdates < 3 ? 1 : 0, true);    // request update on next interval
+            requestUpdates(scheduledUpdates >= 3 ? 0 : !profile.hasBattery ? 2 : 1, true);    // request update on next interval (2x for non-battery
+                                                                                              // devices)
         }
     }
 
