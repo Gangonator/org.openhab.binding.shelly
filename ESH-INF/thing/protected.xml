@@ -7,7 +7,7 @@
 
     <thing-type id="shelly-protected">
         <label>Password protected Shelly device, go the Configuration:Bindings and set userid/password</label>
-        <description>A password protected device was protected. You need to set userid/password in the binding settings</description>
+        <description>A password protected device was detected. You need to set userid/password in the binding settings</description>
     </thing-type>
 
 </thing:thing-descriptions>
