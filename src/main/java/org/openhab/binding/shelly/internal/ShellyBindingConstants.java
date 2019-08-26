@@ -33,8 +33,8 @@ public class ShellyBindingConstants {
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID      THING_TYPE_SHELLY1           = new ThingTypeUID(BINDING_ID, "shelly1");
-    public static final ThingTypeUID      THING_TYPE_SHELLY1PM         = new ThingTypeUID(BINDING_ID, "shellypm");
-    public static final ThingTypeUID      THING_TYPE_SHELLY1EM         = new ThingTypeUID(BINDING_ID, "shelly1em");
+    public static final ThingTypeUID      THING_TYPE_SHELLY1PM         = new ThingTypeUID(BINDING_ID, "shelly1pm");
+    public static final ThingTypeUID      THING_TYPE_SHELLYEM          = new ThingTypeUID(BINDING_ID, "shellyem");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_RELAY     = new ThingTypeUID(BINDING_ID, "shelly2-relay");
     public static final ThingTypeUID      THING_TYPE_SHELLY2_ROLLER    = new ThingTypeUID(BINDING_ID, "shelly2-roller");
     public static final ThingTypeUID      THING_TYPE_SHELLY25_RELAY    = new ThingTypeUID(BINDING_ID, "shelly25-relay");
@@ -53,7 +53,7 @@ public class ShellyBindingConstants {
     public static final ThingTypeUID      THING_TYPE_SHELLYPROTECTED   = new ThingTypeUID(BINDING_ID, "shelly-protected");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS   = Collections
-            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM, THING_TYPE_SHELLY1EM,
+            .unmodifiableSet(Stream.of(THING_TYPE_SHELLY1, THING_TYPE_SHELLY1PM, THING_TYPE_SHELLYEM,
                     THING_TYPE_SHELLY2_RELAY, THING_TYPE_SHELLY2_ROLLER, THING_TYPE_SHELLY25_RELAY, THING_TYPE_SHELLY25_ROLLER,
                     THING_TYPE_SHELLY4PRO,
                     THING_TYPE_SHELLYPLUG, THING_TYPE_SHELLYPLUGS,

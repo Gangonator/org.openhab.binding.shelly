@@ -188,7 +188,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             return new ThingUID(THING_TYPE_SHELLY1PM, devid);
         }
         if (name.startsWith("shellyem")) {
-            return new ThingUID(THING_TYPE_SHELLY1EM, devid);
+            return new ThingUID(THING_TYPE_SHELLYEM, devid);
         }
         if (name.startsWith("shelly1")) {
             return new ThingUID(THING_TYPE_SHELLY1, devid);
