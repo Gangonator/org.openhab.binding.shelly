@@ -59,7 +59,6 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     private final Logger               logger         = LoggerFactory.getLogger(ShellyDiscoveryParticipant.class);
     private ShellyBindingConfiguration bindingConfig  = new ShellyBindingConfiguration();
     private ShellyHandlerFactory       handlerFactory = null;
-    private ShellyHttpApi              api;
 
     private static final String        SERVICE_TYPE   = "_http._tcp.local.";
 
@@ -99,7 +98,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
     }
 
     @Override
-    public DiscoveryResult createResult(ServiceInfo service) {
+    public DiscoveryResult createResult(@Nullable ServiceInfo service) {
         if ((service == null) || !service.getName().startsWith("shelly")) {
             return null;
         }

@@ -53,9 +53,9 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
+import org.openhab.binding.shelly.internal.coap.ShellyCoapListener;
 import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
 import org.openhab.binding.shelly.internal.config.ShellyThingConfiguration;
-import org.openhab.binding.shelly.internal.nocoap.ShellyCoapListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                           skipUpdate       = 0;
     private int                           scheduledUpdates = 0;
     private int                           skipCount        = UPDATE_SKIP_COUNT;
-    private int                           refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
+    private int                           cacheCount       = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
     private boolean                       refreshSettings  = false;
     private boolean                       channelCache     = false;
     protected boolean                     lockUpdates      = false;
@@ -155,7 +155,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         if (coap != null) {
             coap.stop();
         }
-        coap = new ShellyCoapListener(config);
+        coap = new ShellyCoapListener(this, config);
         coap.start();
     }
 
@@ -208,8 +208,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         if (tmpPrf.isSense) {
             logger.info("Sense stored key list loaded, {} entries.", tmpPrf.irCodes.size());
         }
-
-        refreshCount = !tmpPrf.hasBattery ? refreshCount = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL : skipCount;
 
         // register event urls
         api.setEventURLs(thingName);
@@ -274,20 +272,22 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                     boolean isControl = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL);
                     Integer position = -1;
 
-                    if (command instanceof UpDownType) {
+                    if ((command instanceof UpDownType) || (command instanceof OnOffType)) {
                         ShellyControlRoller rstatus = api.getRollerStatus(rIndex);
                         if (!getString(rstatus.state).isEmpty() && !getString(rstatus.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) {
                             logger.info("{}: Roller is already moving, ignore command {}", thingName, command.toString());
                             requestUpdates(1, false);
                             break;
                         }
-                        if (UpDownType.UP.equals(command)) {
+                        if (((command instanceof UpDownType) && UpDownType.UP.equals(command))
+                                || ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
                             logger.info("{}: Open roller", thingName);
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
                             position = SHELLY_MAX_ROLLER_POS;
 
-                        } else if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command)) ||
-                                ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
+                        }
+                        if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command))
+                                || ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
                             logger.info("{}: Closing roller", thingName);
                             api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
                             position = SHELLY_MIN_ROLLER_POS;
@@ -296,6 +296,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                         logger.info("{}: Stop roller", thingName);
                         api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
                     } else {
+
                         logger.info("{}: Set roller to position {} (channel {}", thingName, command.toString(), channelUID.getIdWithoutGroup());
                         if (command instanceof PercentType) {
                             PercentType p = (PercentType) command;
@@ -379,10 +380,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 return;
             }
 
-            if ((skipUpdate % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
-                refreshSettings |= !profile.hasBattery;
-            }
-
             if (refreshSettings || (scheduledUpdates > 0) || (skipUpdate % skipCount == 0)) {
                 if ((profile == null) || ((getThing().getStatus() == ThingStatus.OFFLINE)
                         && (getThing().getStatusInfo().getStatusDetail() != ThingStatusDetail.CONFIGURATION_ERROR))) {
@@ -435,6 +432,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                                 updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
                                         new PercentType(SHELLY_MAX_ROLLER_POS - getInteger(control.current_pos)));
                                 updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                                scheduledUpdates = 1; // one more poll and then stop
                             }
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
                             updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
@@ -613,7 +611,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 --scheduledUpdates;
                 logger.debug("{}: {} more updates requested", thingName, scheduledUpdates);
             }
-            if (!channelCache && (skipCount > refreshCount)) {
+            if (!channelCache && (skipCount >= cacheCount)) {
                 logger.debug("{}: Enabling channel cache", thingName);
                 channelCache = true;
             }
