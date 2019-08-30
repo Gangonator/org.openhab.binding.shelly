@@ -79,7 +79,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private int                           skipUpdate       = 0;
     private int                           scheduledUpdates = 0;
     private int                           skipCount        = UPDATE_SKIP_COUNT;
-    private int                           cacheCount       = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;
+    private int                           refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;   // force settings refresh every x
+                                                                                                                  // seconds
+    private final int                     cacheCount       = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;   // delay before enabling channel
+                                                                                                                  // cache
     private boolean                       refreshSettings  = false;
     private boolean                       channelCache     = false;
     protected boolean                     lockUpdates      = false;
@@ -208,6 +211,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         if (tmpPrf.isSense) {
             logger.info("Sense stored key list loaded, {} entries.", tmpPrf.irCodes.size());
         }
+
+        refreshCount = !tmpPrf.hasBattery ? refreshCount = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL : skipCount;
 
         // register event urls
         api.setEventURLs(thingName);
@@ -378,6 +383,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             if (lockUpdates) {
                 logger.trace("{}: Update locked, try on next cycle", thingName);
                 return;
+            }
+
+            if ((skipUpdate % refreshCount == 0) && (profile != null) && (getThing().getStatus() == ThingStatus.ONLINE)) {
+                refreshSettings |= !profile.hasBattery;
             }
 
             if (refreshSettings || (scheduledUpdates > 0) || (skipUpdate % skipCount == 0)) {
@@ -611,8 +620,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 --scheduledUpdates;
                 logger.debug("{}: {} more updates requested", thingName, scheduledUpdates);
             }
-            if (!channelCache && (skipCount >= cacheCount)) {
-                logger.debug("{}: Enabling channel cache", thingName);
+            if (!channelCache && (skipUpdate >= cacheCount)) {
+                logger.debug("{}: Enabling channel cache ({} updates / {}s)", thingName, skipUpdate, cacheCount * UPDATE_STATUS_INTERVAL);
                 channelCache = true;
             }
         }
