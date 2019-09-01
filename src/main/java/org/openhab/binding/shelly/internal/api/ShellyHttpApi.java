@@ -238,7 +238,7 @@ public class ShellyHttpApi {
 
         profile.numMeters = getInteger(profile.settings.device.num_meters);
         if ((profile.numMeters == 0) && profile.isLight) {
-            profile.numMeters = getInteger(profile.settings.device.num_outputs); // RGBW2 doesn't report num_meters
+            profile.numMeters = profile.inColor ? 1 : getInteger(profile.settings.device.num_outputs); // RGBW2 doesn't report num_meters
         }
         if ((profile.numMeters == 0) && (profile.numRelays == 1)) {
             profile.numMeters = 1; // Shelly 1 reports no meters, but has one
