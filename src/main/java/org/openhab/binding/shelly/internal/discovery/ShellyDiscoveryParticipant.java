@@ -82,7 +82,7 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
         try {
             logger.debug("Discoverxy service activated");
             bindingConfig.updateFromProperties(componentContext.getProperties());
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             logger.warn("Exception on ShellyDiscoveryParticipant(): {} ({})", e.getClass(), e.getMessage());
         }
     }

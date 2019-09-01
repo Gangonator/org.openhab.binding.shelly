@@ -23,7 +23,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
 * fixed update scheduling on exceptions (e.g. HT not reachable)
 * re-added OnOffType for Roller Control (so you could send OPEN or ON / CLOSE or OFF / STOP)
-* fix for RGBW2.meterWatts (avoid exception when .is_valid is not included the the device response)
+* adjust numMeter for RGBW2 (doesn't report this as part of the device property) -> work around for meter.Watts missing 
 * Activation of Channel Cache is deplayed for 60s to make sure that Persinstence restore is already done 
 * logging revised (include device name on most logs), more details about the bundle on startup
 

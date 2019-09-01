@@ -98,7 +98,8 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
                     logger.info("{} Version {}.{}.{} (state={}, {}.jar, build {} UTC, location={})", name, v.getMajor(), v.getMinor(), v.getMicro(),
                             state, bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000), bundle.getLocation());
                 }
-            } catch (RuntimeException e) {
+                // } catch (RuntimeException e) {
+            } catch (Throwable e) {
 
             } finally {
                 initialized = true;

@@ -34,7 +34,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,8 @@ public class ShellyEventServlet extends HttpServlet {
         try {
             httpService.registerServlet(SHELLY_CALLBACK_URI, this, null, httpService.createDefaultHttpContext());
             logger.info("Shelly: CallbackServlet started at '{}'", SHELLY_CALLBACK_URI);
-        } catch (ServletException | NamespaceException e) {
+            // } catch (ServletException | NamespaceException e) {
+        } catch (Throwable e) {
             logger.error("Shelly: Could not start CallbackServlet: {} ({})", e.getMessage(), e.getClass());
         }
     }
