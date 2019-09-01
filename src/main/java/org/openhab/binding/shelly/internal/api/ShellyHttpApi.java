@@ -313,9 +313,10 @@ public class ShellyHttpApi {
             request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
             request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
         }
+        // Avoid using switch & out urls at the same time to work around a firmware bug. If out_xxx urls are enabled the btn_xxx urls gets disabled
         if (profile.supportsOutUrls && config.eventsRelaySwitch) {
-            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_OUT_ON, eventUrl));
-            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_OUT_OFF, eventUrl));
+            request(buildEventUrl(relayIndex, !config.eventsRelayButton ? SHELLY_API_EVENTURL_OUT_ON : "null", eventUrl));
+            request(buildEventUrl(relayIndex, !config.eventsRelayButton ? SHELLY_API_EVENTURL_OUT_OFF : "null", eventUrl));
         }
     }
 
