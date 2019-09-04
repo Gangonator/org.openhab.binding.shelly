@@ -41,6 +41,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsEMeter;
@@ -154,12 +155,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             config.updateInterval = UPDATE_MIN_DELAY / UPDATE_STATUS_INTERVAL;
         }
         skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
-
-        if (coap != null) {
-            coap.stop();
-        }
-        coap = new ShellyCoapListener(this, config);
-        coap.start();
     }
 
     @Override
@@ -230,6 +225,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.info("Thing {} successfully initialized.", thingName);
             updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
         }
+
+        // Start Coap Listener
+        if (coap != null) {
+            coap.stop();
+        }
+        coap = new ShellyCoapListener(this, config);
+        coap.start();
     }
 
     @SuppressWarnings("null")
@@ -582,7 +584,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                             updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_CHARGER, getBool(sdata.charger));
                         }
                         if (sdata.act_reasons != null) {
-                            logger.debug("Last activate reasons: {}", sdata.act_reasons.toString());
+                            String message = "";
+                            for (int i = 0; i < sdata.act_reasons.length; i++) {
+                                message = "[" + i + "]: " + sdata.act_reasons[i];
+                            }
+                            logger.debug("Last activate reasons: {}", message);
                         }
                     }
                 }
@@ -644,10 +650,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @param data       the html input data
      */
     @Override
-    public void onEvent(String deviceName, String deviceIndex, String type, Map<String, String[]> parameters, String data) {
-        if (thingName.equalsIgnoreCase(deviceName)) {
+    public void onEvent(String deviceName, String deviceIndex, String type, Map<String, String> parameters) {
+        if (thingName.equalsIgnoreCase(deviceName) || config.deviceIp.equals(deviceName)) {
             logger.debug("{}: Event received: class={}, index={}, parameters={}", deviceName, type, deviceIndex,
                     parameters.toString());
+            boolean hasBattery = profile != null && profile.hasBattery ? true : false;
             if (profile == null) {
                 logger.info("{}: Device is not yet initialized, event will trigger initialization", deviceName);
             }
@@ -659,8 +666,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 if (i++ > 0) {
                     payload = payload + ", ";
                 }
-                String[] values = parameters.get(key);
-                payload = payload + "{\"" + key + "\":\"" + values[0] + "\"}";
+                String value = parameters.get(key);
+                payload = payload + "{\"" + key + "\":\"" + value + "\"}";
             }
             payload = payload + "]}";
 
@@ -681,8 +688,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             logger.debug("Trigger {} event, channel {}, payload={}", type, channel, payload);
             triggerChannel(channel, payload);
 
-            requestUpdates(scheduledUpdates >= 3 ? 0 : !profile.hasBattery ? 2 : 1, true);    // request update on next interval (2x for non-battery
-                                                                                              // devices)
+            requestUpdates(scheduledUpdates >= 3 ? 0 : !hasBattery ? 2 : 1, true);  // request update on next interval (2x for non-battery devices)
         }
     }
 
@@ -716,61 +722,64 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
-    protected boolean updateChannel(String group, String channel, Object value) {
-        if (value == null) {
-            logger.trace("{}: Update channel {}.{} failedl: value is null!", thingName, group, channel);
-            return false;
-        }
+    public boolean updateChannel(String channelId, State value, Boolean forceUpdate) {
+        Validate.notNull(channelData, "updateChannel(): channelData must not be null!");
+        Validate.notNull(channelId, "updateChannel(): channelId must not be null!");
+        Validate.notNull(value, "updateChannel(): value must not be null!");
         try {
-            String channelId = mkChannelName(group, channel);
-            Object current = channelData.get(channelId);
+            Object current = forceUpdate ? null : channelData.get(channelId);
             // logger.trace("{}: Predict channel {}.{} to become {} (type {}).", thingName, group, channel, value, value.getClass());
             if (!channelCache || (current == null) || !current.equals(value)) {
-                if (value instanceof String) {
-                    updateState(channelId, new StringType((String) value));
-                }
-                if (value instanceof Integer) {
-                    Integer v = (Integer) value;
-                    updateState(channelId, new DecimalType(v));
-                }
-                if (value instanceof Long) {
-                    Long v = (Long) value;
-                    updateState(channelId, new DecimalType(v));
-                }
-                if (value instanceof Double) {
-                    Double v = (Double) value;
-                    updateState(channelId, new DecimalType(v));
-                }
-                if (value instanceof Boolean) {
-                    Boolean v = (Boolean) value;
-                    updateState(channelId, v ? OnOffType.ON : OnOffType.OFF);
-                }
-                if (value instanceof OnOffType) {
-                    OnOffType v = (OnOffType) value;
-                    updateState(channelId, v);
-                }
-                if (value instanceof PercentType) {
-                    PercentType v = (PercentType) value;
-                    updateState(channelId, new PercentType(new BigDecimal(v.doubleValue())));
-                }
-                if (value instanceof HSBType) {
-                    HSBType v = (HSBType) value;
-                    updateState(channelId, v);
-                }
+                updateState(channelId, value);
                 if (current == null) {
                     channelData.put(channelId, value);
                 } else {
                     channelData.replace(channelId, value);
                 }
-                logger.debug("{}: Channel {}.{} updated with {} (type {}).", thingName, group, channel, value, value.getClass());
+                logger.trace("{}: Channel {} updated with {} (type {}).", thingName, channelId, value, value.getClass());
                 return true;
             }
         } catch (RuntimeException e) {
-            logger.warn("Unable to update channel {}.{}#{} with {} (type {}): {} ({})", thingName, group, channel, value, value.getClass(),
+            logger.warn("Unable to update channel {}.{} with {} (type {}): {} ({})", thingName, channelId, value, value.getClass(),
                     e.getMessage(), e.getClass());
         }
         return false;
+    }
 
+    public boolean updateChannel(String group, String channel, Object value) {
+        String channelId = mkChannelName(group, channel);
+        if (value instanceof String) {
+            return updateChannel(channelId, new StringType((String) value), false);
+        }
+        if (value instanceof Integer) {
+            Integer v = (Integer) value;
+            return updateChannel(channelId, new DecimalType(v), false);
+        }
+        if (value instanceof Long) {
+            Long v = (Long) value;
+            return updateChannel(channelId, new DecimalType(v), false);
+        }
+        if (value instanceof Double) {
+            Double v = (Double) value;
+            return updateChannel(channelId, new DecimalType(v), false);
+        }
+        if (value instanceof Boolean) {
+            Boolean v = (Boolean) value;
+            return updateChannel(channelId, v ? OnOffType.ON : OnOffType.OFF, false);
+        }
+        if (value instanceof OnOffType) {
+            OnOffType v = (OnOffType) value;
+            return updateChannel(channelId, v, false);
+        }
+        if (value instanceof PercentType) {
+            PercentType v = (PercentType) value;
+            return updateChannel(channelId, new PercentType(new BigDecimal(v.doubleValue())), false);
+        }
+        if (value instanceof HSBType) {
+            HSBType v = (HSBType) value;
+            return updateChannel(channelId, v, false);
+        }
+        return false;
     }
 
     protected Object getChannelValue(String group, String channel) {
@@ -830,7 +839,11 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return properties;
     }
 
-    protected static String mkChannelName(String group, String channel) {
+    public String mkRelayGroup(Integer rIndex) {
+        return profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rIndex.toString();
+    }
+
+    public static String mkChannelName(String group, String channel) {
         return group + "#" + channel;
     }
 

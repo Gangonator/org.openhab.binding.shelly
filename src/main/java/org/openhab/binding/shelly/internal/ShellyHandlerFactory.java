@@ -139,13 +139,13 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
-    public void onEvent(String deviceName, String deviceIndex, String eventType, Map<String, String[]> parameters, String data) {
+    public void onEvent(String deviceName, String deviceIndex, String eventType, Map<String, String> parameters) {
         try {
             logger.trace("Dispatch event to device handler {}", deviceName);
-            deviceListeners.forEach(listener -> listener.onEvent(deviceName, deviceIndex, eventType, parameters, data));
+            deviceListeners.forEach(listener -> listener.onEvent(deviceName, deviceIndex, eventType, parameters));
         } catch (RuntimeException e) {
-            logger.warn("ERROR: Exception processing callback: {} ({}), deviceName={}, type={}, index={}, parameters={}, data='{}'",
-                    e.getMessage(), e.getClass(), deviceName, eventType, deviceIndex, parameters.toString(), data);
+            logger.warn("ERROR: Exception processing callback: {} ({}), deviceName={}, type={}, index={}, parameters={}",
+                    e.getMessage(), e.getClass(), deviceName, eventType, deviceIndex, parameters.toString());
 
         }
     }

@@ -313,9 +313,11 @@ public class ShellyHttpApi {
     public void setRelayEventUrls(Integer relayIndex, String deviceName) throws IOException {
         String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
                 + relayIndex.toString();
-        if (profile.supportsButtonUrls && config.eventsRelayButton) {
-            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
-            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
+        if (profile.supportsButtonUrls) {
+            if (config.eventsRelayButton) {
+                request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
+                request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
+            }
         }
         // Avoid using switch & out urls at the same time to work around a firmware bug. If out_xxx urls are enabled the btn_xxx urls gets disabled
         if (profile.supportsOutUrls && config.eventsRelaySwitch) {
@@ -400,8 +402,16 @@ public class ShellyHttpApi {
     }
 
     public Map<String, String> getIRCodeList() throws IOException {
-        // String result = request(SHELLY_URL_LIST_IR);
-        String result = "[[\"1_231_pwr\",\"tv(231) - Power\"],[\"1_231_chdwn\",\"tv(231) - Channel Down\"],[\"1_231_chup\",\"tv(231) - Channel Up\"], [\"1_231_voldwn\",\"tv(231) - Volume Down\"],[\"1_231_volup\",\"tv(231) - Volume Up\"],[\"1_231_mute\",\"tv(231) - Mute\"],[\"1_231_menu\",\"tv(231) - Menu\"],[\"1_231_inp\",\"tv(231) - Input\"],[\"1_231_info\",\"tv(231) - Info\"],[\"1_231_left\",\"tv(231) - Left\"],[\"1_231_up\",\"tv(231) - Up\"],[\"1_231_right\",\"tv(231) - Right\"],[\"1_231_ok\",\"tv(231) - OK\"],[\"1_231_down\",\"tv(231) - Down\"],[\"1_231_back\",\"tv(231) - Back\"],[\"6_546_pwr\",\"receiver(546) - Power\"],[\"6_546_voldwn\",\"receiver(546) - Volume Down\"],[\"6_546_volup\",\"receiver(546) - Volume Up\"],[\"6_546_mute\",\"receiver(546) - Mute\"],[\"6_546_menu\",\"receiver(546) - Menu\"],[\"6_546_info\",\"receiver(546) - Info\"],[\"6_546_left\",\"receiver(546) - Left\"],[\"6_546_up\",\"receiver(546) - Up\"],[\"6_546_right\",\"receiver(546) - Right\"],[\"6_546_ok\",\"receiver(546) - OK\"],[\"6_546_down\",\"receiver(546) - Down\"],[\"6_546_back\",\"receiver(546) - Back\"]]";
+        String result = request(SHELLY_URL_LIST_IR);
+        // String result = "[[\"1_231_pwr\",\"tv(231) - Power\"],[\"1_231_chdwn\",\"tv(231) - Channel Down\"],[\"1_231_chup\",\"tv(231) - Channel
+        // Up\"], [\"1_231_voldwn\",\"tv(231) - Volume Down\"],[\"1_231_volup\",\"tv(231) - Volume Up\"],[\"1_231_mute\",\"tv(231) -
+        // Mute\"],[\"1_231_menu\",\"tv(231) - Menu\"],[\"1_231_inp\",\"tv(231) - Input\"],[\"1_231_info\",\"tv(231) -
+        // Info\"],[\"1_231_left\",\"tv(231) - Left\"],[\"1_231_up\",\"tv(231) - Up\"],[\"1_231_right\",\"tv(231) - Right\"],[\"1_231_ok\",\"tv(231) -
+        // OK\"],[\"1_231_down\",\"tv(231) - Down\"],[\"1_231_back\",\"tv(231) - Back\"],[\"6_546_pwr\",\"receiver(546) -
+        // Power\"],[\"6_546_voldwn\",\"receiver(546) - Volume Down\"],[\"6_546_volup\",\"receiver(546) - Volume Up\"],[\"6_546_mute\",\"receiver(546)
+        // - Mute\"],[\"6_546_menu\",\"receiver(546) - Menu\"],[\"6_546_info\",\"receiver(546) - Info\"],[\"6_546_left\",\"receiver(546) -
+        // Left\"],[\"6_546_up\",\"receiver(546) - Up\"],[\"6_546_right\",\"receiver(546) - Right\"],[\"6_546_ok\",\"receiver(546) -
+        // OK\"],[\"6_546_down\",\"receiver(546) - Down\"],[\"6_546_back\",\"receiver(546) - Back\"]]";
 
         String key_list = StringUtils.substringAfter(result, "[");
         key_list = StringUtils.substringBeforeLast(key_list, "]");

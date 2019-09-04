@@ -24,5 +24,5 @@ public interface ShellyDeviceListener {
     /**
      * This method is called when new device information is received.
      */
-    public void onEvent(String deviceName, String deviceIndex, String eventType, Map<String, String[]> parameters, String data);
+    public void onEvent(String deviceName, String deviceIndex, String eventType, Map<String, String> parameters);
 }

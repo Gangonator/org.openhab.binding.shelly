@@ -15,6 +15,7 @@ package org.openhab.binding.shelly.internal.api;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -122,7 +123,12 @@ public class ShellyEventServlet extends HttpServlet {
                 type = StringUtils.substringAfterLast(path, "/").toLowerCase();
             }
             logger.trace("Process event of type type={} for device {}, index={}", type, deviceName, index);
-            handlerFactory.onEvent(deviceName, index, type, parameters, data);
+            Map<String, String> parms = new HashMap<String, String>();
+            for (Map.Entry<String, String[]> p : parameters.entrySet()) {
+                parms.put(p.getKey(), p.getValue()[0]);
+
+            }
+            handlerFactory.onEvent(deviceName, index, type, parms);
 
         } catch (RuntimeException e) {
             logger.info("ERROR: Exception processing callback: {} ({}), path={}, data='{}'; deviceName={}, index={}, type={}, parameters={}",

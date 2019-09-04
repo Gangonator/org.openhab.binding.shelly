@@ -173,4 +173,10 @@ public class ShellyBindingConstants {
     // General
     public static final String            CHANNEL_EVENT_TRIGGER        = "event";
     public static final String            CHANNEL_GROUP_SEPARATOR      = "#";
+
+    public static final String            OPENHAB_HTTP_PORT            = "OPENHAB_HTTP_PORT";
+    public static final String            OPENHAB_DEF_PORT             = "8080";
+
+    public static int                     SHELLY_API_TIMEOUT           = 2500;
+
 }

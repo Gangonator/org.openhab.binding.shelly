@@ -21,10 +21,11 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 + Create special device (shelly-protected) when device is password protected
 
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
+* Roller: re-added OnOffType  (so you could send OPEN or ON / CLOSE or OFF / STOP)
+* RGBW2: adjust numMeter (doesn't report this as part of the device property) -> work around for meter.Watts missing 
+* Sense: read IR code list for Sense from device rather than hard coded list
 * fixed update scheduling on exceptions (e.g. HT not reachable)
-* re-added OnOffType for Roller Control (so you could send OPEN or ON / CLOSE or OFF / STOP)
-* adjust numMeter for RGBW2 (doesn't report this as part of the device property) -> work around for meter.Watts missing 
-* Activation of Channel Cache is deplayed for 60s to make sure that Persinstence restore is already done 
+* Activation of Channel Cache is delayed for 60s to make sure that Persinstence restore is already done 
 * logging revised (include device name on most logs), more details about the bundle on startup
 
 
