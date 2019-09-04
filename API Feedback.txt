@@ -12,6 +12,7 @@ Bugs/API inconsistencies
   the API returns "update":{"status":"unknown","has_update":false,"new_version":"","old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"}
   (worked fine with previous fw versions)
 - Shelly1: Coap device description is not filled properly
+- ShellyHT: Sends CoIoT status updates with duplicate sertial, but new sensor values
 
 Documentation
 - The Shelly Bulb API is not described clearly and maybe it is inconsistent - e.g. it describes /light whereas the Web UI uses /color and /white

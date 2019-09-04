@@ -187,6 +187,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         thingName = properties.get(PROPERTY_SERVICE_NAME) != null ? properties.get(PROPERTY_SERVICE_NAME).toLowerCase() : "";
         logger.info("{}: Start initializing, ip address {}", getThing().getLabel(), config.deviceIp);
 
+        if (config.coap && (coap == null)) {
+            coap = new ShellyCoapListener(this, config);
+        }
+        if (coap != null) {
+            coap.start();
+        }
+
         api = new ShellyHttpApi(config);
         ShellyDeviceProfile tmpPrf = api.getDeviceProfile(this.getThing().getThingTypeUID().getId());
         thingName = (!thingName.isEmpty() ? thingName : tmpPrf.hostname).toLowerCase();
@@ -236,12 +243,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
         }
 
-        if (config.coap) {
-            if (coap == null) {
-                coap = new ShellyCoapListener(this, config);
-            }
-            coap.start();
-        }
     }
 
     /**

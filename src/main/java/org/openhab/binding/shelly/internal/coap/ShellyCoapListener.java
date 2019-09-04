@@ -243,6 +243,11 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                         case COIOT_OPTION_STATUS_SERIAL:
                             serial = o.getIntegerValue();
                             if (serial == lastSerial) {
+                                ShellyDeviceProfile profile = thingHandler.getProfile(false);
+                                if ((profile != null) && profile.isSensor) {
+                                    logger.debug("{}: Duplicate serial {} will be processed", devId, serial);
+                                    break;
+                                }
                                 logger.debug("CoIoT-{}: Serial {} was already processed, ignore update", devId, serial);
                                 return;
                             }
@@ -270,7 +275,9 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                  */
                 reqStatus = sendRequest(reqStatus, config.deviceIp, COLOIT_URI_DEVSTATUS, Type.NON);
             }
-        } catch (RuntimeException | IOException e) {
+        } catch (RuntimeException |
+
+                IOException e) {
             logger.debug("{}: Unable to process CoIoT Message: {} ({}); payload={}", devId, e.getMessage(), e.getClass(), payload);
             lastSerial = -1;
         }

@@ -10,7 +10,7 @@ Check  https://community.openhab.org/t/shelly-binding/56862/213 for more informa
 
 ## Releases of this binding
 
---- branches
+Repo / Branches:
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
 Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
 
