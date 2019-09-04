@@ -19,6 +19,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
 + Create special device (shelly-protected) when device is password protected
++ CoIoT/COAP support added (experimental, needs to be activated in thing config)
 
 * channel name meter.totalWatts changed to meter.totalKWH (returns kw/h, not Watts)
 * Roller: re-added OnOffType  (so you could send OPEN or ON / CLOSE or OFF / STOP)

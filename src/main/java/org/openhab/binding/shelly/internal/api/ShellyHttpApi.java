@@ -313,16 +313,14 @@ public class ShellyHttpApi {
     public void setRelayEventUrls(Integer relayIndex, String deviceName) throws IOException {
         String eventUrl = "http://" + config.localIp + ":" + localPort + SHELLY_CALLBACK_URI + "/" + deviceName + "/relay/"
                 + relayIndex.toString();
-        if (profile.supportsButtonUrls) {
-            if (config.eventsRelayButton) {
-                request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
-                request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
-            }
+        if (profile.supportsButtonUrls && config.eventsRelayButton) {
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_ON, eventUrl));
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_BTN_OFF, eventUrl));
         }
         // Avoid using switch & out urls at the same time to work around a firmware bug. If out_xxx urls are enabled the btn_xxx urls gets disabled
         if (profile.supportsOutUrls && config.eventsRelaySwitch) {
-            request(buildEventUrl(relayIndex, !config.eventsRelayButton ? SHELLY_API_EVENTURL_OUT_ON : "null", eventUrl));
-            request(buildEventUrl(relayIndex, !config.eventsRelayButton ? SHELLY_API_EVENTURL_OUT_OFF : "null", eventUrl));
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_OUT_ON, eventUrl));
+            request(buildEventUrl(relayIndex, SHELLY_API_EVENTURL_OUT_OFF, eventUrl));
         }
     }
 

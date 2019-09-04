@@ -93,6 +93,7 @@ public class ShellyBindingConstants {
     public static final String            PROPERTY_UPDATE_NEW_VERS     = "updateNewVersion";
     public static final String            PROPERTY_MAX_POWER           = "maxPower";
     public static final String            PROPERTY_LIGHT_SENSOR        = "sensorLight";
+    public static final String            PROPERTY_COAP_DESCR          = "coapDeviceDescr";
 
     // Relay
     public static final String            CHANNEL_GROUP_RELAY_CONTROL  = "relay";

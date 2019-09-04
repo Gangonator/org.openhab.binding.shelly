@@ -1,19 +1,27 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: org.openhab.binding.shelly
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/californium-core-2.0.0-SNAPSHOT.jar,
+ lib/element-connector-2.0.0-SNAPSHOT.jar
 Bundle-ManifestVersion: 2
-Bundle-Name: Shelly Binding
+Bundle-Name: Shelly Binding with COAP Support
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.openhab.binding.shelly;singleton:=true
 Bundle-Vendor: openHAB
 Bundle-Version: 2.4.0.qualifier
 Import-Package: 
  com.google.gson,
+ com.google.gson.stream,
  javax.jmdns,
  javax.servlet,
  javax.servlet.http,
  org.apache.commons.lang,
+ org.eclipse.californium.core;resolution:=optional,
+ org.eclipse.californium.core.coap;resolution:=optional,
+ org.eclipse.californium.core.network;resolution:=optional,
+ org.eclipse.californium.core.network.config;resolution:=optional,
+ org.eclipse.californium.elements;resolution:=optional,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,

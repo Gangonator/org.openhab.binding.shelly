@@ -99,7 +99,7 @@ public class ShellyHandlerFactory extends BaseThingHandlerFactory {
                             state, bundle.getSymbolicName(), convertTimestamp(bundle.getLastModified() / 1000), bundle.getLocation());
                 }
                 // } catch (RuntimeException e) {
-            } catch (Throwable e) {
+            } catch (RuntimeException e) {
 
             } finally {
                 initialized = true;

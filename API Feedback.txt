@@ -9,7 +9,8 @@ Bugs/API inconsistencies
   when pressing both buttons events gets issues, 
   but device stops responding to http requests for 5-15sec
 - Shelly1: After updating to FW 20190711-084053/v1.5.0-hotfix4@3b4f7414
-  the API returns "update":{"status":"unknown","has_update":false,"new_version":"","old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"},
+  the API returns "update":{"status":"unknown","has_update":false,"new_version":"","old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"}
+  (worked fine with previous fw versions)
 - Shelly1: Coap device description is not filled properly
 
 Documentation

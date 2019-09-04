@@ -31,4 +31,5 @@ public class ShellyThingConfiguration {
     public boolean eventsRelayButton  = false;  // true: register for Relay btn_xxx events
     public boolean eventsRelaySwitch  = true;   // true: register for de vice out_xxx events
     public boolean eventsSensorReport = true;   // true: register for sensor events
+    public boolean coap               = false;  // true: use CoIoT events (based on COAP)
 }

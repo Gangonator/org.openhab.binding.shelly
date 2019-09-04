@@ -35,6 +35,12 @@
                 <advanced>true</advanced>
                 <default>true</default>
             </parameter>
+            <parameter name="coap" type="boolean" required="false">
+                <label>Enable CoIoT events</label>
+                <description>If enabled the Coap protocol will be used to receive status updates.</description>
+                <advanced>true</advanced>
+                <default>false</default>
+            </parameter>
             <parameter name="updateInterval" type="integer" required="true">
                 <label>Update Interval</label>
                 <description>Interval in seconds to query an update from the device.</description>
@@ -77,6 +83,12 @@
                 <description>True: Register event URL for sensor updates. When settings this to false the sensor will not notify the binding about changes!</description>
                 <advanced>true</advanced>
                 <default>true</default>
+            </parameter>
+            <parameter name="coap" type="boolean" required="false">
+                <label>Enable CoIoT events</label>
+                <description>If enabled the Coap protocol will be used to receive status updates.</description>
+                <advanced>true</advanced>
+                <default>false</default>
             </parameter>
         </config-description>
 

@@ -93,8 +93,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     protected ShellyBindingConfiguration  bindingConfig    = new ShellyBindingConfiguration();
 
     /**
+     *
+     * @param thing                 The Thing object
      * @param handlerFactory        Handler Factory instance (will be used for event handler registration)
      * @param networkAddressService instance of NetworkAddressService to get access to the OH default ip settings
+     * @param bindingConfig         The binding configuration (beside thing configuration)
+     * @param networkAddressService Network service to get local ip
      */
     public ShellyHandler(Thing thing, ShellyHandlerFactory handlerFactory, ShellyBindingConfiguration bindingConfig,
             NetworkAddressService networkAddressService) {
@@ -104,6 +108,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         this.networkAddressService = networkAddressService;
     }
 
+    /**
+     * Schedule asynchronous Thing initialization, register thing to event dispatcher
+     */
     @Override
     public void initialize() {
 
@@ -140,6 +147,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }, 2, TimeUnit.SECONDS);
     }
 
+    /**
+     * Initialize the binding's thing configuration, calc update counts
+     */
     protected void initializeThingConfig() {
         config = getConfigAs(ShellyThingConfiguration.class);
         config.localIp = networkAddressService.getPrimaryIpv4HostAddress();
@@ -226,14 +236,17 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             updateStatus(ThingStatus.ONLINE);  // if API call was successful the thing must be online
         }
 
-        // Start Coap Listener
-        if (coap != null) {
-            coap.stop();
+        if (config.coap) {
+            if (coap == null) {
+                coap = new ShellyCoapListener(this, config);
+            }
+            coap.start();
         }
-        coap = new ShellyCoapListener(this, config);
-        coap.start();
     }
 
+    /**
+     * Handle Channel Command
+     */
     @SuppressWarnings("null")
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
@@ -634,15 +647,6 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     }
 
     /**
-     * Device specific handlers are overriding this method to do additional stuff
-     *
-     * @throws IOException Communication problem on the API call
-     */
-    public void updateThingStatus() throws IOException {
-        logger.trace("{}: No secondary updates", thingName);
-    }
-
-    /**
      * Callback for device events
      *
      * @param deviceName device receiving the event
@@ -692,6 +696,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }
     }
 
+    /**
+     * Start the background updates
+     */
     protected void startUpdateJob() {
         if ((statusJob == null || statusJob.isCancelled())) {
             statusJob = scheduler.scheduleWithFixedDelay(this::updateStatus, 2,
@@ -702,14 +709,13 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         }
     }
 
-    protected ShellyHttpApi getShellyApi() {
-        return api;
-    }
-
-    protected ShellyDeviceProfile getDeviceProfile() {
-        return profile;
-    }
-
+    /**
+     * Flag the status job to do an exceptional update (something happened) rather than waiting until the next regular poll
+     *
+     * @param requestCount    number of polls to execute
+     * @param refreshSettings true=force a /settings query
+     * @return true=Update schedule, false=skipped (too many updates already scheduled)
+     */
     protected boolean requestUpdates(int requestCount, boolean refreshSettings) {
         this.refreshSettings |= refreshSettings;
         if (refreshSettings) {
@@ -722,6 +728,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
+    /**
+     * Update one channel. Use Channel Cache to avoid unessesary updates (and avoid messing up the log with those updates)
+     *
+     * @param channelId   Channel Name
+     * @param value       Value (State)
+     * @param forceUpdate true: ignore cached data, force update; false check cache of changed data
+     * @return
+     */
     public boolean updateChannel(String channelId, State value, Boolean forceUpdate) {
         Validate.notNull(channelData, "updateChannel(): channelData must not be null!");
         Validate.notNull(channelId, "updateChannel(): channelId must not be null!");
@@ -746,6 +760,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
+    /*
+     * Will be replaced by refactoring
+     */
     public boolean updateChannel(String group, String channel, Object value) {
         String channelId = mkChannelName(group, channel);
         if (value instanceof String) {
@@ -782,11 +799,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
-    protected Object getChannelValue(String group, String channel) {
-        String key = mkChannelName(group, channel);
-        return channelData.get(key);
-    }
-
+    /**
+     * Update thing properties with dynamic values
+     *
+     * @param profile The device profile
+     * @param status  the /status result
+     */
     protected void updateProperties(ShellyDeviceProfile profile, ShellySettingsStatus status) {
         Map<String, Object> properties = fillDeviceProperties(profile);
 
@@ -814,6 +832,41 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         logger.trace("{}: Properties updated", thingName);
     }
 
+    /**
+     * Add one property to the Thing Properties
+     *
+     * @param key   Name of the property
+     * @param value Value of the property
+     */
+    public void updateProperties(String key, String value) {
+        Map<String, String> thingProperties = editProperties();
+        if (thingProperties.containsKey(key)) {
+            thingProperties.replace(key, value);
+        } else {
+            thingProperties.put(key, value);
+        }
+        updateProperties(thingProperties);
+        logger.trace("{}: Properties updated", thingName);
+    }
+
+    /**
+     * Get one property from the Thing Properties
+     *
+     * @param key property name
+     * @return property value or "" if property is not set
+     */
+    public String getProperty(String key) {
+        Map<String, String> thingProperties = getThing().getProperties();
+        String value = thingProperties.get(key);
+        return value != null ? value : "";
+    }
+
+    /**
+     * Fill Thing Properties with device attributes
+     *
+     * @param profile Property Map to full
+     * @return a full property map
+     */
     public static Map<String, Object> fillDeviceProperties(ShellyDeviceProfile profile) {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(PROPERTY_VENDOR, VENDOR);
@@ -839,15 +892,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return properties;
     }
 
-    public String mkRelayGroup(Integer rIndex) {
-        return profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rIndex.toString();
-    }
-
-    public static String mkChannelName(String group, String channel) {
-        return group + "#" + channel;
-    }
-
-    protected ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
+    /**
+     * Return device profile.
+     *
+     * @param ForceRefresh true=force refresh before returning, false=return without refresh
+     * @return ShellyDeviceProfile instance
+     * @throws IOException
+     */
+    public ShellyDeviceProfile getProfile(boolean forceRefresh) throws IOException {
         try {
             refreshSettings |= forceRefresh;
             if (refreshSettings) {
@@ -861,14 +913,59 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     }
 
+    /**
+     * Return the API instance
+     *
+     * @return ShellyHttpApi instance
+     */
+    protected ShellyHttpApi getShellyApi() {
+        return api;
+    }
+
+    /**
+     * Return device profile or null if not yet initialized
+     *
+     * @return Device Profile
+     */
+    protected ShellyDeviceProfile getDeviceProfile() {
+        return profile;
+    }
+
+    /**
+     * Get a value from the Channel Cache
+     *
+     * @param group   Channel Group
+     * @param channel Channel Name
+     * @return the data from that channel
+     */
+    protected Object getChannelValue(String group, String channel) {
+        String key = mkChannelName(group, channel);
+        return channelData.get(key);
+    }
+
+    public String mkRelayGroup(Integer rIndex) {
+        return profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rIndex.toString();
+    }
+
+    public static String mkChannelName(String group, String channel) {
+        return group + "#" + channel;
+    }
+
     protected void validateRange(String name, Integer value, Integer min, Integer max) {
         Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
+    /**
+     * Shutdown thing, make sure background jobs are canceled
+     */
     @Override
     public void dispose() {
         logger.debug("{}: Shutdown thing", thingName);
         try {
+            if (coap != null) {
+                coap.stop();
+                coap = null;
+            }
             if (statusJob != null) {
                 statusJob.cancel(true);
                 statusJob = null;
@@ -880,4 +977,14 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             super.dispose();
         }
     }
+
+    /**
+     * Device specific handlers are overriding this method to do additional stuff
+     *
+     * @throws IOException Communication problem on the API call
+     */
+    public void updateThingStatus() throws IOException {
+        logger.trace("{}: No secondary updates", thingName);
+    }
+
 }
