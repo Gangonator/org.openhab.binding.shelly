@@ -14,7 +14,7 @@ Repo / Branches:
 Latest **stable** release (master):     https://github.com/markus7017/org.openhab.binding.shelly/tree/master
 Latest **snapshot** (work in progress): https://github.com/markus7017/org.openhab.binding.shelly/tree/snapshot
 
-### 2.4.2-SNAPSHOT release notes (beta)
+### 2.4.2-SNAPSHOT release notes (wip_2019-09-06_coap)
 
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
@@ -194,13 +194,16 @@ The binding has some global configuration options. Go to PaperUI:Configuration:A
 
 ### Thing Configuration
 
-| Parameter      |Description                                                 |Mandantory|Default                                            |
-|----------------|------------------------------------------------------------|----------|---------------------------------------------------|
-| deviceIp       |IP address of the Shelly device, usually auto-discovered    |    yes   |none                                               |
-| userId         |The userid used for http authentication*                    |    no    |none                                               |
-| password       |Password for http authentication*                           |    no    |none                                               |
-| lowBattery     |Threshold for battery level. Set alert when level is below. |    no    |20 (=20%), only for battery powered devices        |
-| updateInterval |Interval for the background status check in seconds.        |    no    |1h for battery powered devices, 60s for all others |
+|Parameter      |Description                                                   |Mandantory|Default                                           |
+|----------------|-------------------------------------------------------------|----------|--------------------------------------------------|
+|deviceIp       |IP address of the Shelly device, usually auto-discovered      |    yes   |none                                              |
+|userId           |The userid used for http authentication*                    |    no    |none                                              |
+|password       |Password for http authentication*                             |    no    |none                                              |
+|lowBattery     |Threshold for battery level. Set alert when level is below.   |    no    |20 (=20%), only for battery powered devices       |
+|updateInterval   |Interval for the background status check in seconds.        |    no    |1h for battery powered devices, 60s for all others|
+|eventsRelayButton|Register event "trigger when button is pushed"              |    no    |only one event url per device                     |
+|eventsRelaySwitch|Register event "trigger of switching the relay output"      |    no    |only one event url per device                     |
+|coap             |ON: Listen for CoIoT/COAP events, OFF: Don't use COAP       |    no    |only one event url per device                     |
 
 ## Channels
 
