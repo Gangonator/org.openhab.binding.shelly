@@ -11,14 +11,16 @@ Bugs/API inconsistencies
 - Shelly1: After updating to FW 20190711-084053/v1.5.0-hotfix4@3b4f7414
   the API returns "update":{"status":"unknown","has_update":false,"new_version":"","old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"}
   (worked fine with previous fw versions)
-- Shelly1: Coap device description is not filled properly
+- Shelly1: Coap device description is not filled properly: {"blk":[{"I":0,"D":"Relay0"}] instead of {"blk":[{"I":0,"D":"Relay0"}]
 - ShellyHT: Sends CoIoT status updates with duplicate sertial, but new sensor values
 
 Documentation
 - The Shelly Bulb API is not described clearly and maybe it is inconsistent - e.g. it describes /light whereas the Web UI uses /color and /white
-- The CoIoT documetation should be significantly improved. Ut was hard to inmplement, e.g.
+- The CoIoT documetation should be significantly improved. it was hard to inmplement, e.g.
   it's not mentioned that you need to subscribe to a multicast group to receive the status udates
   the calculation of validity needs to be better explainedc
+  the P tag in the device description is not described
+  it's not clear that the app does not send the CoIoT specific options
 
  
  Feature Requests

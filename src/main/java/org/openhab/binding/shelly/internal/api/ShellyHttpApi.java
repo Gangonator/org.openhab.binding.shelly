@@ -13,6 +13,7 @@
 package org.openhab.binding.shelly.internal.api;
 
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
+import static org.openhab.binding.shelly.internal.handler.ShellyUpdater.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -509,23 +510,4 @@ public class ShellyHttpApi {
         }
     }
 
-    static public String getString(String value) {
-        return value != null ? value : "";
-    }
-
-    static public Integer getInteger(Object value) {
-        return (value != null ? (Integer) value : 0);
-    }
-
-    static public Long getLong(Object value) {
-        return (value != null ? (Long) value : 0);
-    }
-
-    static public Double getDouble(Object value) {
-        return (value != null ? (Double) value : 0);
-    }
-
-    static public Boolean getBool(Object value) {
-        return (value != null ? (Boolean) value : false);
-    }
 }

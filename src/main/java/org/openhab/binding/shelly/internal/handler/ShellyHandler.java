@@ -16,9 +16,9 @@ import static org.eclipse.smarthome.core.thing.Thing.*;
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
 import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
+import static org.openhab.binding.shelly.internal.handler.ShellyUpdater.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -27,11 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
-import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -44,14 +42,7 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsEMeter;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusRelay;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.coap.ShellyCoapListener;
@@ -67,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Markus Michels - Completely refactored
  */
 public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListener {
-    private final Logger                  logger           = LoggerFactory.getLogger(ShellyHandler.class);
+    public final Logger                   logger           = LoggerFactory.getLogger(ShellyHandler.class);
 
     protected final NetworkAddressService networkAddressService;
     protected final ShellyHandlerFactory  handlerFactory;
@@ -78,7 +69,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
     private ScheduledFuture<?>            statusJob        = null;;
     private int                           skipUpdate       = 0;
-    private int                           scheduledUpdates = 0;
+    public int                            scheduledUpdates = 0;
     private int                           skipCount        = UPDATE_SKIP_COUNT;
     private int                           refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL;   // force settings refresh every x
                                                                                                                   // seconds
@@ -88,7 +79,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     private boolean                       channelCache     = false;
     protected boolean                     lockUpdates      = false;
 
-    private String                        thingName        = "";
+    public String                         thingName        = "";
     private Map<String, Object>           channelData      = new HashMap<>();
     protected ShellyBindingConfiguration  bindingConfig    = new ShellyBindingConfiguration();
 
@@ -420,192 +411,10 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.debug("{}: Status info: {}", thingName, status.json);
 
                 // map status to channels
-                if (profile.hasRelays && !profile.isRoller) {
-                    logger.trace("{}: Updating {} relay(s)", thingName, profile.numRelays);
-                    int i = 0;
-                    ShellyStatusRelay rstatus = api.getRelayStatus(i);
-                    if (rstatus != null) {
-                        for (ShellyShortStatusRelay relay : rstatus.relays) {
-                            if ((relay.is_valid == null) || relay.is_valid) {
-                                Integer r = i + 1;
-                                String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
-                                updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getBool(relay.ison) ? OnOffType.ON : OnOffType.OFF);
-                                updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getBool(relay.overpower));
-                                updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getBool(relay.has_timer) ? OnOffType.ON : OnOffType.OFF);
-                                ShellySettingsRelay rsettings = profile.settings.relays.get(i);
-                                if (rsettings != null) {
-                                    updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDouble(rsettings.auto_on));
-                                    updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDouble(rsettings.auto_off));
-                                }
-                            }
-                            i++;
-                        }
-                    }
-                }
-                if (profile.hasRelays && profile.isRoller && (status.rollers != null)) {
-                    logger.trace("{}: Updating {} rollers", thingName, profile.numRollers);
-                    int i = 0;
-                    for (ShellySettingsRoller roller : status.rollers) {
-                        if (roller.is_valid) {
-                            ShellyControlRoller control = api.getRollerStatus(i);
-                            Integer relayIndex = i + 1;
-                            String groupName = profile.numRollers == 1 ? CHANNEL_GROUP_ROL_CONTROL
-                                    : CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
-                            // updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL, getString(control.state));
-                            if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
-                                updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
-                                        new PercentType(SHELLY_MAX_ROLLER_POS - getInteger(control.current_pos)));
-                                updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
-                                scheduledUpdates = 1; // one more poll and then stop
-                            }
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getString(control.last_direction));
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_STOPR, getString(control.stop_reason));
-                            updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getBool(control.overtemperature));
-
-                            i = i + 1;
-                        }
-                    }
-                }
-
-                if (profile.hasMeter && ((status.meters != null) || (status.emeters != null))) {
-                    if (!profile.isRoller) {
-                        logger.trace("{}: Updating {} {}meters", thingName, !profile.isEMeter ? "standard" : "e-", profile.numMeters);
-
-                        // In Relay mode we map eacher meter to the matching channel group
-                        int m = 0;
-                        if (!profile.isEMeter) {
-                            for (ShellySettingsMeter meter : status.meters) {
-                                Integer meterIndex = m + 1;
-                                if (getBool(meter.is_valid) || profile.isLight) {   // RGBW2-white doesn't report das flag correctly in white mode
-                                    String groupName = "";
-                                    if (profile.numMeters > 1) {
-                                        groupName = CHANNEL_GROUP_METER + meterIndex.toString();
-                                    } else {
-                                        groupName = CHANNEL_GROUP_METER;
-                                    }
-                                    updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(meter.power));
-                                    if (meter.total != null) {
-                                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, getDouble(meter.total) / (60.0 * 1000.0));  // convert
-                                                                                                                                     // Watt/Min to
-                                                                                                                                     // kw/h
-                                    }
-                                    if (meter.counters != null) {
-                                        updateChannel(groupName, CHANNEL_METER_LASTMIN1, getDouble(meter.counters[0]));
-                                        updateChannel(groupName, CHANNEL_METER_LASTMIN2, getDouble(meter.counters[1]));
-                                        updateChannel(groupName, CHANNEL_METER_LASTMIN3, getDouble(meter.counters[2]));
-                                    }
-                                    updateChannel(groupName, CHANNEL_METER_TIMESTAMP,
-                                            ShellyHandlerFactory.convertTimestamp(getLong(meter.timestamp)));
-                                    m++;
-                                }
-                            }
-                        } else {
-                            for (ShellySettingsEMeter emeter : status.emeters) {
-                                Integer meterIndex = m + 1;
-                                if (emeter.is_valid) {
-                                    String groupName = "";
-                                    if (profile.numMeters > 1) {
-                                        groupName = CHANNEL_GROUP_METER + meterIndex.toString();
-                                    } else {
-                                        groupName = CHANNEL_GROUP_METER;
-                                    }
-                                    if (emeter.is_valid) {
-                                        // convert Watt/Hour tok w/h
-                                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDouble(emeter.power));
-                                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, getDouble(emeter.total) / 1000);
-                                        updateChannel(groupName, CHANNEL_EMETER_TOTALRET, getDouble(emeter.total_returned) / 1000);
-                                        updateChannel(groupName, CHANNEL_EMETER_REACTWATTS, getDouble(emeter.reactive));
-                                        updateChannel(groupName, CHANNEL_EMETER_VOLTAGE, getDouble(emeter.voltage));
-                                    }
-                                    m++;
-                                }
-                            }
-                        }
-                    } else {
-                        // In Roller Mode we accumulate all meters to a single set of meters
-                        logger.debug("{}: Updating roller meter", thingName);
-                        Double currentWatts = 0.0;
-                        Double totalWatts = 0.0;
-                        Double lastMin1 = 0.0;
-                        Double lastMin2 = 0.0;
-                        Double lastMin3 = 0.0;
-                        Long timestamp = 0l;
-                        String groupName = CHANNEL_GROUP_METER;
-                        for (ShellySettingsMeter meter : status.meters) {
-                            if (meter.is_valid) {
-                                currentWatts += getDouble(meter.power);
-                                totalWatts += getDouble(meter.total);
-                                if (meter.counters != null) {
-                                    lastMin1 += getDouble(meter.counters[0]);
-                                    lastMin2 += getDouble(meter.counters[1]);
-                                    lastMin3 += getDouble(meter.counters[2]);
-                                }
-                                if (getLong(meter.timestamp) > timestamp) {
-                                    timestamp = getLong(meter.timestamp);
-                                }
-                            }
-                        }
-                        updateChannel(groupName, CHANNEL_METER_LASTMIN1, lastMin1);
-                        updateChannel(groupName, CHANNEL_METER_LASTMIN2, lastMin2);
-                        updateChannel(groupName, CHANNEL_METER_LASTMIN3, lastMin3);
-
-                        // convert totalWatts into kw/h
-                        totalWatts = totalWatts / (60.0 * 10000.0);
-                        updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, currentWatts);
-                        updateChannel(groupName, CHANNEL_METER_TOTALKWH, totalWatts);
-                        updateChannel(groupName, CHANNEL_METER_TIMESTAMP, ShellyHandlerFactory.convertTimestamp(timestamp));
-                    }
-                }
-
-                if (profile.hasLed) {
-                    Validate.notNull(profile.settings.led_status_disable, "LED update: led_status_disable must not be null!");
-                    Validate.notNull(profile.settings.led_power_disable, "LED update: led_power_disable must not be null!");
-                    logger.debug("{}: LED disabled status: powerLed: {}, : statusLed{}",
-                            thingName, getBool(profile.settings.led_power_disable), getBool(profile.settings.led_status_disable));
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getBool(profile.settings.led_status_disable));
-                    updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getBool(profile.settings.led_power_disable));
-                }
-
-                if (profile.isSensor || profile.hasBattery) {
-                    logger.debug("{}: Updating sensor", thingName);
-                    ShellyStatusSensor sdata = api.getSensorStatus();
-                    if (sdata != null) {
-                        if (getBool(sdata.tmp.is_valid)) {
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP,
-                                    getString(sdata.tmp.units).toUpperCase().equals(SHELLY_TEMP_CELSIUS) ? getDouble(sdata.tmp.tC)
-                                            : getDouble(sdata.tmp.tF));
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TUNIT, getString(sdata.tmp.units));
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM, getDouble(sdata.hum.value));
-                        }
-                        if ((sdata.lux != null) && getBool(sdata.lux.is_valid)) {
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX, getDouble(sdata.lux.value));
-                        }
-                        if (sdata.flood != null) {
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_FLOOD, getDouble(sdata.flood));
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_RAIN_MODE, getDouble(sdata.rain_sensor));
-                        }
-                        if (sdata.bat != null) {
-                            logger.trace("{}: Updating battery", thingName);
-                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDouble(sdata.bat.value));
-                            updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW,
-                                    getDouble(sdata.bat.value) < config.lowBattery ? true : false);
-                            if (sdata.bat.value != null) {  // no update for Sense
-                                updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDouble(sdata.bat.voltage));
-                            }
-                        }
-                        if (profile.isSense) {
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION, getBool(sdata.motion));
-                            updateChannel(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_CHARGER, getBool(sdata.charger));
-                        }
-                        if (sdata.act_reasons != null) {
-                            String message = "";
-                            for (int i = 0; i < sdata.act_reasons.length; i++) {
-                                message = "[" + i + "]: " + sdata.act_reasons[i];
-                            }
-                            logger.debug("Last activate reasons: {}", message);
-                        }
-                    }
-                }
+                ShellyUpdater.updateRelays(this, profile, status);
+                ShellyUpdater.updateMeters(this, profile, status);
+                ShellyUpdater.updateLed(this, profile, status);
+                ShellyUpdater.updateSensors(this, profile, status);
 
                 // update thing status from specific thing handlers
                 updateThingStatus();
@@ -761,43 +570,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
         return false;
     }
 
-    /*
-     * Will be replaced by refactoring
-     */
-    public boolean updateChannel(String group, String channel, Object value) {
-        String channelId = mkChannelName(group, channel);
-        if (value instanceof String) {
-            return updateChannel(channelId, new StringType((String) value), false);
-        }
-        if (value instanceof Integer) {
-            Integer v = (Integer) value;
-            return updateChannel(channelId, new DecimalType(v), false);
-        }
-        if (value instanceof Long) {
-            Long v = (Long) value;
-            return updateChannel(channelId, new DecimalType(v), false);
-        }
-        if (value instanceof Double) {
-            Double v = (Double) value;
-            return updateChannel(channelId, new DecimalType(v), false);
-        }
-        if (value instanceof Boolean) {
-            Boolean v = (Boolean) value;
-            return updateChannel(channelId, v ? OnOffType.ON : OnOffType.OFF, false);
-        }
-        if (value instanceof OnOffType) {
-            OnOffType v = (OnOffType) value;
-            return updateChannel(channelId, v, false);
-        }
-        if (value instanceof PercentType) {
-            PercentType v = (PercentType) value;
-            return updateChannel(channelId, new PercentType(new BigDecimal(v.doubleValue())), false);
-        }
-        if (value instanceof HSBType) {
-            HSBType v = (HSBType) value;
-            return updateChannel(channelId, v, false);
-        }
-        return false;
+    public boolean updateChannel(String group, String channel, State value) {
+        return updateChannel(mkChannelId(group, channel), value, false);
     }
 
     /**
@@ -940,20 +714,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
      * @return the data from that channel
      */
     protected Object getChannelValue(String group, String channel) {
-        String key = mkChannelName(group, channel);
+        String key = mkChannelId(group, channel);
         return channelData.get(key);
     }
 
     public String mkRelayGroup(Integer rIndex) {
         return profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rIndex.toString();
-    }
-
-    public static String mkChannelName(String group, String channel) {
-        return group + "#" + channel;
-    }
-
-    protected void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
     /**
@@ -987,5 +753,4 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
     public void updateThingStatus() throws IOException {
         logger.trace("{}: No secondary updates", thingName);
     }
-
 }

@@ -15,6 +15,7 @@ package org.openhab.binding.shelly.internal.coap;
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.SHELLY_MAX_ROLLER_POS;
 import static org.openhab.binding.shelly.internal.coap.ShellyCoapJSon.*;
+import static org.openhab.binding.shelly.internal.handler.ShellyUpdater.mkChannelId;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -68,8 +69,8 @@ import com.google.gson.GsonBuilder;
 /**
  * The {@link ShellyCoapListener} handles the coap registration and events.
  *
- * @author Markus Michels - Initial contribution
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Markus Michels - Initial contribution
  */
 public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
     private final Logger                   logger                       = LoggerFactory.getLogger(ShellyCoapListener.class);
@@ -121,7 +122,7 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
         }
 
         @Override
-        public void handleGET(CoapExchange exchange) {
+        public void handleCUSTOM_30(CoapExchange exchange) {
             Response response = new Response(ResponseCode.CONTENT);
             response.setOptions(exchange.getRequestOptions());
             response.setPayload(exchange.getRequestPayload());
@@ -175,12 +176,12 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
 
     @Override
     public void onLoad(CoapResponse response) {
-        logger.warn("onLoad()");
+        logger.debug("onLoad()");
     }
 
     @Override
     public void onError() {
-        logger.warn("OBSERVING FAILED");
+        logger.debug("OBSERVING FAILED");
     }
 
     /**
@@ -188,7 +189,6 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
      *
      * @param request Coap Request Packet
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void receiveRequest(Request request) {
         String srcAddr = request.getSourceContext().getPeerAddress().toString();
@@ -244,7 +244,7 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                             serial = o.getIntegerValue();
                             if (serial == lastSerial) {
                                 ShellyDeviceProfile profile = thingHandler.getProfile(false);
-                                if ((profile != null) && profile.isSensor) {
+                                if ((profile != null) && profile.isSensor) {   // work around for Shelly HT
                                     logger.debug("{}: Duplicate serial {} will be processed", devId, serial);
                                     break;
                                 }
@@ -275,10 +275,8 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                  */
                 reqStatus = sendRequest(reqStatus, config.deviceIp, COLOIT_URI_DEVSTATUS, Type.NON);
             }
-        } catch (RuntimeException |
-
-                IOException e) {
-            logger.debug("{}: Unable to process CoIoT Message: {} ({}); payload={}", devId, e.getMessage(), e.getClass(), payload);
+        } catch (RuntimeException | IOException e) {
+            logger.warn("{}: Unable to process CoIoT Message: {} ({}); payload={}", devId, e.getMessage(), e.getClass(), payload);
             lastSerial = -1;
         }
     }
@@ -368,13 +366,13 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
             // try to uses description from last initialization
             String savedDescr = thingHandler.getProperty(PROPERTY_COAP_DESCR);
             if (savedDescr.isEmpty()) {
-                logger.debug("Device description not yet received, ignore device update");
+                logger.debug("{}: Device description not yet received, ignore device update", devId);
                 return;
             }
 
             // simulate received device description to create element table
             handleDeviceDescription(devId, savedDescr);
-            logger.debug("Device description restored");
+            logger.debug("{}: Device description restored: {}", devId, savedDescr);
         }
 
         // Parse Json,
@@ -387,13 +385,14 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
             return;
         }
 
+        Validate.notNull(thingHandler, "thingHandler must not be null!");
         ShellyDeviceProfile profile = thingHandler.getProfile(false);
         if (profile == null) {
-            logger.debug("Thing not initialized yet, skip update");
+            logger.debug("{}: Thing {} not initialized yet, skip update", devId, thingHandler.thingName);
             return;
         }
 
-        logger.debug("{}: {} status update received", devId, list.G.size());
+        logger.debug("{}: {} status updates received", devId, list.G.size());
         for (int i = 0; i < list.G.size(); i++) {
             CoIoT_Sensor s = list.G.get(i);
             CoIoT_Descr_sen sen = sensorMap.get(s.index);
@@ -410,29 +409,29 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                 switch (sen.T /* CoIoT_STypes.valueOf(sen.T) */) {
                     case "T" /* Temperature */:
                         Validate.isTrue(type.contains("sensors"), "Temp update for non-sensor");
-                        updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP), new DecimalType(s.value));
+                        updates.put(mkChannelId(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_TEMP), new DecimalType(s.value));
                         break;
                     case "H" /* Humidity */:
                         Validate.isTrue(type.contains("sensors"), "Humidity update for non-sensor");
-                        updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM), new DecimalType(s.value));
+                        updates.put(mkChannelId(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_HUM), new DecimalType(s.value));
                         break;
                     case "B" /* BatteryLevel */:
                         Validate.isTrue(type.contains("sensors"), "BatLevel update for non-sensor");
-                        updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_BAT_LEVEL), new DecimalType(s.value));
+                        updates.put(mkChannelId(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_BAT_LEVEL), new DecimalType(s.value));
                         break;
                     case "M" /* Motion */:
                         Validate.isTrue(type.contains("sensors"), "Motion update for non-sensor");
-                        updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION),
+                        updates.put(mkChannelId(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_MOTION),
                                 s.value == 1 ? OnOffType.ON : OnOffType.OFF);
                         break;
                     case "L" /* Luminosity */:
                         Validate.isTrue(type.contains("sensors"), "Luminosity update for non-sensor");
-                        updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX), new DecimalType(s.value));
+                        updates.put(mkChannelId(CHANNEL_GROUP_SENSOR, CHANNEL_SENSOR_LUX), new DecimalType(s.value));
                         break;
 
                     case "W" /* Watt */:
                         String rGroup = profile.numMeters == 1 ? CHANNEL_GROUP_METER : CHANNEL_GROUP_METER + rIndex;
-                        updates.put(ShellyHandler.mkChannelName(rGroup, CHANNEL_METER_CURRENTWATTS), new DecimalType(s.value));
+                        updates.put(mkChannelId(rGroup, CHANNEL_METER_CURRENTWATTS), new DecimalType(s.value));
                         break;
 
                     case "S" /* CatchAll */:
@@ -440,24 +439,24 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
                             case "state":
                             case "relay0": // Shelly1
                                 String mGroup = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + rIndex;
-                                updates.put(ShellyHandler.mkChannelName(mGroup, CHANNEL_RELAY_OUTPUT),
+                                updates.put(mkChannelId(mGroup, CHANNEL_RELAY_OUTPUT),
                                         s.value == 1 ? OnOffType.ON : OnOffType.OFF);
                                 break;
                             case "position":
-                                updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_POS),
+                                updates.put(mkChannelId(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_POS),
                                         new PercentType(new BigDecimal(SHELLY_MAX_ROLLER_POS - s.value)));
-                                updates.put(ShellyHandler.mkChannelName(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_POS),
+                                updates.put(mkChannelId(CHANNEL_GROUP_ROL_CONTROL, CHANNEL_ROL_CONTROL_POS),
                                         new PercentType(new BigDecimal(s.value)));
                                 break;
                         }
                         break;
 
                     default:
-                        logger.debug("Sensor data for type {} not processed, value={}", sen.T.toString(), s.value);
+                        logger.debug("{}: Sensor data for type {} not processed, value={}", devId, sen.T.toString(), s.value);
                         break;
                 }
             } else {
-                logger.warn("Update for unknown sensor[{}]: Index={}, Value={}", i, s.index, s.value);
+                logger.warn("{}: Update for unknown sensor[{}]: Index={}, Value={}", devId, i, s.index, s.value);
             }
         }
 
@@ -465,11 +464,13 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
             logger.debug("CoIoT-{}: Process {} channel updates", devId, updates.size());
             int i = 0;
             for (Map.Entry<String, State> u : updates.entrySet()) {
-                logger.debug("  Update[{}] channel {}, value={}", i, u.getKey(), u.getValue());
+                logger.trace("  Update[{}] channel {}, value={}", i, u.getKey(), u.getValue());
                 thingHandler.updateChannel(u.getKey(), u.getValue(), true);
                 i++;
             }
         }
+
+        // Remeber this serial, new packets with same serial will be ignore (except for Sensors)
         lastSerial = serial;
     }
 
@@ -527,11 +528,12 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
 
             @Override
             public void onCancel() {
+                logger.debug("COAP Request canceled");
             }
 
             @Override
             public void onTimeout() {
-                logger.debug("COAP Request timeout");
+                logger.debug("COAP Request timed out");
             }
 
         });
@@ -543,6 +545,7 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
      * Cancel pending requests and shutdown the client
      */
     public void stop() {
+        logger.debug("Stop COAP instance");
         if ((reqDescription != null) && !reqDescription.isCanceled()) {
             reqDescription.cancel();
             reqDescription = null;
@@ -572,7 +575,6 @@ public class ShellyCoapListener implements CoapHandler, MessageInterceptor {
 
     @Override
     public void receiveResponse(Response response) {
-        logger.debug("receiveResponse()");
     }
 
     @Override

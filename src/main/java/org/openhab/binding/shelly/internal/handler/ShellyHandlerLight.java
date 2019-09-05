@@ -14,7 +14,7 @@ package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
-import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.*;
+import static org.openhab.binding.shelly.internal.handler.ShellyUpdater.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -289,7 +290,7 @@ public class ShellyHandlerLight extends ShellyHandler {
             // The bulb has a combined channel set for color or white mode
             // The RGBW2 uses 2 different thing types: color=1 channel, white=4 channel
             if (profile.isBulb) {
-                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, profile.inColor);
+                updateChannel(CHANNEL_GROUP_LIGHT_CONTROL, CHANNEL_LIGHT_COLOR_MODE, getOnOff(profile.inColor));
             }
 
             ShellyColorUtils col = getCurrentColors(lightId);
@@ -298,10 +299,10 @@ public class ShellyHandlerLight extends ShellyHandler {
 
             // Channel control/timer
             // ShellyStatusLightChannel light = status.lights.get(i);
-            updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getBool(light.ison));
-            updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDouble(light.auto_on));
-            updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDouble(light.auto_off));
-            updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getBool(light.overpower));
+            updateChannel(controlGroup, CHANNEL_LIGHT_POWER, getOnOff(light.ison));
+            updateChannel(controlGroup, CHANNEL_TIMER_AUTOON, getDecimal(light.auto_on));
+            updateChannel(controlGroup, CHANNEL_TIMER_AUTOOFF, getDecimal(light.auto_off));
+            updateChannel(controlGroup, CHANNEL_RELAY_OVERPOWER, getOnOff(light.overpower));
 
             if (profile.inColor || profile.isBulb) {
                 logger.trace("update color settings");
@@ -317,7 +318,7 @@ public class ShellyHandlerLight extends ShellyHandler {
                 updateChannel(colorGroup, CHANNEL_COLOR_BLUE, col.percentBlue);
                 updateChannel(colorGroup, CHANNEL_COLOR_WHITE, col.percentWhite);
                 updateChannel(colorGroup, CHANNEL_COLOR_GAIN, col.percentGain);
-                updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, col.effect);
+                updateChannel(colorGroup, CHANNEL_COLOR_EFFECT, new DecimalType(col.effect));
                 setFullColor(colorGroup, col);
 
                 logger.trace("update {}.color picker", colorGroup);
@@ -369,15 +370,15 @@ public class ShellyHandlerLight extends ShellyHandler {
 
     private void setFullColor(String colorGroup, ShellyColorUtils col) {
         if ((col.red == SHELLY_MAX_COLOR) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
-            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_YELLOW);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, new StringType(SHELLY_COLOR_YELLOW));
         } else if ((col.red == SHELLY_MAX_COLOR) && (col.green == 0) && (col.blue == 0)) {
-            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_RED);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, new StringType(SHELLY_COLOR_RED));
         } else if ((col.red == 0) && (col.green == SHELLY_MAX_COLOR) && (col.blue == 0)) {
-            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_GREEN);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, new StringType(SHELLY_COLOR_GREEN));
         } else if ((col.red == 0) && (col.green == 0) && (col.blue == SHELLY_MAX_COLOR)) {
-            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_BLUE);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, new StringType(SHELLY_COLOR_BLUE));
         } else if ((col.red == 0) && (col.green == 0) && (col.blue == 0) && (col.white == SHELLY_MAX_COLOR)) {
-            updateChannel(colorGroup, CHANNEL_COLOR_FULL, SHELLY_COLOR_WHITE);
+            updateChannel(colorGroup, CHANNEL_COLOR_FULL, new StringType(SHELLY_COLOR_WHITE));
         }
     }
 
