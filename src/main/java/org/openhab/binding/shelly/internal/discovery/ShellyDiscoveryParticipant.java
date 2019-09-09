@@ -56,11 +56,11 @@ import org.slf4j.LoggerFactory;
 @Component(service = MDNSDiscoveryParticipant.class, immediate = true)
 public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
 
-    private final Logger               logger         = LoggerFactory.getLogger(ShellyDiscoveryParticipant.class);
-    private ShellyBindingConfiguration bindingConfig  = new ShellyBindingConfiguration();
-    private ShellyHandlerFactory       handlerFactory = null;
+    private final Logger logger = LoggerFactory.getLogger(ShellyDiscoveryParticipant.class);
+    private ShellyBindingConfiguration bindingConfig = new ShellyBindingConfiguration();
+    private ShellyHandlerFactory handlerFactory = null;
 
-    private static final String        SERVICE_TYPE   = "_http._tcp.local.";
+    private static final String SERVICE_TYPE = "_http._tcp.local.";
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
@@ -146,13 +146,17 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             } catch (IOException e) {
                 if (e.getMessage().contains(HTTP_401_UNAUTHORIZED)) {
                     logger.warn("Device {} ({}) reported 'Access defined' (userid/password mismatch).", name, address);
-                    logger.info("You could set a default userid and passowrd in the binding config and re-discover devices");
-                    logger.info("or you need to disable device protection (userid/password) in the Shelly App for device discovery.");
-                    logger.info("Once the device is discoverd you could set the userid/password and re-enable device protection in the Shelly App.");
+                    logger.info(
+                            "You could set a default userid and passowrd in the binding config and re-discover devices");
+                    logger.info(
+                            "or you need to disable device protection (userid/password) in the Shelly App for device discovery.");
+                    logger.info(
+                            "Once the device is discoverd you could set the userid/password and re-enable device protection in the Shelly App.");
                     name = (name + "-" + address).replace('.', '-');
                     thingUID = new ThingUID(THING_TYPE_SHELLYPROTECTED, name);
                 } else {
-                    logger.warn("Device discovery failed for device {}, IP {}: {} ({})", name, address, e.getMessage(), e.getClass());
+                    logger.warn("Device discovery failed for device {}, IP {}: {} ({})", name, address, e.getMessage(),
+                            e.getClass());
                 }
             }
 
@@ -168,9 +172,11 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             addProperty(properties, PROPERTY_SERVICE_NAME, service.getName());
 
             logger.info("Adding Shelly thing, UID={}", thingUID.getAsString());
-            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(name).withRepresentationProperty(name).build();
+            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withLabel(name)
+                    .withRepresentationProperty(name).build();
         } catch (RuntimeException e) {
-            logger.warn("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, name, e.getMessage(),
+            logger.warn("Device discovery failed for device {}, IP {}, service={}: {} ({})", name, address, name,
+                    e.getMessage(),
                     e.getClass());
         }
         return null;
@@ -246,6 +252,11 @@ public class ShellyDiscoveryParticipant implements MDNSDiscoveryParticipant {
             }
             if (mode.equals(SHELLY_MODE_WHITE)) {
                 return new ThingUID(THING_TYPE_SHELLYRGBW2_WHITE, devid);
+            }
+        }
+        if (name.startsWith("shellydimmer")) {
+            if (mode.equals(SHELLY_MODE_WHITE)) {
+                return new ThingUID(THING_TYPE_SHELLYDIMMER_WHITE, devid);
             }
         }
 

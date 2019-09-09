@@ -18,6 +18,7 @@ Latest **snapshot** (work in progress): https://github.com/markus7017/org.openha
 
 + Support for Shelly Flood
 + Support for Shelly EM (primarily)
++ Support for Shelly Dimmer (primarily)
 + Create special device (shelly-protected) when device is password protected
 + CoIoT/COAP support added (experimental, needs to be activated in thing config)
 
@@ -111,8 +112,10 @@ Looking for contribution: If you are familar with HTML and CSS you are welcome t
 |------------------|--------------------------------------------------------|----------------------------------------------------------|
 | shelly1          | Shelly Single Relay Switch                             | fully supported                                          |
 | shelly1pm        | Shelly Single Relay Switch with integrated Power Meter | fully supported                                          |
+| shelly1em        | Shelly EM  with integrated Power Meter                 | primarily support                                          |
 | shelly2-relay    | Shelly Double Relay Switch (Shelly2 and Shelly2.5)     | fully supported                                          |
-| shelly2-roller   | Shelly2 in Roller Mode (Shelly2 and Shelly2.5)         | fully supported                                          |
+| shelly2-roller   | Shelly2 in Roller Mode (Shelly2 and Shelly2.5)         | fully supported                                         |
+| shelly2dimmer-white   | Shelly Dimmer in White Mode                       | initial implementation, needs to be verified                                        |
 | shellyht         | Shelly Sensor (temp+humidity)                          | needs to be verified                                     |
 | shellyplug-s     | Shelly Plug                                            | fully supported                                          |
 | shellyplug       | Shelly Plug                                            | fully supported                                          |
@@ -279,6 +282,17 @@ The Shelly 2.5 includes 2 meters, one for each channel. However, it doesn't make
 |meter2    |             |         |         |See group meter1 for Shelly 2                                                    |
 |meter3    |             |         |         |See group meter1 for Shelly 2                                                    |
 |meter4    |             |         |         |See group meter1 for Shelly 2                                                    |
+
+### Shelly Dimmer (thing-type: shellydimmer)
+
+|Group     |Channel      |Type     |read-only|Desciption                                                                       |
+|----------|-------------|---------|---------|---------------------------------------------------------------------------------|
+|dimmer    |output       |Switch   |r/w      |Controls the relay's output channel (on/off)                                     |
+|          |event        |Trigger  |yes      |Triggers an event when posted by the device                            |
+|          |             |         |         |the payload includes the event type and value as a J                   |
+|status    |brightness   |Number   |r/w      |Light brightness                                                       |
+|          |error        |String   |yes      |Last error, "no" if none                                               |
+|meter     |currentWatts |Number   |yes      |Current power consumption in Watts                                               |
 
 ### Shelly Plug-S (thing-type: shellyplug-s)
 

@@ -716,3 +716,30 @@
 	"ram_total":50448,"ram_free":35360,"fs_size":233681,"fs_free":162648,
 	"uptime":7201
 }
+
+
+Shelly Dimmer /settings
+{
+    "device":{
+        "type":"SHDM-1","mac":"5002914200A0","hostname":"shellydimmer-4200A0","num_outputs":1,"num_meters":1
+    },
+    "wifi_ap":{"enabled":false,"ssid":"shellydimmer-4200A0","key":""},
+    "wifi_sta":{"enabled":true,"ssid":"IGI","ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+    "wifi_sta1":{"enabled":false,"ssid":null,"ipv4_method":"dhcp","ip":null,"gw":null,"mask":null,"dns":null},
+    "mqtt": {"enable":false,"server":"192.168.33.3:1883","user":"","reconnect_timeout_max":60.000000,"reconnect_timeout_min":2.000000,"clean_session":true,"keep_alive":60,"will_topic":"shellies/shellydimmer-4200A0/online","will_message":"false","max_qos":0,"retain":false,"update_period":30},
+    "sntp": {"server":"time.google.com"},
+    "login":{"enabled":false,"unprotected":false,"username":"admin","password":"admin"},
+    "pin_code":"lFTBFP",
+    "coiot_execute_enable":false,"name":"",
+    "fw":"20190904-101959/872-shelly-dimmer-stm@c48c00d8","build_info":{"build_id":"20190904-101959/872-shelly-dimmer-stm@c48c00d8","build_timestamp":"2019-09-04T10:19:59Z","build_version":"1.0"},
+    "cloud":{"enabled":true,"connected":true}
+    ,"timezone":"Europe/Berlin","lat":51.252491,"lng":6.779092,"tzautodetect":false,"time":"18:48",
+    "hwinfo":{"hw_revision":"dev-prototype","batch_id":0},
+    "mode":"white","calibrated":false,"transition":1000,
+    "lights":[
+        {"name":"","ison":false,"default_state":"off","auto_on":0.00,"auto_off":0.00,
+         "btn1_on_url":"","btn1_off_url":"","btn2_on_url":"","btn2_off_url":"",
+         "schedule":false,"schedule_rules":[],
+         "btn_type":"edge","btn2_type":"brightness","btn2_brightness":50}
+     ]
+}

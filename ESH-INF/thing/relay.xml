@@ -187,6 +187,23 @@
         <config-description-ref uri="thing-type:shelly:generic" />
     </thing-type>
  
+     <thing-type id="shellydimmer-white">
+        <label>Shelly Dimmer (SHDM-1)</label>
+        <description>Shelly Dimmer</description>
+        <channel-groups>
+            <channel-group id="relay" typeId="dimmerChannel">
+                <label>Relay</label>
+            </channel-group>
+            <channel-group id="status" typeId="dimmerStatus">
+                <label>Status</label>
+            </channel-group>
+            <channel-group id="meter" typeId="meter">
+                <label>Meter</label>
+            </channel-group>
+        </channel-groups>
+
+        <config-description-ref uri="thing-type:shelly:generic" />
+    </thing-type>
  
    <channel-group-type id="relayChannel">
        <label>Relay channel</label>
@@ -198,6 +215,26 @@
             <channel id="autoOff" typeId="timerAutoOff" />
             <channel id="timerActive" typeId="timerActive" />
             <channel id="event" typeId="eventTrigger" />
+        </channels>
+   </channel-group-type>
+
+   <channel-group-type id="dimmerChannel">
+       <label>Dimmer channel</label>
+       <description>A Shelly dimmer channel</description>
+        <channels>
+            <channel id="output" typeId="output" />
+            <channel id="brightness" typeId="dimmerBrightness" />
+            <channel id="autoOn" typeId="timerAutoOn" />
+            <channel id="autoOff" typeId="timerAutoOff" />
+            <channel id="event" typeId="eventTrigger" />
+        </channels>
+   </channel-group-type>
+   <channel-group-type id="dimmerStatus">
+       <label>Dimmer Status</label>
+       <description>Status of the Dimmer</description>
+        <channels>
+            <channel id="temperature" typeId="dimmerTemperature" />
+            <channel id="error" typeId="dimmerError" />
         </channels>
    </channel-group-type>
 
@@ -331,6 +368,28 @@
                 <option value="open">open</option>
                 <option value="close">close</option>
             </options>
+        </state>
+    </channel-type>
+
+    <channel-type id="dimmerTemperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Current temperature inside the Dimmer (Celsius)</description>
+        <state readOnly="true" pattern="%.1fC" >
+        </state>
+    </channel-type>
+    <channel-type id="dimmerBrightness">
+        <item-type>Number</item-type>
+        <label>Brightness</label>
+        <description>Light brightness in %</description>
+        <state readOnly="true" pattern="%.1f%%" >
+        </state>
+    </channel-type>
+   <channel-type id="dimmerError">
+        <item-type>String</item-type>
+        <label>Last Error</label>
+        <description>Error reported by the Dimmer</description>
+        <state readOnly="true">
         </state>
     </channel-type>
  

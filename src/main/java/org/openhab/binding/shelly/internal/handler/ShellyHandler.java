@@ -206,8 +206,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 tmpPrf.fwDate, tmpPrf.fwId);
         logger.debug("Shelly settings info for {} : {}", thingName, tmpPrf.settingsJson);
         logger.debug(
-                "Device {}: has relays: {} (numRelays={}), is roller: {} (numRoller={}), is Plug S: {}, has LEDs: {}, is Light: {}, has Meter: {} ( numMeter={}, EMeter: {}), is Sensor: {}, has is Sense: {}, has Battery: {}",
+                "Device {}: has relays: {} (numRelays={}), is roller: {} (numRoller={}), is Plug S: {}, is Dimmer: {}, has LEDs: {}, is Light: {}, has Meter: {} ( numMeter={}, EMeter: {}), is Sensor: {}, has is Sense: {}, has Battery: {}",
                 tmpPrf.hostname, tmpPrf.hasRelays, tmpPrf.numRelays, tmpPrf.isRoller, tmpPrf.numRollers, tmpPrf.isPlugS,
+                tmpPrf.isDimmer,
                 tmpPrf.hasLed,
                 tmpPrf.isLight, tmpPrf.hasMeter, tmpPrf.numMeters, tmpPrf.isEMeter, tmpPrf.isSensor, tmpPrf.isSense,
                 tmpPrf.hasBattery);

@@ -2,7 +2,6 @@ package org.openhab.binding.shelly.internal.handler;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.api.ShellyApiJson.*;
-import static org.openhab.binding.shelly.internal.api.ShellyHttpApi.SHELLY_ALWD_ROLLER_TURN_STOP;
 
 import java.io.IOException;
 
@@ -13,12 +12,14 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsEMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusRelay;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
@@ -34,7 +35,8 @@ public class ShellyUpdater {
      *
      * @throws IOException
      */
-    public static void updateRelays(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status) throws IOException {
+    public static void updateRelays(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
+            throws IOException {
         if (profile.hasRelays && !profile.isRoller) {
             th.logger.trace("{}: Updating {} relay(s)", th.thingName, profile.numRelays);
             int i = 0;
@@ -43,7 +45,8 @@ public class ShellyUpdater {
                 for (ShellyShortStatusRelay relay : rstatus.relays) {
                     if ((relay.is_valid == null) || relay.is_valid) {
                         Integer r = i + 1;
-                        String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
+                        String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL
+                                : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
                         th.updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getOnOff(relay.ison));
                         th.updateChannel(groupName, CHANNEL_RELAY_OVERPOWER, getOnOff(relay.overpower));
                         th.updateChannel(groupName, CHANNEL_TIMER_ACTIVE, getOnOff(relay.has_timer));
@@ -66,11 +69,13 @@ public class ShellyUpdater {
                     Integer relayIndex = i + 1;
                     String groupName = profile.numRollers == 1 ? CHANNEL_GROUP_ROL_CONTROL
                             : CHANNEL_GROUP_ROL_CONTROL + relayIndex.toString();
-                    // updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL, new StringType(getString(control.state)));
+                    // updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL, new
+                    // StringType(getString(control.state)));
                     if (getString(control.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) { // only valid in stop state
                         th.updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
                                 new PercentType(SHELLY_MAX_ROLLER_POS - getInteger(control.current_pos)));
-                        th.updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(getInteger(control.current_pos)));
+                        th.updateChannel(groupName, CHANNEL_ROL_CONTROL_POS,
+                                new PercentType(getInteger(control.current_pos)));
                         th.scheduledUpdates = 1; // one more poll and then stop
                     }
                     th.updateChannel(groupName, CHANNEL_ROL_CONTROL_DIR, getStringType(control.last_direction));
@@ -78,6 +83,44 @@ public class ShellyUpdater {
                     th.updateChannel(groupName, CHANNEL_ROL_CONTROL_OVERT, getOnOff(control.overtemperature));
 
                     i = i + 1;
+                }
+            }
+        }
+    }
+
+    /**
+     * Update Relay/Roller channels
+     *
+     * @param th      Thing Handler instance
+     * @param profile ShellyDeviceProfile
+     * @param status  Last ShellySettingsStatus
+     *
+     * @throws IOException
+     */
+    public static void updateDimmers(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
+            throws IOException {
+        if (profile.hasRelays && !profile.isDimmer) {
+            th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, profile.numRelays);
+            int i = 0;
+
+            ShellyStatusDimmer dstatus = th.api.getDimmerStatus(i);
+            if (dstatus != null) {
+                if (dstatus.tmp != null) {
+                    th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(dstatus.tmp.tC));
+                }
+                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_ERROR, getStringType(dstatus.error));
+                for (ShellySettingsDimmer dimmer : dstatus.lights) {
+                    Integer r = i + 1;
+                    String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL
+                            : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
+                    th.updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getOnOff(dimmer.ison));
+
+                    ShellySettingsDimmer dsettings = profile.settings.dimmers.get(i);
+                    if (dsettings != null) {
+                        th.updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDecimal(dsettings.auto_on));
+                        th.updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDecimal(dsettings.auto_off));
+                    }
+                    i++;
                 }
             }
         }
@@ -94,14 +137,16 @@ public class ShellyUpdater {
 
         if (profile.hasMeter && ((status.meters != null) || (status.emeters != null))) {
             if (!profile.isRoller) {
-                th.logger.trace("{}: Updating {} {}meters", th.thingName, !profile.isEMeter ? "standard" : "e-", profile.numMeters);
+                th.logger.trace("{}: Updating {} {}meters", th.thingName, !profile.isEMeter ? "standard" : "e-",
+                        profile.numMeters);
 
                 // In Relay mode we map eacher meter to the matching channel group
                 int m = 0;
                 if (!profile.isEMeter) {
                     for (ShellySettingsMeter meter : status.meters) {
                         Integer meterIndex = m + 1;
-                        if (getBool(meter.is_valid) || profile.isLight) {   // RGBW2-white doesn't report das flag correctly in white mode
+                        if (getBool(meter.is_valid) || profile.isLight) { // RGBW2-white doesn't report das flag
+                                                                          // correctly in white mode
                             String groupName = "";
                             if (profile.numMeters > 1) {
                                 groupName = CHANNEL_GROUP_METER + meterIndex.toString();
@@ -111,7 +156,7 @@ public class ShellyUpdater {
                             th.updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, getDecimal(meter.power));
                             if (meter.total != null) {
                                 th.updateChannel(groupName, CHANNEL_METER_TOTALKWH,
-                                        getDecimal(getDouble(meter.total) / (60.0 * 1000.0)));  // convert
+                                        getDecimal(getDouble(meter.total) / (60.0 * 1000.0))); // convert
                                 // Watt/Min to
                                 // kw/h
                             }
@@ -181,7 +226,8 @@ public class ShellyUpdater {
                 totalWatts = totalWatts / (60.0 * 10000.0);
                 th.updateChannel(groupName, CHANNEL_METER_CURRENTWATTS, new DecimalType(currentWatts));
                 th.updateChannel(groupName, CHANNEL_METER_TOTALKWH, new DecimalType(totalWatts));
-                th.updateChannel(groupName, CHANNEL_METER_TIMESTAMP, new StringType(ShellyHandlerFactory.convertTimestamp(timestamp)));
+                th.updateChannel(groupName, CHANNEL_METER_TIMESTAMP,
+                        new StringType(ShellyHandlerFactory.convertTimestamp(timestamp)));
             }
         }
     }
@@ -200,8 +246,10 @@ public class ShellyUpdater {
             th.logger.debug("{}: LED disabled status: powerLed: {}, : statusLed{}",
                     th.thingName, getBool(profile.settings.led_power_disable),
                     getBool(profile.settings.led_status_disable));
-            th.updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE, getOnOff(profile.settings.led_status_disable));
-            th.updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE, getOnOff(profile.settings.led_power_disable));
+            th.updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_STATUS_DISABLE,
+                    getOnOff(profile.settings.led_status_disable));
+            th.updateChannel(CHANNEL_GROUP_LED_CONTROL, CHANNEL_LED_POWER_DISABLE,
+                    getOnOff(profile.settings.led_power_disable));
         }
     }
 
@@ -214,7 +262,8 @@ public class ShellyUpdater {
      *
      * @throws IOException
      */
-    public static void updateSensors(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status) throws IOException {
+    public static void updateSensors(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
+            throws IOException {
 
         if (profile.isSensor || profile.hasBattery) {
             th.logger.debug("{}: Updating sensor", th.thingName);
@@ -240,7 +289,7 @@ public class ShellyUpdater {
                     th.updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LEVEL, getDecimal(sdata.bat.value));
                     th.updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_LOW,
                             getDouble(sdata.bat.value) < th.config.lowBattery ? OnOffType.ON : OnOffType.OFF);
-                    if (sdata.bat.value != null) {  // no update for Sense
+                    if (sdata.bat.value != null) { // no update for Sense
                         th.updateChannel(CHANNEL_GROUP_BATTERY, CHANNEL_SENSOR_BAT_VOLT, getDecimal(sdata.bat.voltage));
                     }
                 }
@@ -310,7 +359,8 @@ public class ShellyUpdater {
     }
 
     public static void validateRange(String name, Integer value, Integer min, Integer max) {
-        Validate.isTrue((value >= min) && (value <= max), "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
+        Validate.isTrue((value >= min) && (value <= max),
+                "Value " + name + " is out of range (" + min.toString() + "-" + max.toString() + ")");
     }
 
 }
