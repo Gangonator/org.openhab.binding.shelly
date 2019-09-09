@@ -28,27 +28,30 @@ import com.google.gson.stream.JsonWriter;
  */
 public class ShellyCoapJSon {
 
-    public static final String CoIoT_Tag_blk     = "blk";
-    public static final String CoIoT_Tag_sen     = "sen";
-    public static final String CoIoT_Tag_act     = "act";
+    public static final String CoIoT_Tag_blk = "blk";
+    public static final String CoIoT_Tag_sen = "sen";
+    public static final String CoIoT_Tag_act = "act";
 
-    public static final String CoIoT_Tag_ID      = "I";
-    public static final String CoIoT_Tag_DESC    = "D";
-    public static final String CoIoT_Tag_TYPE    = "T";
-    public static final String CoIoT_Tag_RANGE   = "R";
-    public static final String CoIoT_Tag_LINKS   = "L";
+    public static final String CoIoT_Tag_ID = "I";
+    public static final String CoIoT_Tag_DESC = "D";
+    public static final String CoIoT_Tag_TYPE = "T";
+    public static final String CoIoT_Tag_RANGE = "R";
+    public static final String CoIoT_Tag_LINKS = "L";
 
     public static final String CoIoT_Tag_Generic = "G";
 
     public static enum CoIoT_STypes {
         Temperature("T"),
+        TempCelsius("tC"),
+        TempFahrenheit("tF"),
         Humidity("H"),
         Luminosity("L"),
         Motion("M"),
         AirQuality("A"),
         Watt("P"),
-        BatteryLevel("B"),          // Battery Percentage
-        CatchAll("S");     // Status (this is the catch-all type if no other fits)
+        BatteryLevel("B"), // Battery Percentage
+        Overtemp("Overtemp"), // Over temperature
+        CatchAll("S"); // Status (this is the catch-all type if no other fits)
 
         private String type = "";
 
@@ -58,51 +61,51 @@ public class ShellyCoapJSon {
 
         public static String toString(CoIoT_STypes type) {
             switch (type) {
-                case Temperature:
-                    return "Temperature";
-                case Humidity:
-                    return "Humidity";
-                case Luminosity:
-                    return "Luminosity";
-                case Motion:
-                    return "Motion";
-                case AirQuality:
-                    return "Air Quality";
-                case Watt:
-                    return "Power";
-                case BatteryLevel:
-                    return "Battery Level";
-                case CatchAll:
-                    return "Catch All";
-                default:
-                    return "Unknown (" + type + ")";
+            case Temperature:
+                return "Temperature";
+            case Humidity:
+                return "Humidity";
+            case Luminosity:
+                return "Luminosity";
+            case Motion:
+                return "Motion";
+            case AirQuality:
+                return "Air Quality";
+            case Watt:
+                return "Power";
+            case BatteryLevel:
+                return "Battery Level";
+            case CatchAll:
+                return "Catch All";
+            default:
+                return "Unknown (" + type + ")";
             }
         }
     }
 
     public static class CoIoT_Descr_blk {
-        String I;  // ID
-        String D;  // Description
+        String I; // ID
+        String D; // Description
     }
 
     public static class CoIoT_Descr_sen {
-        public String I;  // ID
-        public String D;  // Description
-        public String T;  // Type
-        public String R;  // Range
-        public String L;  // Links
+        public String I; // ID
+        public String D; // Description
+        public String T; // Type
+        public String R; // Range
+        public String L; // Links
     }
 
     public static class CoIoT_Descr_P {
-        public String I;  // ID
-        public String D;  // Description
-        public String R;  // Range
+        public String I; // ID
+        public String D; // Description
+        public String R; // Range
     }
 
     public static class CoIoT_Descr_act {
-        public String                   I;  // ID
-        public String                   D;  // Description
-        public String                   L;  // Links
+        public String I; // ID
+        public String D; // Description
+        public String L; // Links
         public ArrayList<CoIoT_Descr_P> P; // ?
     }
 
@@ -113,8 +116,8 @@ public class ShellyCoapJSon {
     }
 
     public static class CoIoT_Sensor {
-        public String index;  // id
-        public double value;  // value
+        public String index; // id
+        public double value; // value
     }
 
     public static class CoIoT_GenericSensorList {
