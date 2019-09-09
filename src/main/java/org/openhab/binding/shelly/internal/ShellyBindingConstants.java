@@ -105,7 +105,6 @@ public class ShellyBindingConstants {
     public static final String CHANNEL_GROUP_RELAY_CONTROL = "relay";
     public static final String CHANNEL_RELAY_OUTPUT = "output";
     public static final String CHANNEL_RELAY_OVERPOWER = "overpower";
-    public static final String CHANNEL_RELAY_TRIGGER = "trigger";
 
     public static final String CHANNEL_TIMER_AUTOON = "autoOn";
     public static final String CHANNEL_TIMER_AUTOOFF = "autoOff";
@@ -121,6 +120,11 @@ public class ShellyBindingConstants {
     public static final String CHANNEL_ROL_CONTROL_OVERT = "overtemp";
 
     // Dimmer
+    public static final String CHANNEL_GROUP_DIMMER_CONTROL = CHANNEL_GROUP_RELAY_CONTROL;
+    public static final String CHANNEL_DIMMER_OUTPUT = CHANNEL_RELAY_OUTPUT;
+
+    public static final String CHANNEL_DIMMER_BRIGHTNESS = "brightness";
+
     public static final String CHANNEL_GROUP_DIMMER_STATUS = "status";
     public static final String CHANNEL_DIMMER_TEMP = "temperature";
     public static final String CHANNEL_DIMMER_ERROR = "error";

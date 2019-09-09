@@ -313,6 +313,12 @@ public class ShellyApiJson {
         public Boolean ison; // Whether output channel is on or off
     }
 
+    public static class ShellyShortStatusDimmer {
+        public Boolean ison; // Whether output channel is on or off
+        public String mode;
+        public Integer brightness;
+    }
+
     public static class ShellyStatusRelay {
         public ShellySettingsWiFiNetwork wifi_sta; // WiFi status
         public ShellyStatusCloud cloud; // Cloud status
@@ -340,7 +346,7 @@ public class ShellyApiJson {
         public String time; // current time
         public Integer serial;
         public String mac; // MAC
-        public ArrayList<ShellySettingsDimmer> lights; // relay status
+        public ArrayList<ShellyShortStatusDimmer> lights; // relay status
         public ArrayList<ShellySettingsMeter> meters; // current meter value
         public ShellyStatusSensor._tmp tmp;
         public String error;

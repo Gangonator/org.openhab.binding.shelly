@@ -18,6 +18,7 @@ import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
@@ -104,16 +105,19 @@ public class ShellyUpdater {
             int i = 0;
 
             ShellyStatusDimmer dstatus = th.api.getDimmerStatus(i);
-            if (dstatus != null) {
-                if (dstatus.tmp != null) {
-                    th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(dstatus.tmp.tC));
-                }
-                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_ERROR, getStringType(dstatus.error));
-                for (ShellySettingsDimmer dimmer : dstatus.lights) {
+            if (dstatus.tmp != null) {
+                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(dstatus.tmp.tC));
+            }
+            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_ERROR, getStringType(dstatus.error));
+
+            if (dstatus.lights != null) {
+                for (ShellyShortStatusDimmer dimmer : dstatus.lights) {
                     Integer r = i + 1;
-                    String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL
-                            : CHANNEL_GROUP_RELAY_CONTROL + r.toString();
-                    th.updateChannel(groupName, CHANNEL_RELAY_OUTPUT, getOnOff(dimmer.ison));
+                    String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_DIMMER_CONTROL
+                            : CHANNEL_GROUP_DIMMER_CONTROL + r.toString();
+                    th.updateChannel(groupName, CHANNEL_DIMMER_OUTPUT, getOnOff(dimmer.ison));
+                    th.updateChannel(groupName, CHANNEL_DIMMER_BRIGHTNESS,
+                            new PercentType(getInteger(dimmer.brightness)));
 
                     ShellySettingsDimmer dsettings = profile.settings.dimmers.get(i);
                     if (dsettings != null) {

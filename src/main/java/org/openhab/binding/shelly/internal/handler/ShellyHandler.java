@@ -441,6 +441,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
                 // map status to channels
                 ShellyUpdater.updateRelays(this, profile, status);
+                ShellyUpdater.updateDimmers(this, profile, status);
                 ShellyUpdater.updateMeters(this, profile, status);
                 ShellyUpdater.updateLed(this, profile, status);
                 ShellyUpdater.updateSensors(this, profile, status);
