@@ -192,7 +192,7 @@
         <description>Shelly Dimmer</description>
         <channel-groups>
             <channel-group id="relay" typeId="dimmerChannel">
-                <label>Relay</label>
+                <label>Dimmer</label>
             </channel-group>
             <channel-group id="status" typeId="dimmerStatus">
                 <label>Status</label>
@@ -222,7 +222,7 @@
        <label>Dimmer channel</label>
        <description>A Shelly dimmer channel</description>
         <channels>
-            <channel id="output" typeId="output" />
+            <channel id="output" typeId="dimmerOutput" />
             <channel id="brightness" typeId="dimmerBrightness" />
             <channel id="autoOn" typeId="timerAutoOn" />
             <channel id="autoOff" typeId="timerAutoOff" />
@@ -371,6 +371,11 @@
         </state>
     </channel-type>
 
+    <channel-type id="dimmerOutput">
+        <item-type>Switch</item-type>
+        <label>Light</label>
+        <description>Turn light ON or OFF</description>
+    </channel-type>
     <channel-type id="dimmerTemperature">
         <item-type>Number</item-type>
         <label>Temperature</label>
@@ -382,7 +387,7 @@
         <item-type>Dimmer</item-type>
         <label>Brightness</label>
         <description>Light brightness in %</description>
-        <state min="0" max="100" step="1" pattern="%.1f%%" readOnly="false"></state>
+        <state min="0" max="100" step="1" pattern="%.0f%%" readOnly="false"></state>
     </channel-type>
    <channel-type id="dimmerError">
         <item-type>String</item-type>
