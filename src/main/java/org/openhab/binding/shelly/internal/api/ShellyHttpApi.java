@@ -80,6 +80,7 @@ public class ShellyHttpApi {
 
     public static final String SHELLY_URL_SETTINGSSENSOR_SETURL = SHELLY_URL_SETTINGS + "?{0}={1}";
     public static final String SHELLY_URL_SETTINGS_LIGHT        = "/settings/light";
+    public static final String SHELLY_URL_STATUS_LIGHT          = "/status/light";
     public static final String SHELLY_URL_CONTROL_LIGHT         = "/light";
 
     public static final String SHELLY_CALLBACK_URI              = "/shelly/event";
@@ -338,7 +339,7 @@ public class ShellyHttpApi {
     }
 
     public ShellyStatusDimmer getDimmerStatus(Integer index) throws IOException {
-        String result = request(SHELLY_URL_STATUS_RELEAY + "/" + index.toString());
+        String result = request(SHELLY_URL_STATUS_LIGHT + "/" + index.toString());
         return gson.fromJson(result, ShellyStatusDimmer.class);
     }
 

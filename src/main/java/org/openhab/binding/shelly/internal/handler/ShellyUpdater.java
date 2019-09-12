@@ -141,7 +141,7 @@ public class ShellyUpdater {
 
         if (profile.hasMeter && ((status.meters != null) || (status.emeters != null))) {
             if (!profile.isRoller) {
-                th.logger.trace("{}: Updating {} {}meters", th.thingName, !profile.isEMeter ? "standard" : "e-",
+                th.logger.trace("{}: Updating {} {}meter(s)", th.thingName, !profile.isEMeter ? "standard " : "e-",
                         profile.numMeters);
 
                 // In Relay mode we map eacher meter to the matching channel group
