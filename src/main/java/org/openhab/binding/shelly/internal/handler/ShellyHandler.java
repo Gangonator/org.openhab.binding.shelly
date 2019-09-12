@@ -206,11 +206,9 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 tmpPrf.fwDate, tmpPrf.fwId);
         logger.debug("Shelly settings info for {} : {}", thingName, tmpPrf.settingsJson);
         logger.debug(
-                "Device {}: has relays: {} (numRelays={}), is roller: {} (numRoller={}), is Plug S: {}, is Dimmer: {}, has LEDs: {}, is Light: {}, has Meter: {} ( numMeter={}, EMeter: {}), is Sensor: {}, has is Sense: {}, has Battery: {}",
+                "Device {}: has relays: {} (numRelays={}), is roller: {} (numRoller={}), is Plug S: {}, is Dimmer: {}, has LEDs: {}, is Light: {}, has Meter: {} (numMeter={}, EMeter: {}), is Sensor: {}, is Sense: {}, has Battery: {}",
                 tmpPrf.hostname, tmpPrf.hasRelays, tmpPrf.numRelays, tmpPrf.isRoller, tmpPrf.numRollers, tmpPrf.isPlugS,
-                tmpPrf.isDimmer,
-                tmpPrf.hasLed,
-                tmpPrf.isLight, tmpPrf.hasMeter, tmpPrf.numMeters, tmpPrf.isEMeter, tmpPrf.isSensor, tmpPrf.isSense,
+                tmpPrf.isDimmer, tmpPrf.hasLed, tmpPrf.isLight, tmpPrf.hasMeter, tmpPrf.numMeters, tmpPrf.isEMeter, tmpPrf.isSensor, tmpPrf.isSense,
                 tmpPrf.hasBattery);
 
         // update thing properties
@@ -539,7 +537,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 channel = profile.numRelays == 1 ? CHANNEL_GROUP_RELAY_CONTROL
                         : CHANNEL_GROUP_RELAY_CONTROL + rindex.toString();
             }
-            if (type.equals(EVENT_TYPE_ROLLER) && profile.hasRelays) {
+            if (type.equals(EVENT_TYPE_ROLLER) && profile.isRoller) {
                 channel = profile.numRollers == 1 ? CHANNEL_GROUP_ROL_CONTROL
                         : CHANNEL_GROUP_ROL_CONTROL + rindex.toString();
             }

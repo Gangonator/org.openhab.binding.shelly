@@ -379,7 +379,7 @@
         </state>
     </channel-type>
     <channel-type id="dimmerBrightness">
-        <item-type>Number</item-type>
+        <item-type>Dimmer</item-type>
         <label>Brightness</label>
         <description>Light brightness in %</description>
         <state readOnly="true" pattern="%.1f%%" >

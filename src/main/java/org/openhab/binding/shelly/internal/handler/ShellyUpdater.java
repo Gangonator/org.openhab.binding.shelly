@@ -38,7 +38,7 @@ public class ShellyUpdater {
      */
     public static void updateRelays(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
             throws IOException {
-        if (profile.hasRelays && !profile.isRoller) {
+        if (profile.hasRelays && !profile.isRoller && !profile.isDimmer) {
             th.logger.trace("{}: Updating {} relay(s)", th.thingName, profile.numRelays);
             int i = 0;
             ShellyStatusRelay rstatus = th.api.getRelayStatus(i);
