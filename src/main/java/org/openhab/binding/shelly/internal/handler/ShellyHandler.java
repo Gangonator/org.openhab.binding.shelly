@@ -59,30 +59,30 @@ import org.slf4j.LoggerFactory;
  * @author Markus Michels - Completely refactored
  */
 public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListener {
-    public final Logger logger = LoggerFactory.getLogger(ShellyHandler.class);
+    public final Logger                   logger           = LoggerFactory.getLogger(ShellyHandler.class);
 
     protected final NetworkAddressService networkAddressService;
-    protected final ShellyHandlerFactory handlerFactory;
-    protected ShellyThingConfiguration config;
-    protected ShellyHttpApi api;
-    private ShellyCoapListener coap;
-    protected ShellyDeviceProfile profile;
+    protected final ShellyHandlerFactory  handlerFactory;
+    protected ShellyThingConfiguration    config;
+    protected ShellyHttpApi               api;
+    private ShellyCoapListener            coap;
+    protected ShellyDeviceProfile         profile;
 
-    private ScheduledFuture<?> statusJob = null;;
-    private int skipUpdate = 0;
-    public int scheduledUpdates = 0;
-    private int skipCount = UPDATE_SKIP_COUNT;
-    private int refreshCount = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL; // force settings refresh every x
-                                                                                  // seconds
-    private final int cacheCount = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL; // delay before enabling channel
-                                                                                      // cache
-    private boolean refreshSettings = false;
-    private boolean channelCache = false;
-    protected boolean lockUpdates = false;
+    private ScheduledFuture<?>            statusJob        = null;;
+    private int                           skipUpdate       = 0;
+    public int                            scheduledUpdates = 0;
+    private int                           skipCount        = UPDATE_SKIP_COUNT;
+    private int                           refreshCount     = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL; // force settings refresh every x
+                                                                                                                // seconds
+    private final int                     cacheCount       = UPDATE_SETTINGS_INTERVAL / UPDATE_STATUS_INTERVAL; // delay before enabling channel
+                                                                                                                // cache
+    private boolean                       refreshSettings  = false;
+    private boolean                       channelCache     = false;
+    protected boolean                     lockUpdates      = false;
 
-    public String thingName = "";
-    private Map<String, Object> channelData = new HashMap<>();
-    protected ShellyBindingConfiguration bindingConfig = new ShellyBindingConfiguration();
+    public String                         thingName        = "";
+    private Map<String, Object>           channelData      = new HashMap<>();
+    protected ShellyBindingConfiguration  bindingConfig    = new ShellyBindingConfiguration();
 
     /**
      *
@@ -287,107 +287,120 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
 
             lockUpdates = true;
             switch (channelUID.getIdWithoutGroup()) {
-            default:
-                logger.trace("Unknown command {} for device {}", channelUID.getAsString(), thingName);
-                return;
-            case CHANNEL_RELAY_OUTPUT:
-                if (!profile.isRoller) {
-                    // extract relay number of group name (relay0->0, relay1->1...)
-                    api.setRelayTurn(rIndex, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
-                } else {
-                    logger.info("{} is in roller mode, channel command {} ignored", thingName, channelUID.toString());
-                }
-                break;
-            case CHANNEL_ROL_CONTROL_POS:
-            case CHANNEL_ROL_CONTROL_CONTROL:
-                logger.info("{}: Roller command/position {}", thingName, command.toString());
-                boolean isControl = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL);
-                Integer position = -1;
-
-                if ((command instanceof UpDownType) || (command instanceof OnOffType)) {
-                    ShellyControlRoller rstatus = api.getRollerStatus(rIndex);
-                    if (!getString(rstatus.state).isEmpty()
-                            && !getString(rstatus.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) {
-                        logger.info("{}: Roller is already moving, ignore command {}", thingName, command.toString());
-                        requestUpdates(1, false);
-                        break;
+                default:
+                    logger.trace("Unknown command {} for device {}", channelUID.getAsString(), thingName);
+                    return;
+                case CHANNEL_RELAY_OUTPUT:
+                    if (!profile.isRoller) {
+                        // extract relay number of group name (relay0->0, relay1->1...)
+                        api.setRelayTurn(rIndex, (OnOffType) command == OnOffType.ON ? SHELLY_API_ON : SHELLY_API_OFF);
+                    } else {
+                        logger.info("{} is in roller mode, channel command {} ignored", thingName, channelUID.toString());
                     }
-                    if (((command instanceof UpDownType) && UpDownType.UP.equals(command))
-                            || ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
-                        logger.info("{}: Open roller", thingName);
-                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
-                        position = SHELLY_MAX_ROLLER_POS;
-
-                    }
-                    if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command))
-                            || ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
-                        logger.info("{}: Closing roller", thingName);
-                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
-                        position = SHELLY_MIN_ROLLER_POS;
-                    }
-                } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
-                    logger.info("{}: Stop roller", thingName);
-                    api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
-                } else {
-
-                    logger.info("{}: Set roller to position {} (channel {}", thingName, command.toString(),
-                            channelUID.getIdWithoutGroup());
+                    break;
+                case CHANNEL_DIMMER_BRIGHTNESS:
+                    Integer value = -1;
                     if (command instanceof PercentType) {
-                        PercentType p = (PercentType) command;
-                        position = p.intValue();
+                        value = ((PercentType) command).intValue();
                     } else if (command instanceof DecimalType) {
-                        DecimalType d = (DecimalType) command;
-                        position = d.intValue();
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Invalid value type for roller control/posiution" + command.getClass().toString());
+                        value = ((DecimalType) command).intValue();
+                    } else if (command instanceof OnOffType) {
+                        value = ((OnOffType) command) == OnOffType.ON ? 100 : 0;
                     }
+                    validateRange("brightness", value, 0, 100);
+                    api.setDimmerBrightness(rIndex, value);
+                    break;
 
-                    // take position from RollerShutter control and map to Shelly positon (OH:
-                    // 0=closed, 100=open; Shelly 0=open, 100=closed)
-                    // take position 1:1 from position channel
-                    position = isControl ? SHELLY_MAX_ROLLER_POS - position : position;
-                    validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
-                    logger.info("{}: Changing roller position to {}", thingName, position);
-                    api.setRollerPos(rIndex, position);
-                }
-                if (position != -1) {
-                    // make sure both are in sync
-                    if (!isControl) {
-                        updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
-                                new PercentType(SHELLY_MAX_ROLLER_POS - position));
+                case CHANNEL_ROL_CONTROL_POS:
+                case CHANNEL_ROL_CONTROL_CONTROL:
+                    logger.info("{}: Roller command/position {}", thingName, command.toString());
+                    boolean isControl = channelUID.getIdWithoutGroup().equals(CHANNEL_ROL_CONTROL_CONTROL);
+                    Integer position = -1;
+
+                    if ((command instanceof UpDownType) || (command instanceof OnOffType)) {
+                        ShellyControlRoller rstatus = api.getRollerStatus(rIndex);
+                        if (!getString(rstatus.state).isEmpty()
+                                && !getString(rstatus.state).equals(SHELLY_ALWD_ROLLER_TURN_STOP)) {
+                            logger.info("{}: Roller is already moving, ignore command {}", thingName, command.toString());
+                            requestUpdates(1, false);
+                            break;
+                        }
+                        if (((command instanceof UpDownType) && UpDownType.UP.equals(command))
+                                || ((command instanceof OnOffType) && OnOffType.ON.equals(command))) {
+                            logger.info("{}: Open roller", thingName);
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_OPEN);
+                            position = SHELLY_MAX_ROLLER_POS;
+
+                        }
+                        if (((command instanceof UpDownType) && UpDownType.DOWN.equals(command))
+                                || ((command instanceof OnOffType) && OnOffType.OFF.equals(command))) {
+                            logger.info("{}: Closing roller", thingName);
+                            api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_CLOSE);
+                            position = SHELLY_MIN_ROLLER_POS;
+                        }
+                    } else if ((command instanceof StopMoveType) && StopMoveType.STOP.equals(command)) {
+                        logger.info("{}: Stop roller", thingName);
+                        api.setRollerTurn(rIndex, SHELLY_ALWD_ROLLER_TURN_STOP);
                     } else {
-                        updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(position));
+
+                        logger.info("{}: Set roller to position {} (channel {}", thingName, command.toString(),
+                                channelUID.getIdWithoutGroup());
+                        if (command instanceof PercentType) {
+                            PercentType p = (PercentType) command;
+                            position = p.intValue();
+                        } else if (command instanceof DecimalType) {
+                            DecimalType d = (DecimalType) command;
+                            position = d.intValue();
+                        } else {
+                            throw new IllegalArgumentException(
+                                    "Invalid value type for roller control/posiution" + command.getClass().toString());
+                        }
+
+                        // take position from RollerShutter control and map to Shelly positon (OH:
+                        // 0=closed, 100=open; Shelly 0=open, 100=closed)
+                        // take position 1:1 from position channel
+                        position = isControl ? SHELLY_MAX_ROLLER_POS - position : position;
+                        validateRange("roller position", position, SHELLY_MIN_ROLLER_POS, SHELLY_MAX_ROLLER_POS);
+                        logger.info("{}: Changing roller position to {}", thingName, position);
+                        api.setRollerPos(rIndex, position);
                     }
-                }
-                // request updates the next 30sec to update roller position after it stopped
-                requestUpdates(45 / UPDATE_STATUS_INTERVAL, false);
-                break;
-            case CHANNEL_TIMER_AUTOON:
-                logger.info("{}: Set Auto-ON timer to {}", thingName, command.toString());
-                Validate.isTrue(command instanceof DecimalType,
-                        "Timer AutoOn: Invalid value type: " + command.getClass());
-                api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
-                break;
-            case CHANNEL_TIMER_AUTOOFF:
-                logger.info("{}: Set Auto-OFF timer to {}", thingName, command.toString());
-                Validate.isTrue(command instanceof DecimalType, "Invalid value type");
-                api.setTimer(rIndex, SHELLY_TIMER_AUTOOFF, ((DecimalType) command).doubleValue());
-                break;
-            case CHANNEL_LED_STATUS_DISABLE:
-                logger.info("{}: Set STATUS LED disabled to {}", thingName, command.toString());
-                Validate.isTrue(command instanceof OnOffType, "Invalid value type");
-                api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
-                break;
-            case CHANNEL_LED_POWER_DISABLE:
-                logger.info("{}: Set POWER LED disabled to {}", thingName, command.toString());
-                Validate.isTrue(command instanceof OnOffType, "Invalid value type");
-                api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
-                break;
-            case CHANNEL_SENSE_KEY:
-                logger.info("{}: Send key {}", thingName, command.toString());
-                api.sendIRKey(command.toString());
-                break;
+                    if (position != -1) {
+                        // make sure both are in sync
+                        if (!isControl) {
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_CONTROL,
+                                    new PercentType(SHELLY_MAX_ROLLER_POS - position));
+                        } else {
+                            updateChannel(groupName, CHANNEL_ROL_CONTROL_POS, new PercentType(position));
+                        }
+                    }
+                    // request updates the next 30sec to update roller position after it stopped
+                    requestUpdates(45 / UPDATE_STATUS_INTERVAL, false);
+                    break;
+                case CHANNEL_TIMER_AUTOON:
+                    logger.info("{}: Set Auto-ON timer to {}", thingName, command.toString());
+                    Validate.isTrue(command instanceof DecimalType,
+                            "Timer AutoOn: Invalid value type: " + command.getClass());
+                    api.setTimer(rIndex, SHELLY_TIMER_AUTOON, ((DecimalType) command).doubleValue());
+                    break;
+                case CHANNEL_TIMER_AUTOOFF:
+                    logger.info("{}: Set Auto-OFF timer to {}", thingName, command.toString());
+                    Validate.isTrue(command instanceof DecimalType, "Invalid value type");
+                    api.setTimer(rIndex, SHELLY_TIMER_AUTOOFF, ((DecimalType) command).doubleValue());
+                    break;
+                case CHANNEL_LED_STATUS_DISABLE:
+                    logger.info("{}: Set STATUS LED disabled to {}", thingName, command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value type");
+                    api.setLedStatus(SHELLY_LED_STATUS_DISABLE, (OnOffType) command == OnOffType.ON);
+                    break;
+                case CHANNEL_LED_POWER_DISABLE:
+                    logger.info("{}: Set POWER LED disabled to {}", thingName, command.toString());
+                    Validate.isTrue(command instanceof OnOffType, "Invalid value type");
+                    api.setLedStatus(SHELLY_LED_POWER_DISABLE, (OnOffType) command == OnOffType.ON);
+                    break;
+                case CHANNEL_SENSE_KEY:
+                    logger.info("{}: Send key {}", thingName, command.toString());
+                    api.sendIRKey(command.toString());
+                    break;
             }
 
             requestUpdates(1, true); // request an update and force a refresh of the settings

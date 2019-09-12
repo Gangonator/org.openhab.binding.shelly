@@ -100,7 +100,7 @@ public class ShellyUpdater {
      */
     public static void updateDimmers(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
             throws IOException {
-        if (profile.hasRelays && !profile.isDimmer) {
+        if (profile.isDimmer) {
             th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, profile.numRelays);
             int i = 0;
 
