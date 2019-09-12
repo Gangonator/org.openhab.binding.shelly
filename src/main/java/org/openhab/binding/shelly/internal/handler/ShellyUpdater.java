@@ -113,7 +113,7 @@ public class ShellyUpdater {
             if (dstatus.lights != null) {
                 for (ShellyShortStatusDimmer dimmer : dstatus.lights) {
                     Integer r = i + 1;
-                    String groupName = profile.numRelays == 1 ? CHANNEL_GROUP_DIMMER_CONTROL
+                    String groupName = profile.numRelays <= 1 ? CHANNEL_GROUP_DIMMER_CONTROL
                             : CHANNEL_GROUP_DIMMER_CONTROL + r.toString();
                     th.updateChannel(groupName, CHANNEL_DIMMER_OUTPUT, getOnOff(dimmer.ison));
                     th.updateChannel(groupName, CHANNEL_DIMMER_BRIGHTNESS,
