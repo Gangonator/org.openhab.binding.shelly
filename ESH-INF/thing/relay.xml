@@ -382,8 +382,7 @@
         <item-type>Dimmer</item-type>
         <label>Brightness</label>
         <description>Light brightness in %</description>
-        <state readOnly="true" pattern="%.1f%%" >
-        </state>
+        <state min="0" max="100" step="1" pattern="%.1f%%" readOnly="false"></state>
     </channel-type>
    <channel-type id="dimmerError">
         <item-type>String</item-type>
