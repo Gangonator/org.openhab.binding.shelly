@@ -1,7 +1,7 @@
 
 Bugs/API inconsistencies
 - Shelly 1: the device doesn't response to http requests when
-  an auto timer for ON/OFF is configured
+  an auto timer for ON/OFF is configured,
   the action urls are set and
   the relay output is set to IN ON via the API
   then the device stops responding to http requests for 5-15s
@@ -11,30 +11,24 @@ Bugs/API inconsistencies
 - Shelly1: After updating to FW 20190711-084053/v1.5.0-hotfix4@3b4f7414
   the API returns "update":{"status":"unknown","has_update":false,"new_version":"","old_version":"20190711-084053/v1.5.0-hotfix4@3b4f7414"}
   (worked fine with previous fw versions)
-Coap related:
-- Shelly1: Shelly 1 reports type "Switch" + Descr null instead of type "S", description "Relay0"
-- Shelly 1PM reports type "Overtemp", descr "" instead of type="S", descr="Overtemp"
-- Shelly 1PM reports type "W", with empty description, should be "Power"descr "" instead of type="S", descr="Overtemp"
-- Shelly 1PM reports type "Overtemp", descr "" instead of type="S", descr="Overtemp"
-- Shelly 1PM reports type "W" with descr=""    -> add descr Power
- - Shelly1PM reports temp senmsors without desc -> add description
-
+- Shelly1: Coap device description is not filled properly: {"blk":[{"I":0,"D":"Relay0"}] instead of {"blk":[{"I":0,"D":"Relay0"}]
 - ShellyHT: Sends CoIoT status updates with duplicate sertial, but new sensor values
 
 Documentation
+- General: The API type numeric should be more specific: integer or double, this helps to ensure proper parsing (e.g. when using an automated mapping)
 - The Shelly Bulb API is not described clearly and maybe it is inconsistent - e.g. it describes /light whereas the Web UI uses /color and /white
 - The CoIoT documetation should be significantly improved. it was hard to inmplement, e.g.
   it's not mentioned that you need to subscribe to a multicast group to receive the status udates
   the calculation of validity needs to be better explainedc
   the P tag in the device description is not described
   it's not clear that the app does not send the CoIoT specific options
-  sensor types tC and tF are not documented (only T for Temperature)
-  sensor type Overtemp is not documented
+
  
  Feature Requests
   - Event Callback (http+coap) when settings have been modified. This avoid polling to get notified by changes made by another App.
   - total value should be stored in EEPROM + a command to reset it. This gives the user the control when to reset the accumulation and continue after a power outage.
   - Roller: more granular updates on roller position (e.g. every 3s while moving the roller) - http status + coap
+  - The credentials for protected devices should not be returned or at least not in plain format. This creates a security issue when forwarding log files to other people etc.
   
   Review:
   - The usage of non-standard COAP options and codes makes if difficult to implement and could be a blocker when using standard frameworks like Californium. This is a big hurdle to make a quick start.
