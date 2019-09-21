@@ -233,8 +233,10 @@
        <label>Dimmer Status</label>
        <description>Status of the Dimmer</description>
         <channels>
+            <channel id="loaderror" typeId="dimmerLoadError" />
+            <channel id="overload" typeId="dimmerOverload" />
             <channel id="temperature" typeId="dimmerTemperature" />
-            <channel id="error" typeId="dimmerError" />
+            <channel id="overtemperature" typeId="dimmerOverTemp" />
         </channels>
    </channel-group-type>
 
@@ -389,10 +391,24 @@
         <description>Light brightness in %</description>
         <state min="0" max="100" step="1" pattern="%.0f%%" readOnly="false"></state>
     </channel-type>
-   <channel-type id="dimmerError">
-        <item-type>String</item-type>
-        <label>Last Error</label>
-        <description>Error reported by the Dimmer</description>
+   <channel-type id="dimmerLoadError">
+        <item-type>Switch</item-type>
+        <label>Load Error</label>
+        <description>Error reported load error</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+   <channel-type id="dimmerOverLoad">
+        <item-type>Switch</item-type>
+        <label>Overload</label>
+        <description>Error reported overload condition</description>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+   <channel-type id="dimmerOverTemp">
+        <item-type>Switch</item-type>
+        <label>Over temperature</label>
+        <description>Dimmer reported over temperature</description>
         <state readOnly="true">
         </state>
     </channel-type>

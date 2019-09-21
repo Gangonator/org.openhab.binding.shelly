@@ -347,7 +347,10 @@ public class ShellyApiJson {
         public ArrayList<ShellyShortStatusDimmer> lights; // relay status
         public ArrayList<ShellySettingsMeter>     meters; // current meter value
         public ShellyStatusSensor._tmp            tmp;
-        public String                             error;
+
+        public Boolean                            loaderror;
+        public Boolean                            overload;
+        public Boolean                            overtemperature;
 
         public Boolean                            has_update; // If a newer firmware version is available
         public ShellySettingsUpdate               update; // /status/firmware value

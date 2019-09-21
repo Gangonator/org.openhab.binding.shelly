@@ -126,7 +126,9 @@ public class ShellyBindingConstants {
 
     public static final String            CHANNEL_GROUP_DIMMER_STATUS   = "status";
     public static final String            CHANNEL_DIMMER_TEMP           = "temperature";
-    public static final String            CHANNEL_DIMMER_ERROR          = "error";
+    public static final String            CHANNEL_DIMMER_OVERTEMP       = "overtemp";
+    public static final String            CHANNEL_DIMMER_LOAD_ERROR     = "loaderror";
+    public static final String            CHANNEL_DIMMER_OVERLOAD       = "overload";
 
     // Power meter
     public static final String            CHANNEL_GROUP_METER           = "meter";

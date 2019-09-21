@@ -101,31 +101,33 @@ public class ShellyUpdater {
     public static void updateDimmers(ShellyHandler th, ShellyDeviceProfile profile, ShellySettingsStatus status)
             throws IOException {
         if (profile.isDimmer) {
-            th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, profile.numRelays);
             int i = 0;
 
             ShellyStatusDimmer dstatus = th.api.getDimmerStatus(i);
-            if (dstatus.tmp != null) {
+            Validate.notNull(dstatus.lights, "dstatus.lights must not be null!");
+            Validate.notNull(dstatus.tmp, "dstatus.tmp must not be null!");
+            th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, dstatus.lights.size());
+            if (dstatus.tmp.is_valid) {
                 th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(dstatus.tmp.tC));
+                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERTEMP, getOnOff(dstatus.overtemperature));
             }
-            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_ERROR, getStringType(dstatus.error));
+            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_LOAD_ERROR, getOnOff(dstatus.loaderror));
+            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERLOAD, getOnOff(dstatus.overload));
 
-            if (dstatus.lights != null) {
-                for (ShellyShortStatusDimmer dimmer : dstatus.lights) {
-                    Integer r = i + 1;
-                    String groupName = profile.numRelays <= 1 ? CHANNEL_GROUP_DIMMER_CONTROL
-                            : CHANNEL_GROUP_DIMMER_CONTROL + r.toString();
-                    th.updateChannel(groupName, CHANNEL_DIMMER_OUTPUT, getOnOff(dimmer.ison));
-                    th.updateChannel(groupName, CHANNEL_DIMMER_BRIGHTNESS,
-                            new PercentType(getInteger(dimmer.brightness)));
+            for (ShellyShortStatusDimmer dimmer : dstatus.lights) {
+                Integer r = i + 1;
+                String groupName = profile.numRelays <= 1 ? CHANNEL_GROUP_DIMMER_CONTROL
+                        : CHANNEL_GROUP_DIMMER_CONTROL + r.toString();
+                th.updateChannel(groupName, CHANNEL_DIMMER_OUTPUT, getOnOff(dimmer.ison));
+                th.updateChannel(groupName, CHANNEL_DIMMER_BRIGHTNESS,
+                        new PercentType(getInteger(dimmer.brightness)));
 
-                    ShellySettingsDimmer dsettings = profile.settings.dimmers.get(i);
-                    if (dsettings != null) {
-                        th.updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDecimal(dsettings.auto_on));
-                        th.updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDecimal(dsettings.auto_off));
-                    }
-                    i++;
+                ShellySettingsDimmer dsettings = profile.settings.dimmers.get(i);
+                if (dsettings != null) {
+                    th.updateChannel(groupName, CHANNEL_TIMER_AUTOON, getDecimal(dsettings.auto_on));
+                    th.updateChannel(groupName, CHANNEL_TIMER_AUTOOFF, getDecimal(dsettings.auto_off));
                 }
+                i++;
             }
         }
     }
