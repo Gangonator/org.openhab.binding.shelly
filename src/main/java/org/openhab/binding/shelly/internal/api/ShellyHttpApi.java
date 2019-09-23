@@ -282,10 +282,10 @@ public class ShellyHttpApi {
         setSensorEventUrls(deviceName);
     }
 
-    public ShellySettingsStatus gerStatus() throws IOException {
-        String result = request(SHELLY_URL_STATUS);
-        ShellySettingsStatus status = gson.fromJson(result, ShellySettingsStatus.class);
-        status.json = result;
+    public ShellySettingsStatus getStatus() throws IOException {
+        String json = request(SHELLY_URL_STATUS);
+        ShellySettingsStatus status = gson.fromJson(json, ShellySettingsStatus.class);
+        status.json = json;
         return status;
     }
 

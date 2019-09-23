@@ -14,13 +14,12 @@ import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyControlRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsEMeter;
+import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsLight;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsMeter;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsRoller;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellySettingsStatus;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyShortStatusRelay;
-import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusDimmer;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusRelay;
 import org.openhab.binding.shelly.internal.api.ShellyApiJson.ShellyStatusSensor;
 import org.openhab.binding.shelly.internal.api.ShellyHttpApi.ShellyDeviceProfile;
@@ -103,18 +102,17 @@ public class ShellyUpdater {
         if (profile.isDimmer) {
             int i = 0;
 
-            ShellyStatusDimmer dstatus = th.api.getDimmerStatus(i);
-            Validate.notNull(dstatus.lights, "dstatus.lights must not be null!");
-            Validate.notNull(dstatus.tmp, "dstatus.tmp must not be null!");
-            th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, dstatus.lights.size());
-            if (dstatus.tmp.is_valid) {
-                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(dstatus.tmp.tC));
-                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERTEMP, getOnOff(dstatus.overtemperature));
+            Validate.notNull(status.lights, "status.lights must not be null!");
+            Validate.notNull(status.tmp, "status.tmp must not be null!");
+            th.logger.trace("{}: Updating {} dimmers(s)", th.thingName, status.lights.size());
+            if (status.tmp.is_valid) {
+                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_TEMP, getDecimal(status.tmp.tC));
+                th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERTEMP, getOnOff(status.overtemperature));
             }
-            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_LOAD_ERROR, getOnOff(dstatus.loaderror));
-            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERLOAD, getOnOff(dstatus.overload));
+            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_LOAD_ERROR, getOnOff(status.loaderror));
+            th.updateChannel(CHANNEL_GROUP_DIMMER_STATUS, CHANNEL_DIMMER_OVERLOAD, getOnOff(status.overload));
 
-            for (ShellyShortStatusDimmer dimmer : dstatus.lights) {
+            for (ShellySettingsLight dimmer : status.lights) {
                 Integer r = i + 1;
                 String groupName = profile.numRelays <= 1 ? CHANNEL_GROUP_DIMMER_CONTROL
                         : CHANNEL_GROUP_DIMMER_CONTROL + r.toString();

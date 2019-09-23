@@ -277,11 +277,16 @@ public class ShellyApiJson {
         public Boolean                         has_update;
         public String                          mac;
         public ArrayList<ShellySettingsRelay>  relays;
-        public ArrayList<ShellySettingsDimmer> dimmers;
         public ArrayList<ShellySettingsRoller> rollers;
         public ArrayList<ShellySettingsLight>  lights;
         public ArrayList<ShellySettingsMeter>  meters;
         public ArrayList<ShellySettingsEMeter> emeters;
+
+        // Shelly Dimmer only
+        public ShellyStatusSensor._tmp         tmp;
+        public Boolean                         loaderror;
+        public Boolean                         overload;
+        public Boolean                         overtemperature;
 
         public ShellySettingsUpdate            update;
         public Long                            ram_total;
@@ -454,6 +459,10 @@ public class ShellyApiJson {
         public Double  auto_off; // see above
 
         public Integer dcpower; // RGW2:Set to true for 24 V power supply, false for 12 V
+
+        // Shelly Dimmer
+        public String  mode;
+        public Boolean ison;
     }
 
     public static final int SHELLY_MIN_EFFECT = 0;

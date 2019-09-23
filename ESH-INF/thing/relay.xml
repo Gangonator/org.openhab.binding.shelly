@@ -398,7 +398,7 @@
         <state readOnly="true">
         </state>
     </channel-type>
-   <channel-type id="dimmerOverLoad">
+   <channel-type id="dimmerOverload">
         <item-type>Switch</item-type>
         <label>Overload</label>
         <description>Error reported overload condition</description>

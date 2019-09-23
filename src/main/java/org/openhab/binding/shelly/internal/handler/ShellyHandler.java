@@ -212,7 +212,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 tmpPrf.hasBattery);
 
         // update thing properties
-        ShellySettingsStatus status = api.gerStatus();
+        ShellySettingsStatus status = api.getStatus();
         updateProperties(tmpPrf, status);
         if (tmpPrf.fwVersion.compareTo(SHELLY_API_MIN_FWVERSION) < 0) {
             logger.warn(
@@ -446,9 +446,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 profile = getProfile(refreshSettings);
 
                 logger.trace("{}: Updating status", thingName);
-                ShellySettingsStatus status;
-                status = api.gerStatus();
-                logger.debug("{}: Status info: {}", thingName, status.json);
+                ShellySettingsStatus status = api.getStatus();
 
                 // map status to channels
                 ShellyUpdater.updateRelays(this, profile, status);
