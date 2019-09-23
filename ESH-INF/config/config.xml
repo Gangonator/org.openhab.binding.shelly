@@ -41,6 +41,12 @@
                 <advanced>true</advanced>
                 <default>false</default>
             </parameter>
+            <parameter name="channelCache" type="boolean" required="false">
+                <label>Enable Channel Cache</label>
+                <description>If disabled the binding does not update update for channel values. This is for testing only, because it could cause side effects.</description>
+                <advanced>true</advanced>
+                <default>true</default>
+            </parameter>
             <parameter name="updateInterval" type="integer" required="true">
                 <label>Update Interval</label>
                 <description>Interval in seconds to query an update from the device.</description>

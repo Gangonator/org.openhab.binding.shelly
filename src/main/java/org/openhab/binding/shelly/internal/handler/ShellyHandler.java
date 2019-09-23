@@ -163,7 +163,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
             config.updateInterval = UPDATE_STATUS_INTERVAL * UPDATE_SKIP_COUNT;
         }
         if (config.updateInterval < UPDATE_MIN_DELAY) {
-            config.updateInterval = UPDATE_MIN_DELAY / UPDATE_STATUS_INTERVAL;
+            config.updateInterval = UPDATE_MIN_DELAY;
         }
         skipCount = config.updateInterval / UPDATE_STATUS_INTERVAL;
     }
@@ -490,7 +490,7 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 --scheduledUpdates;
                 logger.debug("{}: {} more updates requested", thingName, scheduledUpdates);
             }
-            if (!channelCache && (skipUpdate >= cacheCount)) {
+            if (bindingConfig.enableChannelCache && (skipUpdate >= cacheCount) && !channelCache) {
                 logger.debug("{}: Enabling channel cache ({} updates / {}s)", thingName, skipUpdate,
                         cacheCount * UPDATE_STATUS_INTERVAL);
                 channelCache = true;

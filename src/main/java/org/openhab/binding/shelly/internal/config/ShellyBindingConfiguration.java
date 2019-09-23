@@ -28,11 +28,14 @@ public class ShellyBindingConfiguration {
     public static final String CONFIG_DEF_HTTP_USER = "defaultUserId";
     public static final String CONFIG_DEF_HTTP_PWD  = "defaultPassword";
     public static final String CONFIG_COAP_PORT     = "coapPort";
+    public static final String CONFIG_CHANNEL_CACHE = "channelCache";
 
     public String              defaultUserId        = "";      // default for http basic user id
     public String              defaultPassword      = "";      // default for http basic auth password
 
     public int                 coapPort             = 5684;   // default Coap port
+
+    public Boolean             enableChannelCache   = true; // false disables the channel cache (testing only!)
 
     public void updateFromProperties(Map<String, Object> properties) {
         Validate.notNull(properties);
@@ -47,9 +50,10 @@ public class ShellyBindingConfiguration {
         defaultUserId = getProperty(properties, CONFIG_DEF_HTTP_USER);
         defaultPassword = getProperty(properties, CONFIG_DEF_HTTP_PWD);
         String value = getProperty(properties, CONFIG_COAP_PORT);
-        if (!value.isEmpty()) {
+        if ((value != null) && !value.isEmpty()) {
             coapPort = Integer.parseInt(value);
         }
+        enableChannelCache = Boolean.valueOf(getProperty(properties, CONFIG_CHANNEL_CACHE));
     }
 
     private String getProperty(Dictionary<String, Object> properties, String key) {
