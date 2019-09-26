@@ -448,6 +448,12 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 logger.trace("{}: Updating status", thingName);
                 ShellySettingsStatus status = api.getStatus();
 
+                // If status update was successful the thing must be online
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
+                    logger.info("Thing {} ({}) is now online", getThing().getLabel(), thingName);
+                    updateStatus(ThingStatus.ONLINE); // if API call was successful the thing must be online
+                }
+
                 // map status to channels
                 ShellyUpdater.updateRelays(this, profile, status);
                 ShellyUpdater.updateDimmers(this, profile, status);
@@ -459,12 +465,8 @@ public class ShellyHandler extends BaseThingHandler implements ShellyDeviceListe
                 updateThingStatus();
 
                 // update some properties
+                if (scheduledUpdates <= 1) {
                 updateProperties(profile, status);
-
-                // If status update was successful the thing must be online
-                if (getThing().getStatus() != ThingStatus.ONLINE) {
-                    logger.info("Thing {} ({}) is now online", getThing().getLabel(), thingName);
-                    updateStatus(ThingStatus.ONLINE); // if API call was successful the thing must be online
                 }
             } else {
                 // logger.trace("Update skipped {}/{}", (skipUpdate - 1) % skipCount,
